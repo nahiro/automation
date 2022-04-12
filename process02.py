@@ -32,60 +32,79 @@ input_types['trg_binning'] = 'box'
 
 entry_width = 160
 
+child_win = None
+
+def ask_folder(pnam,dnam=os.getcwd()):
+    path = tkfilebrowser.askopendirname(initialdir=dnam)
+    if len(path) > 0:
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
+
+def ask_folders(pnam,dnam=os.getcwd()):
+    dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
+    if len(dirs) > 0:
+        path = ';'.join(dirs)
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
+
 def set(parent):
-    global child02_win
-    global child02_var
-    global child02_label
-    global child02_input
-    global child02_err
+    global child_win
+    global child_var
+    global child_label
+    global child_input
+    global child_err
 
-    child02_win = tk.Toplevel(parent)
-    child02_win.title('Geometric Correction')
-    child02_win.geometry('400x240')
-    child02_frm = ttk.Frame(child02_win)
-    child02_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)
+    if child_win is not None and child_win.winfo_exists():
+        return
+    child_win = tk.Toplevel(parent)
+    child_win.title('Geometric Correction')
+    child_win.geometry('400x240')
+    child_frm = ttk.Frame(child_win)
+    child_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)
 
-    child02_var = {}
+    child_var = {}
     for pnam in pnams:
         if param_types[pnam] == 'string':
-            child02_var[pnam] = tk.StringVar()
+            child_var[pnam] = tk.StringVar()
         elif param_types[pnam] == 'int':
-            child02_var[pnam] = tk.IntVar()
+            child_var[pnam] = tk.IntVar()
         elif param_types[pnam] == 'double':
-            child02_var[pnam] = tk.DoubleVar()
+            child_var[pnam] = tk.DoubleVar()
         elif param_types[pnam] == 'boolean':
-            child02_var[pnam] = tk.BooleanVar()
+            child_var[pnam] = tk.BooleanVar()
         else:
             raise ValueError('Error, unsupported parameter type >>> '.format(param_types[pnam]))
-        child02_var[pnam].set(defaults[pnam])
+        child_var[pnam].set(defaults[pnam])
 
     x0 = 30
     y0 = 15
     dy = 25
     y = y0
-    child02_label = {}
+    child_label = {}
     for pnam in pnams:
-        child02_label[pnam] = ttk.Label(child02_win,text=params[pnam])
-        child02_label[pnam].place(x=x0,y=y); y += dy
+        child_label[pnam] = ttk.Label(child_win,text=params[pnam])
+        child_label[pnam].place(x=x0,y=y); y += dy
 
     x0 = 160
     y0 = 15
     dy = 25
     y = y0
-    child02_input = {}
+    child_input = {}
     for pnam in pnams:
         if input_types[pnam] == 'box':
-            child02_input[pnam] = ttk.Entry(child02_win,textvariable=child02_var[pnam])
-            child02_input[pnam].place(x=x0,y=y,width=entry_width); y += dy
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width); y += dy
         else:
             raise ValueError('Error, unsupported input type >>> '.format(input_types[pnam]))
 
-    child02_err = {}
+    child_err = {}
     for pnam in pnams:
-        child02_err[pnam] = ttk.Label(child02_win,text='ERROR',foreground='red')
+        child_err[pnam] = ttk.Label(child_win,text='ERROR',foreground='red')
 
-    child02_btn02 = ttk.Button(child02_win,text='Set',command=modify)
-    child02_btn02.place(x=60,y=y)
+    child_btn02 = ttk.Button(child_win,text='Set',command=modify)
+    child_btn02.place(x=60,y=y)
 
     return
 
@@ -94,7 +113,7 @@ def check():
     errors = {}
     pnam = 'ref_fnam'
     try:
-        t = child02_input[pnam].get()
+        t = child_input[pnam].get()
         if not os.path.exists(t):
             raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
         values[pnam] = t
@@ -105,7 +124,7 @@ def check():
         errors[pnam] = True
     pnam = 'trg_fnam'
     try:
-        t = child02_input[pnam].get()
+        t = child_input[pnam].get()
         if not os.path.exists(t):
             raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
         values[pnam] = t
@@ -116,7 +135,7 @@ def check():
         errors[pnam] = True
     pnam = 'ref_pixel'
     try:
-        t = child02_input[pnam].get()
+        t = child_input[pnam].get()
         v = float(t)
         if v < 0.01 or v > 50.0:
             raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
@@ -128,7 +147,7 @@ def check():
         errors[pnam] = True
     pnam = 'trg_binning'
     try:
-        t = child02_input[pnam].get()
+        t = child_input[pnam].get()
         n = int(t)
         if n < 1 or n > 64:
             raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
@@ -144,9 +163,9 @@ def check():
     y = y0
     for pnam in pnams:
         if errors[pnam]:
-            child02_err[pnam].place(x=x0,y=y); y += dy
+            child_err[pnam].place(x=x0,y=y); y += dy
         else:
-            child02_err[pnam].place_forget(); y += dy
+            child_err[pnam].place_forget(); y += dy
     return values,errors
 
 def modify():
@@ -158,7 +177,7 @@ def modify():
         if error:
             err = True
     if not err:
-        child02_win.destroy()
+        child_win.destroy()
     return
 
 def run():
