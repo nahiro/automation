@@ -54,12 +54,15 @@ def run_all():
 def set_child(pnam):
     modules[pnam].set(main_win,main_frm)
 
-def check_child():
+def check_child(pnam):
     x0 = 220
     y0 = 15
     dy = 25
     y = y0
-    for pnam in pnams:
+    for p in pnams:
+        if p != pnam:
+            y += dy
+            continue
         check_values,check_errors = modules[pnam].check(source='value')
         err = False
         for error in check_errors.values():
@@ -95,8 +98,17 @@ dy = 25
 y = y0
 main_chk = {}
 for pnam in pnams:
-    main_chk[pnam] = tkinter.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam])
+    main_chk[pnam] = tkinter.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
     main_chk[pnam].place(x=x0,y=y); y += dy
+
+x0 = 10
+y0 = 15
+dy = 25
+y = y0
+main_hid = {}
+for pnam in pnams:
+    main_hid[pnam] = ttk.Button(main_frm,text='check_{}'.format(pnam),command=eval('lambda:check_child("{}")'.format(pnam)))
+    main_hid[pnam].place(x=x0,y=y,width=10,height=10); y += dy
 
 x1 = 180
 y = y0
@@ -124,10 +136,8 @@ for pnam in pnams:
         main_err[pnam].place_forget(); y += dy
 main_btn01 = ttk.Button(main_frm,text='Run',command=run_all)
 main_btn02 = ttk.Button(main_frm,text='Exit',command=exit)
-main_btn03 = ttk.Button(main_frm,text='C',command=check_child)
 main_btn01.place(x=60,y=y)
 main_btn02.place(x=150,y=y)
-main_btn03.place(x=10,y=10,width=10,height=10)
 
 main_win.columnconfigure(0,weight=1)
 main_win.rowconfigure(0,weight=1)

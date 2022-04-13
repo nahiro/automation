@@ -191,7 +191,7 @@ def modify():
             values[pnam] = value
     if not err:
         for x in main_frm.winfo_children():
-            if x['text'] == 'C':
+            if x['text'] == 'check_orthomosaic':
                 x.invoke()
         child_win.destroy()
     return
