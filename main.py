@@ -1,13 +1,13 @@
 import sys
 import tkinter
 from tkinter import ttk
-import process01
-import process02
-import process03
-import process04
-import process05
-import process06
-import process07
+import proc_orthomosaic
+import proc_geocor
+import proc_indices
+import proc_points
+import proc_formula
+import proc_apply
+import proc_output
 
 pnams = []
 pnams.append('orthomosaic')
@@ -34,13 +34,13 @@ defaults['formula'] = False
 defaults['apply'] = True
 defaults['output'] = True
 modules = {}
-modules['orthomosaic'] = process01
-modules['geocor'] = process02
-modules['indices'] = process03
-modules['points'] = process04
-modules['formula'] = process05
-modules['apply'] = process06
-modules['output'] = process07
+modules['orthomosaic'] = proc_orthomosaic
+modules['geocor'] = proc_geocor
+modules['indices'] = proc_indices
+modules['points'] = proc_points
+modules['formula'] = proc_formula
+modules['apply'] = proc_apply
+modules['output'] = proc_output
 
 button_width = 40
 button_height = 21
@@ -81,14 +81,8 @@ for pnam in pnams:
 x1 = 180
 y = y0
 main_btn = {}
-main_btn['orthomosaic'] = ttk.Button(main_frm,text='Set',command=lambda:process01.set(main_win))
-main_btn['geocor'] = ttk.Button(main_frm,text='Set',command=lambda:process02.set(main_win))
-main_btn['indices'] = ttk.Button(main_frm,text='Set',command=lambda:process03.set(main_win))
-main_btn['points'] = ttk.Button(main_frm,text='Set',command=lambda:process04.set(main_win))
-main_btn['formula'] = ttk.Button(main_frm,text='Set',command=lambda:process05.set(main_win))
-main_btn['apply'] = ttk.Button(main_frm,text='Set',command=lambda:process06.set(main_win))
-main_btn['output'] = ttk.Button(main_frm,text='Set',command=lambda:process07.set(main_win))
 for pnam in pnams:
+    main_btn[pnam] = ttk.Button(main_frm,text='Set',command=eval('lambda:proc_{}.set(main_win)'.format(pnam)))
     main_btn[pnam].place(x=x1,y=y,width=button_width,height=button_height); y += dy
 y += dy*0.2
 
