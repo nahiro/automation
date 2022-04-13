@@ -27,17 +27,19 @@ input_types['outdir'] = 'askfolder'
 entry_width = 160
 button_width = 20
 button_height = 21
+inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
+browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 
 child_win = None
 
-def ask_folder(pnam,dnam=os.getcwd()):
+def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
     if len(path) > 0:
         child_var[pnam].set(path)
         defaults[pnam] = path
     return
 
-def ask_folders(pnam,dnam=os.getcwd()):
+def ask_folders(pnam,dnam=inidir):
     dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
     if len(dirs) > 0:
         path = ';'.join(dirs)
@@ -60,7 +62,7 @@ def set(parent):
     child_win.geometry('400x240')
     child_frm = ttk.Frame(child_win)
     child_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)
-    browse_img = tk.PhotoImage(file='browse.png')
+    browse_img = tk.PhotoImage(file=browse_image)
 
     child_var = {}
     for pnam in pnams:

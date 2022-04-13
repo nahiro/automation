@@ -34,17 +34,19 @@ input_types['ref_pixel'] = 'box'
 input_types['trg_binning'] = 'box'
 
 entry_width = 160
+inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
+browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 
 child_win = None
 
-def ask_folder(pnam,dnam=os.getcwd()):
+def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
     if len(path) > 0:
         child_var[pnam].set(path)
         defaults[pnam] = path
     return
 
-def ask_folders(pnam,dnam=os.getcwd()):
+def ask_folders(pnam,dnam=inidir):
     dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
     if len(dirs) > 0:
         path = ';'.join(dirs)
