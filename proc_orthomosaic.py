@@ -98,19 +98,13 @@ def set(parent):
         elif input_types[pnam] == 'askfolder':
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            if pnam == 'outdir':
-                child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
-            else:
-                raise ValueError('Error, pnam={}, input_types={}'.format(pnam,input_types[pnam]))
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
             child_browse[pnam].image = browse_img
             child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
         elif input_types[pnam] == 'askfolders':
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            if pnam == 'inpdirs':
-                child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=lambda:ask_folders('inpdirs'))
-            else:
-                raise ValueError('Error, pnam={}, input_types={}'.format(pnam,input_types[pnam]))
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
             child_browse[pnam].image = browse_img
             child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
         else:
