@@ -4,7 +4,8 @@ from tkinter import ttk
 import proc_orthomosaic
 import proc_geocor
 import proc_indices
-import proc_points
+import proc_identify
+import proc_extract
 import proc_formula
 import proc_apply
 import proc_output
@@ -13,7 +14,8 @@ pnams = []
 pnams.append('orthomosaic')
 pnams.append('geocor')
 pnams.append('indices')
-pnams.append('points')
+pnams.append('identify')
+pnams.append('extract')
 pnams.append('formula')
 pnams.append('apply')
 pnams.append('output')
@@ -21,7 +23,8 @@ procs = {}
 procs['orthomosaic'] = 'Make Orthomosaic'
 procs['geocor'] = 'Geometric Correction'
 procs['indices'] = 'Calculate Indices'
-procs['points'] = 'Extract Points'
+procs['identify'] = 'Identify Points'
+procs['extract'] = 'Extract Indices'
 procs['formula'] = 'Make Formula'
 procs['apply'] = 'Apply Formula'
 procs['output'] = 'Output Results'
@@ -29,7 +32,8 @@ defaults = {}
 defaults['orthomosaic'] = True
 defaults['geocor'] = True
 defaults['indices'] = True
-defaults['points'] = False
+defaults['identify'] = False
+defaults['extract'] = False
 defaults['formula'] = False
 defaults['apply'] = True
 defaults['output'] = True
@@ -37,7 +41,8 @@ modules = {}
 modules['orthomosaic'] = proc_orthomosaic
 modules['geocor'] = proc_geocor
 modules['indices'] = proc_indices
-modules['points'] = proc_points
+modules['identify'] = proc_identify
+modules['extract'] = proc_extract
 modules['formula'] = proc_formula
 modules['apply'] = proc_apply
 modules['output'] = proc_output
@@ -80,7 +85,7 @@ def exit():
 
 main_win = tkinter.Tk()
 main_win.title('BLB Damage Estimation')
-main_win.geometry('300x240')
+main_win.geometry('300x{}'.format(60+25*len(pnams)))
 main_frm = ttk.Frame(main_win)
 main_frm.grid(column=0,row=0,sticky=tkinter.NSEW,padx=5,pady=10)
 
