@@ -68,13 +68,16 @@ def check_child(pnam):
         if p != pnam:
             y += dy
             continue
-        check_values,check_errors = modules[pnam].check(source='value')
-        err = False
-        for error in check_errors.values():
-            if error:
-                err = True
-        if err and main_var[pnam].get():
-            main_err[pnam].place(x=x0,y=y); y += dy
+        if main_var[pnam].get():
+            check_values,check_errors = modules[pnam].check(source='value')
+            err = False
+            for error in check_errors.values():
+                if error:
+                    err = True
+            if err:
+                main_err[pnam].place(x=x0,y=y); y += dy
+            else:
+                main_err[pnam].place_forget(); y += dy
         else:
             main_err[pnam].place_forget(); y += dy
     return
