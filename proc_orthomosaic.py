@@ -31,6 +31,8 @@ inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
 browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 
 child_win = None
+main_win = None
+main_frm = None
 
 def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
@@ -47,7 +49,9 @@ def ask_folders(pnam,dnam=inidir):
         defaults[pnam] = path
     return
 
-def set(parent):
+def set(parent,frame):
+    global main_win
+    global main_frm
     global child_win
     global child_var
     global child_label
@@ -57,6 +61,8 @@ def set(parent):
 
     if child_win is not None and child_win.winfo_exists():
         return
+    main_win = parent
+    main_frm = frame
     child_win = tk.Toplevel(parent)
     child_win.title('Make Orthomosaic')
     child_win.geometry('400x240')
@@ -184,6 +190,9 @@ def modify():
         else:
             values[pnam] = value
     if not err:
+        for x in main_frm.winfo_children():
+            if x['text'] == 'C':
+                x.invoke()
         child_win.destroy()
     return
 

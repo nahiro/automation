@@ -51,6 +51,26 @@ def run_all():
             modules[pnam].run()
     return
 
+def set_child(pnam):
+    modules[pnam].set(main_win,main_frm)
+
+def check_child():
+    x0 = 220
+    y0 = 15
+    dy = 25
+    y = y0
+    for pnam in pnams:
+        check_values,check_errors = modules[pnam].check(source='value')
+        err = False
+        for error in check_errors.values():
+            if error:
+                err = True
+        if err and main_var[pnam].get():
+            main_err[pnam].place(x=x0,y=y); y += dy
+        else:
+            main_err[pnam].place_forget(); y += dy
+    return
+
 def exit():
     sys.exit()
     return
@@ -82,7 +102,7 @@ x1 = 180
 y = y0
 main_btn = {}
 for pnam in pnams:
-    main_btn[pnam] = ttk.Button(main_frm,text='Set',command=eval('lambda:proc_{}.set(main_win)'.format(pnam)))
+    main_btn[pnam] = ttk.Button(main_frm,text='Set',command=eval('lambda:set_child("{}")'.format(pnam)))
     main_btn[pnam].place(x=x1,y=y,width=button_width,height=button_height); y += dy
 y += dy*0.2
 
@@ -104,8 +124,10 @@ for pnam in pnams:
         main_err[pnam].place_forget(); y += dy
 main_btn01 = ttk.Button(main_frm,text='Run',command=run_all)
 main_btn02 = ttk.Button(main_frm,text='Exit',command=exit)
+main_btn03 = ttk.Button(main_frm,text='C',command=check_child)
 main_btn01.place(x=60,y=y)
 main_btn02.place(x=150,y=y)
+main_btn03.place(x=10,y=10,width=10,height=10)
 
 main_win.columnconfigure(0,weight=1)
 main_win.rowconfigure(0,weight=1)
