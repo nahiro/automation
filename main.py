@@ -101,21 +101,19 @@ for pnam in pnams:
     main_chk[pnam] = tkinter.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
     main_chk[pnam].place(x=x0,y=y); y += dy
 
-x0 = 10
-y0 = 15
-dy = 25
-y = y0
 main_hid = {}
 for pnam in pnams:
     main_hid[pnam] = ttk.Button(main_frm,text='check_{}'.format(pnam),command=eval('lambda:check_child("{}")'.format(pnam)))
-    main_hid[pnam].place(x=x0,y=y,width=10,height=10); y += dy
+    main_hid[pnam].place_forget() # hidden
 
-x1 = 180
+x0 = 180
+y0 = 15
+dy = 25
 y = y0
 main_btn = {}
 for pnam in pnams:
     main_btn[pnam] = ttk.Button(main_frm,text='Set',command=eval('lambda:set_child("{}")'.format(pnam)))
-    main_btn[pnam].place(x=x1,y=y,width=button_width,height=button_height); y += dy
+    main_btn[pnam].place(x=x0,y=y,width=button_width,height=button_height); y += dy
 y += dy*0.2
 
 x0 = 220
