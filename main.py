@@ -99,10 +99,9 @@ y = y0
 main_err = {}
 for pnam in pnams:
     main_err[pnam] = ttk.Label(main_frm,text='ERROR',foreground='red')
-    #values,errors = modules[pnam].check()
-    values,errors = ({1:True},{1:True})
+    check_values,check_errors = modules[pnam].check(source='value')
     err = False
-    for error in errors.values():
+    for error in check_errors.values():
         if error:
             err = True
     if err and main_var[pnam].get():

@@ -17,6 +17,9 @@ param_types['outdir'] = 'string'
 defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
+values = {}
+for pnam in pnams:
+    values[pnam] = defaults[pnam]
 input_types = {}
 input_types['inpdirs'] = 'askfolders'
 input_types['outdir'] = 'askfolder'
@@ -96,7 +99,7 @@ def set(parent):
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
             if pnam == 'outdir':
-                child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=lambda:ask_folder('outdir'))
+                child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
             else:
                 raise ValueError('Error, pnam={}, input_types={}'.format(pnam,input_types[pnam]))
             child_browse[pnam].image = browse_img
@@ -122,53 +125,68 @@ def set(parent):
 
     return
 
-def check():
-    values = {}
-    errors = {}
+def get_input(pnam):
+    return child_input[pnam].get()
+
+def get_value(pnam):
+    return values[pnam]
+
+def check(source='input'):
+    if source == 'input':
+        get = get_input
+    elif source == 'value':
+        get = get_value
+    else:
+        raise ValueError('Error, source={}'.format(source))
+    check_values = {}
+    check_errors = {}
     pnam = 'inpdirs'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         for item in t.split(';'):
             if not os.path.isdir(item):
                 raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],item))
-        values[pnam] = t
-        errors[pnam] = False
+        check_values[pnam] = t
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
+        check_values[pnam] = None
+        check_errors[pnam] = True
     pnam = 'outdir'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         if not os.path.exists(t):
             os.makedirs(t)
         if not os.path.isdir(t):
             raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],t))
-        values[pnam] = t
-        errors[pnam] = False
+        check_values[pnam] = t
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
-    x0 = 320
-    y0 = 15
-    dy = 25
-    y = y0
-    for pnam in pnams:
-        if errors[pnam]:
-            child_err[pnam].place(x=x0,y=y); y += dy
-        else:
-            child_err[pnam].place_forget(); y += dy
-    return values,errors
+        check_values[pnam] = None
+        check_errors[pnam] = True
+    if source == 'input':
+        x0 = 320
+        y0 = 15
+        dy = 25
+        y = y0
+        for pnam in pnams:
+            if check_errors[pnam]:
+                child_err[pnam].place(x=x0,y=y); y += dy
+            else:
+                child_err[pnam].place_forget(); y += dy
+    return check_values,check_errors
 
 def modify():
-    values,errors = check()
+    check_values,check_errors = check(source='input')
     err = False
     for pnam in pnams:
-        value = values[pnam]
-        error = errors[pnam]
+        value = check_values[pnam]
+        error = check_errors[pnam]
         if error:
             err = True
+        else:
+            values[pnam] = value
     if not err:
         child_win.destroy()
     return

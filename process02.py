@@ -24,6 +24,9 @@ defaults['trg_fnam'] = 'test.tif'
 defaults['ref_pixel'] = 0.2
 defaults['trg_binning'] = 8
 defaults['boundary_width'] = 0.6
+values = {}
+for pnam in pnams:
+    values[pnam] = defaults[pnam]
 input_types = {}
 input_types['ref_fnam'] = 'box'
 input_types['trg_fnam'] = 'box'
@@ -108,74 +111,89 @@ def set(parent):
 
     return
 
-def check():
-    values = {}
-    errors = {}
+def get_input(pnam):
+    return child_input[pnam].get()
+
+def get_value(pnam):
+    return values[pnam]
+
+def check(source='input'):
+    if source == 'input':
+        get = get_input
+    elif source == 'value':
+        get = get_value
+    else:
+        raise ValueError('Error, source={}'.format(source))
+    check_values = {}
+    check_errors = {}
     pnam = 'ref_fnam'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         if not os.path.exists(t):
             raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
-        values[pnam] = t
-        errors[pnam] = False
+        check_values[pnam] = t
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
+        check_values[pnam] = None
+        check_errors[pnam] = True
     pnam = 'trg_fnam'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         if not os.path.exists(t):
             raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
-        values[pnam] = t
-        errors[pnam] = False
+        check_values[pnam] = t
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
+        check_values[pnam] = None
+        check_errors[pnam] = True
     pnam = 'ref_pixel'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         v = float(t)
         if v < 0.01 or v > 50.0:
             raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        values[pnam] = v
-        errors[pnam] = False
+        check_values[pnam] = v
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
+        check_values[pnam] = None
+        check_errors[pnam] = True
     pnam = 'trg_binning'
     try:
-        t = child_input[pnam].get()
+        t = get(pnam)
         n = int(t)
         if n < 1 or n > 64:
             raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        values[pnam] = n
-        errors[pnam] = False
+        check_values[pnam] = n
+        check_errors[pnam] = False
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
-        values[pnam] = None
-        errors[pnam] = True
-    x0 = 320
-    y0 = 15
-    dy = 25
-    y = y0
-    for pnam in pnams:
-        if errors[pnam]:
-            child_err[pnam].place(x=x0,y=y); y += dy
-        else:
-            child_err[pnam].place_forget(); y += dy
-    return values,errors
+        check_values[pnam] = None
+        check_errors[pnam] = True
+    if source == 'input':
+        x0 = 320
+        y0 = 15
+        dy = 25
+        y = y0
+        for pnam in pnams:
+            if check_errors[pnam]:
+                child_err[pnam].place(x=x0,y=y); y += dy
+            else:
+                child_err[pnam].place_forget(); y += dy
+    return check_values,check_errors
 
 def modify():
-    values,errors = check()
+    check_values,check_errors = check(source='input')
     err = False
     for pnam in pnams:
-        value = values[pnam]
-        error = errors[pnam]
+        value = check_values[pnam]
+        error = check_errors[pnam]
         if error:
             err = True
+        else:
+            values[pnam] = value
     if not err:
         child_win.destroy()
     return
