@@ -1,7 +1,7 @@
 import sys
-import tkinter
+import tkinter as tk
 from tkinter import ttk
-from tkcalendar import Calendar,DateEntry
+from custom_calendar import CustomDateEntry
 import proc_orthomosaic
 import proc_geocor
 import proc_indices
@@ -55,21 +55,6 @@ entry_width = 90
 button_width = 40
 button_height = 21
 
-class CustomDateEntry(DateEntry):
-    def __init__(self,master,**kw):
-        DateEntry.__init__(self,master=master,**kw)
-        date = self._calendar.selection_get()
-        if date is not None:
-            self._set_text(date.strftime('%Y-%b-%d'))
-    def _select(self,event=None):
-        date = self._calendar.selection_get()
-        if date is not None:
-            self._set_text(date.strftime('%Y-%b-%d'))
-            self.event_generate('<<DateEntrySelected>>')
-        self._top_cal.withdraw()
-        if 'readonly' not in self.state():
-            self.focus_set()
-
 def set_title():
     return
 
@@ -109,11 +94,11 @@ def exit():
     sys.exit()
     return
 
-main_win = tkinter.Tk()
+main_win = tk.Tk()
 main_win.title('BLB Damage Estimation')
 main_win.geometry('{}x{}'.format(290+40,100+25*len(pnams)))
 main_frm = ttk.Frame(main_win)
-main_frm.grid(column=0,row=0,sticky=tkinter.NSEW,padx=5,pady=10)
+main_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)
 
 x0 = 30
 y0 = 0
@@ -127,7 +112,7 @@ y += 20
 main_combo01 = ttk.Combobox(main_frm,values=['Cihea-'+block for block in blocks])
 main_combo01.current(0)
 main_combo01.place(x=x0,y=y,width=entry_width)
-main_combo02 = DateEntry(main_frm,date_pattern='yyyy-mmm-dd')
+main_combo02 = CustomDateEntry(main_frm,date_pattern='yyyy-mmm-dd')
 main_combo02.place(x=x0+entry_width+1,y=y,width=entry_width)
 x0 = 180+40
 main_set = ttk.Button(main_frm,text='Set',command=set_title)
@@ -135,7 +120,7 @@ main_set.place(x=x0,y=y,width=button_width,height=button_height)
 
 main_var = {}
 for pnam in pnams:
-    main_var[pnam] = tkinter.BooleanVar()
+    main_var[pnam] = tk.BooleanVar()
     main_var[pnam].set(defaults[pnam])
 
 x0 = 30
@@ -143,7 +128,7 @@ y0 = 45
 y = y0
 main_chk = {}
 for pnam in pnams:
-    main_chk[pnam] = tkinter.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
+    main_chk[pnam] = tk.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
     main_chk[pnam].place(x=x0,y=y); y += dy
 
 main_hid = {}
