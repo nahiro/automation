@@ -1,6 +1,6 @@
 import sys
 
-proc_name = 'formula'
+proc_name = 'extract'
 
 def set(parent):
     return

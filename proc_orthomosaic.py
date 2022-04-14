@@ -5,6 +5,7 @@ from tkinter import ttk
 from tkinter import filedialog
 import tkfilebrowser
 
+proc_name = 'orthomosaic'
 pnams = []
 pnams.append('inpdirs')
 pnams.append('outdir')
@@ -197,4 +198,4 @@ def modify():
     return
 
 def run():
-    sys.stderr.write('Running process 01.\n')
+    sys.stderr.write('Running process {}.\n'.format(proc_name))

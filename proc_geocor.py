@@ -3,6 +3,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 
+proc_name = 'geocor'
 pnams = []
 pnams.append('ref_fnam')
 pnams.append('trg_fnam')
@@ -207,4 +208,4 @@ def modify():
     return
 
 def run():
-    sys.stderr.write('Running process 02.\n')
+    sys.stderr.write('Running process {}.\n'.format(proc_name))
