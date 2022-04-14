@@ -174,3 +174,17 @@ class CustomDateEntry(tkcalendar.DateEntry):
         self._calendar.bind('<<CalendarSelected>>',self._select)
         # hide calendar if it looses focus
         self._calendar.bind('<FocusOut>',self._on_focus_out_cal)
+
+    def _validate_date(self):
+        """Date entry validation: only dates in locale '%x' format are accepted."""
+        try:
+            date = self.parse_date(self.get())
+            self._date = self._calendar.check_date_range(date)
+            if self._date != date:
+                self._set_text(self.format_date(self._date))
+                return False
+            else:
+                return True
+        except (ValueError,IndexError):
+            #self._set_text(self.format_date(self._date))
+            return False
