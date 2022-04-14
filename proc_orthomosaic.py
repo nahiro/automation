@@ -2,7 +2,6 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk
-from tkinter import filedialog
 import tkfilebrowser
 
 proc_name = 'orthomosaic'
@@ -35,6 +34,21 @@ child_win = None
 main_win = None
 main_frm = None
 main_hid = None
+
+def ask_file(pnam,dnam=inidir):
+    path = tkfilebrowser.askopenfilename(initialdir=dnam)
+    if len(path) > 0:
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
+
+def ask_files(pnam,dnam=inidir):
+    files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
+    if len(files) > 0:
+        path = ';'.join(files)
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
 
 def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
@@ -109,6 +123,18 @@ def set(parent,frame):
         if input_types[pnam] == 'box':
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width); y += dy
+        elif input_types[pnam] == 'askfile':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_file("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
+        elif input_types[pnam] == 'askfiles':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_files("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
         elif input_types[pnam] == 'askfolder':
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)

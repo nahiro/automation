@@ -2,6 +2,7 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk
+import tkfilebrowser
 
 proc_name = 'geocor'
 pnams = []
@@ -29,18 +30,36 @@ values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
 input_types = {}
-input_types['ref_fnam'] = 'box'
-input_types['trg_fnam'] = 'box'
+input_types['ref_fnam'] = 'askfile'
+input_types['trg_fnam'] = 'askfile'
 input_types['ref_pixel'] = 'box'
 input_types['trg_binning'] = 'box'
 
 entry_width = 160
+button_width = 20
+button_height = 21
 inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
 browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 
 child_win = None
 main_win = None
 main_frm = None
+main_hid = None
+
+def ask_file(pnam,dnam=inidir):
+    path = tkfilebrowser.askopenfilename(initialdir=dnam)
+    if len(path) > 0:
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
+
+def ask_files(pnam,dnam=inidir):
+    files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
+    if len(files) > 0:
+        path = ';'.join(files)
+        child_var[pnam].set(path)
+        defaults[pnam] = path
+    return
 
 def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
@@ -60,21 +79,27 @@ def ask_folders(pnam,dnam=inidir):
 def set(parent,frame):
     global main_win
     global main_frm
+    global main_hid
     global child_win
     global child_var
     global child_label
     global child_input
+    global child_browse
     global child_err
 
     if child_win is not None and child_win.winfo_exists():
         return
     main_win = parent
     main_frm = frame
+    for x in main_frm.winfo_children():
+        if isinstance(x,ttk.Button) and x['text'] == 'check_{}'.format(proc_name):
+            main_hid = x
     child_win = tk.Toplevel(parent)
     child_win.title('Geometric Correction')
     child_win.geometry('400x240')
     child_frm = ttk.Frame(child_win)
     child_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)
+    browse_img = tk.PhotoImage(file=browse_image)
 
     child_var = {}
     for pnam in pnams:
@@ -104,10 +129,35 @@ def set(parent,frame):
     dy = 25
     y = y0
     child_input = {}
+    child_browse = {}
     for pnam in pnams:
         if input_types[pnam] == 'box':
             child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
             child_input[pnam].place(x=x0,y=y,width=entry_width); y += dy
+        elif input_types[pnam] == 'askfile':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_file("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
+        elif input_types[pnam] == 'askfiles':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_files("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
+        elif input_types[pnam] == 'askfolder':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
+        elif input_types[pnam] == 'askfolders':
+            child_input[pnam] = ttk.Entry(child_win,textvariable=child_var[pnam])
+            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
+            child_browse[pnam] = tk.Button(child_win,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
+            child_browse[pnam].image = browse_img
+            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
         else:
             raise ValueError('Error, unsupported input type >>> '.format(input_types[pnam]))
 
@@ -204,6 +254,7 @@ def modify():
         else:
             values[pnam] = value
     if not err:
+        main_hid.invoke()
         child_win.destroy()
     return
 
