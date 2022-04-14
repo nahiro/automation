@@ -5,10 +5,10 @@ try:
 except ImportError:
     import Tkinter as tk
     import ttk
-import tkcalendar
+from tkcalendar import Calendar,DateEntry
 import re
 
-class CustomCalendar(tkcalendar.Calendar):
+class CustomCalendar(Calendar):
     def _get_date_pattern(self,date_pattern,locale=None):
         """
         Return the babel pattern corresponding to date_pattern.
@@ -81,7 +81,7 @@ class CustomCalendar(tkcalendar.Calendar):
         except Exception:
             return self.datetime.today()
 
-class CustomDateEntry(tkcalendar.DateEntry):
+class CustomDateEntry(DateEntry):
     def __init__(self,master=None,**kw):
         """
         Create an entry with a drop-down calendar to select a date.
