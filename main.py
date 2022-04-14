@@ -20,24 +20,6 @@ pnams.append('extract')
 pnams.append('formula')
 pnams.append('apply')
 pnams.append('output')
-procs = {}
-procs['orthomosaic'] = 'Make Orthomosaic'
-procs['geocor'] = 'Geometric Correction'
-procs['indices'] = 'Calculate Indices'
-procs['identify'] = 'Identify Points'
-procs['extract'] = 'Extract Indices'
-procs['formula'] = 'Make Formula'
-procs['apply'] = 'Apply Formula'
-procs['output'] = 'Output Results'
-defaults = {}
-defaults['orthomosaic'] = True
-defaults['geocor'] = True
-defaults['indices'] = True
-defaults['identify'] = False
-defaults['extract'] = False
-defaults['formula'] = False
-defaults['apply'] = True
-defaults['output'] = True
 modules = {}
 modules['orthomosaic'] = proc_orthomosaic
 modules['geocor'] = proc_geocor
@@ -47,6 +29,18 @@ modules['extract'] = proc_extract
 modules['formula'] = proc_formula
 modules['apply'] = proc_apply
 modules['output'] = proc_output
+titles = {}
+for pnam in pnams:
+    titles[pnam] = modules[pnam].proc_title
+defaults = {}
+defaults['orthomosaic'] = True
+defaults['geocor'] = True
+defaults['indices'] = True
+defaults['identify'] = False
+defaults['extract'] = False
+defaults['formula'] = False
+defaults['apply'] = True
+defaults['output'] = True
 
 blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
 '8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
@@ -128,7 +122,7 @@ y0 = 45
 y = y0
 main_chk = {}
 for pnam in pnams:
-    main_chk[pnam] = tk.Checkbutton(main_frm,variable=main_var[pnam],text=procs[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
+    main_chk[pnam] = tk.Checkbutton(main_frm,variable=main_var[pnam],text=titles[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
     main_chk[pnam].place(x=x0,y=y); y += dy
 
 main_hid = {}

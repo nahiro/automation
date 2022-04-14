@@ -1,6 +1,7 @@
 import sys
 
 proc_name = 'extract'
+proc_title = 'Extract Indices'
 
 def set(parent):
     return

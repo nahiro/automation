@@ -1,6 +1,7 @@
 import sys
 
 proc_name = 'identify'
+proc_title = 'Identify Points'
 
 def set(parent):
     return

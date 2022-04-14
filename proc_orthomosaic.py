@@ -5,6 +5,7 @@ from tkinter import ttk
 import tkfilebrowser
 
 proc_name = 'orthomosaic'
+proc_title = 'Make Orthomosaic'
 pnams = []
 pnams.append('inpdirs')
 pnams.append('outdir')
@@ -84,7 +85,7 @@ def set(parent,frame):
         if isinstance(x,ttk.Button) and x['text'] == 'check_{}'.format(proc_name):
             main_hid = x
     child_win = tk.Toplevel(parent)
-    child_win.title('Make Orthomosaic')
+    child_win.title(proc_title)
     child_win.geometry('400x240')
     child_frm = ttk.Frame(child_win)
     child_frm.grid(column=0,row=0,sticky=tk.NSEW,padx=5,pady=10)

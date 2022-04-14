@@ -1,6 +1,7 @@
 import sys
 
 proc_name = 'formula'
+proc_title = 'Make Formula'
 
 def set(parent):
     return

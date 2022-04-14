@@ -1,6 +1,7 @@
 import sys
 
 proc_name = 'output'
+proc_title = 'Output Results'
 
 def set(parent):
     return
