@@ -58,8 +58,8 @@ values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
 input_types = {}
-input_types['inpdirs'] = 'askfolders'
-input_types['outdir'] = 'askfolder'
+input_types['inpdirs'] = 'ask_folders'
+input_types['outdir'] = 'ask_folder'
 input_types['test1'] = 'box'
 input_types['test2'] = 'box'
 input_types['test3'] = 'box'
@@ -70,157 +70,92 @@ input_types['test7'] = 'box'
 input_types['test8'] = 'box'
 input_types['test9'] = 'box'
 
-entry_width = 160
-button_width = 20
-button_height = 21
+top_frame_height = 5
+left_frame_width = 130
+right_frame_width = 70
+middle_left_frame_width = 400
+left_cnv_height = 25
+center_cnv_height = 25
+right_cnv_height = 25
+center_btn_width = 20
 inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
+if not os.path.isdir(inidir):
+    inidir = os.path.join(os.environ.get('USERPROFILE'),'Documents')
 browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
-
-child_win = None
-child_cnv = None
-main_win = None
-main_hid = None
+root = None
+chk_btn = None
+middle_left_frame = None
+center_var = None
+center_cnv = None
+center_inp = None
+right_lbl = None
 
 def ask_file(pnam,dnam=inidir):
     path = tkfilebrowser.askopenfilename(initialdir=dnam)
     if len(path) > 0:
-        child_var[pnam].set(path)
-        defaults[pnam] = path
+        center_var[pnam].set(path)
     return
 
 def ask_files(pnam,dnam=inidir):
     files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
     if len(files) > 0:
         path = ';'.join(files)
-        child_var[pnam].set(path)
-        defaults[pnam] = path
+        center_var[pnam].set(path)
     return
 
 def ask_folder(pnam,dnam=inidir):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
     if len(path) > 0:
-        child_var[pnam].set(path)
-        defaults[pnam] = path
+        center_var[pnam].set(path)
     return
 
 def ask_folders(pnam,dnam=inidir):
     dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
     if len(dirs) > 0:
         path = ';'.join(dirs)
-        child_var[pnam].set(path)
-        defaults[pnam] = path
+        center_var[pnam].set(path)
     return
 
 def on_mousewheel(event):
-    child_cnv.yview_scroll(-1*(event.delta//20),'units')
+    middle_left_canvas.yview_scroll(-1*(event.delta//20),'units')
 
-def set(parent):
-    global main_win
-    global main_hid
-    global child_win
-    global child_cnv
-    global child_var
-    global child_label
-    global child_input
-    global child_browse
-    global child_err
-
-    if child_win is not None and child_win.winfo_exists():
-        return
-    main_win = parent
-    for x in main_win.winfo_children():
-        if isinstance(x,ttk.Button) and x['text'] == 'check_{}'.format(proc_name):
-            main_hid = x
-    child_win = tk.Toplevel(parent)
-    child_win.title(proc_title)
-    child_win.geometry('400x240')
-    child_cnv = tk.Canvas(child_win,scrollregion=(0,0,400,1000))
-    child_cnv.bind_all('<MouseWheel>',on_mousewheel)
-    child_cnv.place(x=0,y=0,width=380,height=200)
-    child_frm = tk.Frame(child_cnv)
-    child_cnv.create_window((0,0),window=child_frm,anchor=tk.NW,width=380,height=1000)
-    child_scr = tk.Scrollbar(child_win,orient=tk.VERTICAL,command=child_cnv.yview)
-    child_scr.place(x=380,y=0,width=20,height=200)
-    child_cnv.config(yscrollcommand=child_scr.set)
-    child_bar = tk.Frame(child_win)
-    child_bar.place(x=0,y=200,width=400,height=40)
-    browse_img = tk.PhotoImage(file=browse_image)
-
-    child_var = {}
+def on_frame_configure(event):
+    root_width = root.winfo_width()
+    center_frame_width = root_width-(left_frame_width+right_frame_width)
+    middle_left_frame.config(width=root_width)
     for pnam in pnams:
-        if param_types[pnam] == 'string':
-            child_var[pnam] = tk.StringVar()
-        elif param_types[pnam] == 'int':
-            child_var[pnam] = tk.IntVar()
-        elif param_types[pnam] == 'double':
-            child_var[pnam] = tk.DoubleVar()
-        elif param_types[pnam] == 'boolean':
-            child_var[pnam] = tk.BooleanVar()
+        center_cnv[pnam].config(width=center_frame_width)
+    return
+
+def reset():
+    return
+
+def exit():
+    root.destroy()
+    return
+
+def run():
+    sys.stderr.write('Running process {}.\n'.format(proc_name))
+    return
+
+def modify():
+    global values
+    check_values,check_errors = check(source='input')
+    err = False
+    for pnam in pnams:
+        value = check_values[pnam]
+        error = check_errors[pnam]
+        if error:
+            err = True
         else:
-            raise ValueError('Error, unsupported parameter type >>> '.format(param_types[pnam]))
-        child_var[pnam].set(defaults[pnam])
-
-    x0 = 30
-    y0 = 15
-    dy = 25
-    y = y0
-    child_label = {}
-    for pnam in pnams:
-        child_label[pnam] = ttk.Label(child_frm,text=params[pnam])
-        child_label[pnam].place(x=x0,y=y); y += dy
-
-    x0 = 160
-    y0 = 15
-    dy = 25
-    y = y0
-    child_input = {}
-    child_browse = {}
-    for pnam in pnams:
-        if input_types[pnam] == 'box':
-            child_input[pnam] = ttk.Entry(child_frm,textvariable=child_var[pnam])
-            child_input[pnam].place(x=x0,y=y,width=entry_width); y += dy
-        elif input_types[pnam] == 'askfile':
-            child_input[pnam] = ttk.Entry(child_frm,textvariable=child_var[pnam])
-            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            child_browse[pnam] = tk.Button(child_frm,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_file("{}")'.format(pnam)))
-            child_browse[pnam].image = browse_img
-            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
-        elif input_types[pnam] == 'askfiles':
-            child_input[pnam] = ttk.Entry(child_frm,textvariable=child_var[pnam])
-            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            child_browse[pnam] = tk.Button(child_frm,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_files("{}")'.format(pnam)))
-            child_browse[pnam].image = browse_img
-            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
-        elif input_types[pnam] == 'askfolder':
-            child_input[pnam] = ttk.Entry(child_frm,textvariable=child_var[pnam])
-            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            child_browse[pnam] = tk.Button(child_frm,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
-            child_browse[pnam].image = browse_img
-            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
-        elif input_types[pnam] == 'askfolders':
-            child_input[pnam] = ttk.Entry(child_frm,textvariable=child_var[pnam])
-            child_input[pnam].place(x=x0,y=y,width=entry_width-button_width-1)
-            child_browse[pnam] = tk.Button(child_frm,image=browse_img,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
-            child_browse[pnam].image = browse_img
-            child_browse[pnam].place(x=x0+entry_width-button_width,y=y,width=button_width,height=button_height); y += dy
-        else:
-            raise ValueError('Error, unsupported input type >>> '.format(input_types[pnam]))
-
-    child_err = {}
-    for pnam in pnams:
-        child_err[pnam] = ttk.Label(child_frm,text='ERROR',foreground='red')
-
-    child_btn01 = ttk.Button(child_bar,text='Set',command=modify)
-    child_btn01.place(x=30,y=5,width=100)
-    child_btn02 = ttk.Button(child_bar,text='Reset',command=reset)
-    child_btn02.place(x=140,y=5,width=100)
-    child_btn03 = ttk.Button(child_bar,text='Cancel',command=exit)
-    child_btn03.place(x=250,y=5,width=100)
-
+            values[pnam] = value
+    if not err:
+        chk_btn.invoke()
+        root.destroy()
     return
 
 def get_input(pnam):
-    return child_input[pnam].get()
+    return center_inp[pnam].get()
 
 def get_value(pnam):
     return values[pnam]
@@ -275,39 +210,149 @@ def check(source='input'):
             check_values[pnam] = None
             check_errors[pnam] = True
     if source == 'input':
-        x0 = 320
-        y0 = 15
-        dy = 25
-        y = y0
         for pnam in pnams:
             if check_errors[pnam]:
-                child_err[pnam].place(x=x0,y=y); y += dy
+                right_lbl[pnam].pack(side=tk.LEFT)
             else:
-                child_err[pnam].place_forget(); y += dy
+                right_lbl[pnam].pack_forget()
     return check_values,check_errors
 
-def modify():
-    check_values,check_errors = check(source='input')
-    err = False
-    for pnam in pnams:
-        value = check_values[pnam]
-        error = check_errors[pnam]
-        if error:
-            err = True
+def set(parent):
+    global root
+    global chk_btn
+    global middle_left_frame
+    global center_var
+    global center_cnv
+    global center_inp
+    global right_lbl
+
+    if root is not None and root.winfo_exists():
+        return
+    for x in parent.winfo_children():
+        if isinstance(x,ttk.Button) and x['text'] == 'check_{}'.format(proc_name):
+            chk_btn = x
+    root = tk.Toplevel(parent)
+    root.title(proc_title)
+    root.geometry('400x200')
+    top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
+    middle_frame = tk.Frame(root,width=10,height=20,background=None)
+    bottom_frame = tk.Frame(root,width=10,height=40,background=None)
+    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,400,8000),background=None)
+    middle_left_canvas.bind_all('<MouseWheel>',on_mousewheel)
+    middle_right_scr = tk.Scrollbar(middle_frame,orient=tk.VERTICAL,command=middle_left_canvas.yview)
+    top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+    middle_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,expand=True)
+    bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.BOTTOM)
+    middle_left_canvas.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
+    middle_right_scr.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
+    top_frame.pack_propagate(False)
+    middle_frame.pack_propagate(False)
+    bottom_frame.pack_propagate(False)
+    middle_left_canvas.pack_propagate(False)
+
+    middle_left_frame = tk.Frame(middle_left_canvas,background=None)
+    middle_left_canvas.create_window(0,0,window=middle_left_frame,anchor=tk.NW)
+    middle_left_canvas.config(yscrollcommand=middle_right_scr.set)
+
+    left_frame = tk.Frame(middle_left_frame,width=left_frame_width,height=10,background=None)
+    left_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
+    center_frame = tk.Frame(middle_left_frame,width=30,height=10,background=None)
+    center_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
+    right_frame = tk.Frame(middle_left_frame,width=right_frame_width,height=10,background=None)
+    right_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.RIGHT)
+    middle_left_frame.pack_propagate(False)
+    left_frame.pack_propagate(False)
+    right_frame.pack_propagate(False)
+    middle_left_frame.config(width=middle_left_frame_width,height=8000)
+
+    bottom_lbl = {}
+    bottom_btn = {}
+    pnam = 'left'
+    bottom_lbl[pnam] = tk.Label(bottom_frame,text='')
+    bottom_lbl[pnam].pack(fill=tk.X,side=tk.LEFT,expand=True)
+    pnam = 'set'
+    bottom_btn[pnam] = tk.Button(bottom_frame,text=pnam.capitalize(),width=8,command=modify)
+    bottom_btn[pnam].pack(padx=10,side=tk.LEFT)
+    pnam = 'reset'
+    bottom_btn[pnam] = tk.Button(bottom_frame,text=pnam.capitalize(),width=8,command=reset)
+    bottom_btn[pnam].pack(padx=10,side=tk.LEFT)
+    pnam = 'cancel'
+    bottom_btn[pnam] = tk.Button(bottom_frame,text=pnam.capitalize(),width=8,command=exit)
+    bottom_btn[pnam].pack(padx=10,side=tk.LEFT)
+    pnam = 'right'
+    bottom_lbl[pnam] = tk.Label(bottom_frame,text='')
+    bottom_lbl[pnam].pack(fill=tk.X,side=tk.LEFT,expand=True)
+
+    browse_img = tk.PhotoImage(file=browse_image)
+    bgs = [None,None]
+    #bgs = ['#aaaaaa','#cccccc']
+    center_var = {}
+    center_cnv = {}
+    center_inp = {}
+    center_btn = {}
+    center_left_frame = {}
+    center_right_frame = {}
+    left_cnv = {}
+    left_lbl = {}
+    left_sep = {}
+    right_cnv = {}
+    right_lbl = {}
+    center_frame.update()
+    center_frame_width = root.winfo_width()-(left_frame_width+right_frame_width)
+    for i,pnam in enumerate(pnams):
+        if param_types[pnam] == 'string':
+            center_var[pnam] = tk.StringVar()
+        elif param_types[pnam] == 'int':
+            center_var[pnam] = tk.IntVar()
+        elif param_types[pnam] == 'double':
+            center_var[pnam] = tk.DoubleVar()
+        elif param_types[pnam] == 'boolean':
+            center_var[pnam] = tk.BooleanVar()
         else:
-            values[pnam] = value
-    if not err:
-        main_hid.invoke()
-        child_win.destroy()
-    return
-
-def reset():
-    for pnam in pnams:
-        child_var[pnam].set(values[pnam])
-    return
-
-def exit():
-    child_win.destroy()
-
-def run():
-    sys.stderr.write('Running process {}.\n'.format(proc_name))
+            raise ValueError('Error, unsupported parameter type >>> '.format(param_types[pnam]))
+        center_var[pnam].set(values[pnam])
+        center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2])
+        center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
+        center_cnv[pnam].pack_propagate(False)
+        if input_types[pnam] == 'box':
+            center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+        elif input_types[pnam] == 'ask_file':
+            center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+            center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_file("{}")'.format(pnam)))
+            center_btn[pnam].image = browse_img
+            center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif input_types[pnam] == 'ask_files':
+            center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+            center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_files("{}")'.format(pnam)))
+            center_btn[pnam].image = browse_img
+            center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif input_types[pnam] == 'ask_folder':
+            center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+            center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
+            center_btn[pnam].image = browse_img
+            center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif input_types[pnam] == 'ask_folders':
+            center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+            center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
+            center_btn[pnam].image = browse_img
+            center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        else:
+            raise ValueError('Error, unsupported input type >>> '.format(input_types[pnam]))
+        left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2])
+        left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
+        left_lbl[pnam] = ttk.Label(left_cnv[pnam],text=params[pnam])
+        left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
+        left_sep[pnam] = ttk.Separator(left_cnv[pnam],orient='horizontal')
+        left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
+        left_cnv[pnam].pack_propagate(False)
+        right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2])
+        right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2))
+        right_cnv[pnam].pack_propagate(False)
+        right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
+    check(source='input')
+    root.bind('<Configure>',on_frame_configure)
