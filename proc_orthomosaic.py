@@ -45,15 +45,15 @@ param_types['test9'] = 'int'
 defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
-defaults['test1'] = '1'
-defaults['test2'] = '2'
-defaults['test3'] = '3'
-defaults['test4'] = '4'
-defaults['test5'] = '5'
-defaults['test6'] = '6'
-defaults['test7'] = '7'
-defaults['test8'] = '8'
-defaults['test9'] = '9'
+defaults['test1'] = 1
+defaults['test2'] = 2
+defaults['test3'] = 3
+defaults['test4'] = 4
+defaults['test5'] = 5
+defaults['test6'] = 6
+defaults['test7'] = 7
+defaults['test8'] = 8
+defaults['test9'] = 9
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
@@ -130,6 +130,8 @@ def on_frame_configure(event):
     return
 
 def reset():
+    for pnam in pnams:
+        center_var[pnam].set(values[pnam])
     return
 
 def exit():
@@ -142,7 +144,7 @@ def run():
 
 def modify():
     global values
-    check_values,check_errors = check(source='input')
+    check_values,check_errors = check_all(source='input')
     err = False
     for pnam in pnams:
         value = check_values[pnam]
@@ -162,7 +164,185 @@ def get_input(pnam):
 def get_value(pnam):
     return values[pnam]
 
-def check(source='input'):
+def check_inpdirs(t):
+    pnam = 'inpdirs'
+    try:
+        for item in t.split(';'):
+            if not os.path.isdir(item):
+                raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],item))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_outdir(t):
+    pnam = 'outdir'
+    try:
+        if not os.path.exists(t):
+            os.makedirs(t)
+        if not os.path.isdir(t):
+            raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],item))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_int(pnam,t):
+    try:
+        v = int(t)
+        if v < 0 or v > 100:
+            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_test1(t):
+    return check_int('test1',t)
+
+def check_test2(t):
+    return check_int('test2',t)
+
+def check_test3(t):
+    return check_int('test3',t)
+
+def check_test4(t):
+    return check_int('test4',t)
+
+def check_test5(t):
+    return check_int('test5',t)
+
+def check_test6(t):
+    return check_int('test6',t)
+
+def check_test7(t):
+    return check_int('test7',t)
+
+def check_test8(t):
+    return check_int('test8',t)
+
+def check_test9(t):
+    return check_int('test9',t)
+
+#def check_param(pnam,t):
+#    if eval('check_{}(t)'.format(pnam)):
+#        right_lbl[pnam].pack_forget()
+#        return True
+#    else:
+#        right_lbl[pnam].pack(side=tk.LEFT)
+#        return False
+
+def check_err_inpdirs(t):
+    pnam = 'inpdirs'
+    ret = check_inpdirs(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_outdir(t):
+    pnam = 'outdir'
+    ret = check_outdir(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test1(t):
+    pnam = 'test1'
+    ret = check_test1(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test2(t):
+    pnam = 'test2'
+    ret = check_test2(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test3(t):
+    pnam = 'test3'
+    ret = check_test3(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test4(t):
+    pnam = 'test4'
+    ret = check_test4(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test5(t):
+    pnam = 'test5'
+    ret = check_test5(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test6(t):
+    pnam = 'test6'
+    ret = check_test6(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test7(t):
+    pnam = 'test7'
+    ret = check_test7(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test8(t):
+    pnam = 'test8'
+    ret = check_test8(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_err_test9(t):
+    pnam = 'test9'
+    ret = check_test9(t)
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
+def check_all(source='input'):
     if source == 'input':
         get = get_input
     elif source == 'value':
@@ -174,45 +354,23 @@ def check(source='input'):
     for pnam in pnams:
         check_values[pnam] = None
         check_errors[pnam] = True
-    pnam = 'inpdirs'
-    try:
-        t = get(pnam)
-        for item in t.split(';'):
-            if not os.path.isdir(item):
-                raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],item))
-        check_values[pnam] = t
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        check_values[pnam] = None
-        check_errors[pnam] = True
-    pnam = 'outdir'
-    try:
-        t = get(pnam)
-        if not os.path.exists(t):
-            os.makedirs(t)
-        if not os.path.isdir(t):
-            raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],t))
-        check_values[pnam] = t
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        check_values[pnam] = None
-        check_errors[pnam] = True
-    for pnam in pnams[2:]:
+    for pnam in pnams:
         try:
             t = get(pnam)
-            v = int(t)
-            if v < 0 or v > 100:
-                raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-            check_values[pnam] = v
-            check_errors[pnam] = False
+            if eval('check_{}(t)'.format(pnam)):
+                if center_var is None:
+                    check_values[pnam] = values[pnam]
+                else:
+                    check_values[pnam] = center_var[pnam].get()
+                check_errors[pnam] = False
+            else:
+                raise ValueError('ERROR')
         except Exception as e:
             sys.stderr.write(str(e)+'\n')
-            check_values[pnam] = None
-            check_errors[pnam] = True
     if source == 'input':
         for pnam in pnams:
+            if not pnam in check_errors or not pnam in right_lbl:
+                continue
             if check_errors[pnam]:
                 right_lbl[pnam].pack(side=tk.LEFT)
             else:
@@ -312,7 +470,7 @@ def set(parent):
         elif param_types[pnam] == 'boolean':
             center_var[pnam] = tk.BooleanVar()
         else:
-            raise ValueError('Error, unsupported parameter type >>> '.format(param_types[pnam]))
+            raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
         center_var[pnam].set(values[pnam])
         center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2])
         center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
@@ -345,7 +503,7 @@ def set(parent):
             center_btn[pnam].image = browse_img
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
         else:
-            raise ValueError('Error, unsupported input type >>> '.format(input_types[pnam]))
+            raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2])
         left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         left_lbl[pnam] = ttk.Label(left_cnv[pnam],text=params[pnam])
@@ -357,5 +515,9 @@ def set(parent):
         right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2))
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
-    check(source='input')
+    for pnam in pnams:
+        #vcmd = (center_inp[pnam].register(eval('lambda x:check_param({},x)'.format(pnam))),'%P')
+        vcmd = (center_inp[pnam].register(eval('check_err_{}'.format(pnam))),'%P')
+        center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
+    check_all(source='input')
     root.bind('<Configure>',on_frame_configure)

@@ -6,7 +6,7 @@ proc_title = 'Extract Indices'
 def set(parent):
     return
 
-def check(source='input'):
+def check_all(source='input'):
     return {},{}
 
 def run():

@@ -12,7 +12,7 @@ def set(parent,canvas):
     child.geometry('400x200')
     return
 
-def check(source='input'):
+def check_all(source='input'):
     return {},{}
 
 def run():

@@ -70,7 +70,7 @@ def check_child(pnam):
         if p != pnam:
             continue
         if center_var[pnam].get():
-            check_values,check_errors = modules[pnam].check(source='value')
+            check_values,check_errors = modules[pnam].check_all(source='value')
             err = False
             for error in check_errors.values():
                 if error:
