@@ -224,7 +224,11 @@ def check_all(source='input'):
     for pnam in pnams:
         try:
             t = get(pnam)
-            if eval('check_{}(t)'.format(pnam)):
+            if pnam in pnams[2:]:
+                ret = eval('check_int("{}",t)'.format(pnam))
+            else:
+                ret = eval('check_{}(t)'.format(pnam))
+            if ret:
                 if center_var is None:
                     check_values[pnam] = values[pnam]
                 else:
@@ -339,7 +343,7 @@ def set(parent):
         else:
             raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
         center_var[pnam].set(values[pnam])
-        center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2])
+        center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2],highlightthickness=0)
         center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         center_cnv[pnam].pack_propagate(False)
         if input_types[pnam] == 'box':
