@@ -3,6 +3,7 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 import tkfilebrowser
+from subprocess import call
 
 proc_name = 'geocor'
 proc_title = 'Geometric Correction'
@@ -48,6 +49,7 @@ center_btn_width = 20
 inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
 if not os.path.isdir(inidir):
     inidir = os.path.join(os.environ.get('USERPROFILE'),'Documents')
+scrdir = os.path.join(os.environ.get('USERPROFILE'),'Script')
 browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 root = None
 chk_btn = None
@@ -106,6 +108,9 @@ def exit():
 
 def run():
     sys.stderr.write('Running process {}.\n'.format(proc_name))
+    command = 'python'
+    command += ' {}'.format(os.path.join(scrdir,'func.py'))
+    call(command,shell=True)
     return
 
 def modify():
@@ -285,7 +290,6 @@ def set(parent):
 
     browse_img = tk.PhotoImage(file=browse_image)
     bgs = [None,None]
-    #bgs = ['#aaaaaa','#cccccc']
     center_var = {}
     center_cnv = {}
     center_inp = {}
