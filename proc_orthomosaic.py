@@ -197,144 +197,11 @@ def check_int(pnam,t):
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_test1(t):
-    return check_int('test1',t)
-
-def check_test2(t):
-    return check_int('test2',t)
-
-def check_test3(t):
-    return check_int('test3',t)
-
-def check_test4(t):
-    return check_int('test4',t)
-
-def check_test5(t):
-    return check_int('test5',t)
-
-def check_test6(t):
-    return check_int('test6',t)
-
-def check_test7(t):
-    return check_int('test7',t)
-
-def check_test8(t):
-    return check_int('test8',t)
-
-def check_test9(t):
-    return check_int('test9',t)
-
-#def check_param(pnam,t):
-#    if eval('check_{}(t)'.format(pnam)):
-#        right_lbl[pnam].pack_forget()
-#        return True
-#    else:
-#        right_lbl[pnam].pack(side=tk.LEFT)
-#        return False
-
-def check_err_inpdirs(t):
-    pnam = 'inpdirs'
-    ret = check_inpdirs(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_outdir(t):
-    pnam = 'outdir'
-    ret = check_outdir(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test1(t):
-    pnam = 'test1'
-    ret = check_test1(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test2(t):
-    pnam = 'test2'
-    ret = check_test2(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test3(t):
-    pnam = 'test3'
-    ret = check_test3(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test4(t):
-    pnam = 'test4'
-    ret = check_test4(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test5(t):
-    pnam = 'test5'
-    ret = check_test5(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test6(t):
-    pnam = 'test6'
-    ret = check_test6(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test7(t):
-    pnam = 'test7'
-    ret = check_test7(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test8(t):
-    pnam = 'test8'
-    ret = check_test8(t)
-    if right_lbl[pnam] is not None:
-        if ret:
-            right_lbl[pnam].pack_forget()
-        else:
-            right_lbl[pnam].pack(side=tk.LEFT)
-    return ret
-
-def check_err_test9(t):
-    pnam = 'test9'
-    ret = check_test9(t)
+def check_err(pnam,t):
+    if pnam in pnams[2:]:
+        ret = eval('check_int("{}",t)'.format(pnam))
+    else:
+        ret = eval('check_{}(t)'.format(pnam))
     if right_lbl[pnam] is not None:
         if ret:
             right_lbl[pnam].pack_forget()
@@ -516,8 +383,7 @@ def set(parent):
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     for pnam in pnams:
-        #vcmd = (center_inp[pnam].register(eval('lambda x:check_param({},x)'.format(pnam))),'%P')
-        vcmd = (center_inp[pnam].register(eval('check_err_{}'.format(pnam))),'%P')
+        vcmd = (center_inp[pnam].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
         center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
     check_all(source='input')
     root.bind('<Configure>',on_frame_configure)
