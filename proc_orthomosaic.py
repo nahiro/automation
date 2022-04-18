@@ -72,9 +72,9 @@ input_types['test9'] = 'box'
 
 top_frame_height = 5
 bottom_frame_height = 40
-left_frame_width = 130
+left_frame_width = 180
 right_frame_width = 70
-middle_left_frame_width = 400
+middle_left_frame_width = 450
 left_cnv_height = 25
 center_cnv_height = 25
 right_cnv_height = 25
@@ -181,7 +181,7 @@ def check_outdir(t):
         if not os.path.exists(t):
             os.makedirs(t)
         if not os.path.isdir(t):
-            raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],item))
+            raise IOError('Error in {}, no such folder >>> {}'.format(params[pnam],t))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
@@ -221,7 +221,6 @@ def check_all(source='input'):
     for pnam in pnams:
         check_values[pnam] = None
         check_errors[pnam] = True
-    for pnam in pnams:
         try:
             t = get(pnam)
             if pnam in pnams[2:]:
@@ -265,11 +264,11 @@ def set(parent):
             chk_btn = x
     root = tk.Toplevel(parent)
     root.title(proc_title)
-    root.geometry('400x200')
+    root.geometry('{}x200'.format(middle_left_frame_width))
     top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
     middle_frame = tk.Frame(root,width=10,height=20,background=None)
     bottom_frame = tk.Frame(root,width=10,height=bottom_frame_height,background=None)
-    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,400,top_frame_height+bottom_frame_height+len(params)*(center_cnv_height+2)),background=None)
+    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,middle_left_frame_width,top_frame_height+bottom_frame_height+len(params)*(center_cnv_height+2)),background=None)
     middle_left_canvas.bind_all('<MouseWheel>',on_mousewheel)
     middle_right_scr = tk.Scrollbar(middle_frame,orient=tk.VERTICAL,command=middle_left_canvas.yview)
     top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
@@ -375,14 +374,14 @@ def set(parent):
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
-        left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2])
+        left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
         left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         left_lbl[pnam] = ttk.Label(left_cnv[pnam],text=params[pnam])
         left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
         left_sep[pnam] = ttk.Separator(left_cnv[pnam],orient='horizontal')
         left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
         left_cnv[pnam].pack_propagate(False)
-        right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2])
+        right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2],highlightthickness=0)
         right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2))
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')

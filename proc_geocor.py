@@ -38,9 +38,9 @@ input_types['trg_binning'] = 'box'
 
 top_frame_height = 5
 bottom_frame_height = 40
-left_frame_width = 130
+left_frame_width = 180
 right_frame_width = 70
-middle_left_frame_width = 400
+middle_left_frame_width = 450
 left_cnv_height = 25
 center_cnv_height = 25
 right_cnv_height = 25
@@ -130,6 +130,57 @@ def get_input(pnam):
 def get_value(pnam):
     return values[pnam]
 
+def check_ref_fnam(t):
+    pnam = 'ref_fnam'
+    try:
+        if not os.path.exists(t):
+            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_trg_fnam(t):
+    pnam = 'trg_fnam'
+    try:
+        if not os.path.exists(t):
+            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_ref_pixel(t):
+    pnam = 'ref_pixel'
+    try:
+        v = float(t)
+        if v < 0.01 or v > 50.0:
+            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_trg_binning(t):
+    pnam = 'trg_binning'
+    try:
+        n = int(t)
+        if n < 1 or n > 64:
+            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_err(pnam,t):
+    ret = eval('check_{}(t)'.format(pnam))
+    if right_lbl[pnam] is not None:
+        if ret:
+            right_lbl[pnam].pack_forget()
+        else:
+            right_lbl[pnam].pack(side=tk.LEFT)
+    return ret
+
 def check_all(source='input'):
     if source == 'input':
         get = get_input
@@ -139,54 +190,26 @@ def check_all(source='input'):
         raise ValueError('Error, source={}'.format(source))
     check_values = {}
     check_errors = {}
-    pnam = 'ref_fnam'
-    try:
-        t = get(pnam)
-        if not os.path.exists(t):
-            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
-        check_values[pnam] = t
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
+    for pnam in pnams:
         check_values[pnam] = None
         check_errors[pnam] = True
-    pnam = 'trg_fnam'
-    try:
-        t = get(pnam)
-        if not os.path.exists(t):
-            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
-        check_values[pnam] = t
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        check_values[pnam] = None
-        check_errors[pnam] = True
-    pnam = 'ref_pixel'
-    try:
-        t = get(pnam)
-        v = float(t)
-        if v < 0.01 or v > 50.0:
-            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        check_values[pnam] = v
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        check_values[pnam] = None
-        check_errors[pnam] = True
-    pnam = 'trg_binning'
-    try:
-        t = get(pnam)
-        n = int(t)
-        if n < 1 or n > 64:
-            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        check_values[pnam] = n
-        check_errors[pnam] = False
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        check_values[pnam] = None
-        check_errors[pnam] = True
+        try:
+            t = get(pnam)
+            ret = eval('check_{}(t)'.format(pnam))
+            if ret:
+                if center_var is None:
+                    check_values[pnam] = values[pnam]
+                else:
+                    check_values[pnam] = center_var[pnam].get()
+                check_errors[pnam] = False
+            else:
+                raise ValueError('ERROR')
+        except Exception as e:
+            sys.stderr.write(str(e)+'\n')
     if source == 'input':
         for pnam in pnams:
+            if not pnam in check_errors or not pnam in right_lbl:
+                continue
             if check_errors[pnam]:
                 right_lbl[pnam].pack(side=tk.LEFT)
             else:
@@ -210,11 +233,11 @@ def set(parent):
             chk_btn = x
     root = tk.Toplevel(parent)
     root.title(proc_title)
-    root.geometry('400x200')
+    root.geometry('{}x200'.format(middle_left_frame_width))
     top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
     middle_frame = tk.Frame(root,width=10,height=20,background=None)
     bottom_frame = tk.Frame(root,width=10,height=bottom_frame_height,background=None)
-    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,400,top_frame_height+bottom_frame_height+len(params)*(center_cnv_height+2)),background=None)
+    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,middle_left_frame_width,top_frame_height+bottom_frame_height+len(params)*(center_cnv_height+2)),background=None)
     middle_left_canvas.bind_all('<MouseWheel>',on_mousewheel)
     middle_right_scr = tk.Scrollbar(middle_frame,orient=tk.VERTICAL,command=middle_left_canvas.yview)
     top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
@@ -288,7 +311,7 @@ def set(parent):
         else:
             raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
         center_var[pnam].set(values[pnam])
-        center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2])
+        center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2],highlightthickness=0)
         center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         center_cnv[pnam].pack_propagate(False)
         if input_types[pnam] == 'box':
@@ -320,16 +343,19 @@ def set(parent):
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
-        left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2])
+        left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
         left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         left_lbl[pnam] = ttk.Label(left_cnv[pnam],text=params[pnam])
         left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
         left_sep[pnam] = ttk.Separator(left_cnv[pnam],orient='horizontal')
         left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
         left_cnv[pnam].pack_propagate(False)
-        right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2])
+        right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2],highlightthickness=0)
         right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2))
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
+    for pnam in pnams:
+        vcmd = (center_inp[pnam].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
+        center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
     check_all(source='input')
     root.bind('<Configure>',on_frame_configure)
