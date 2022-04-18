@@ -45,7 +45,6 @@ browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png
 child_win = None
 child_cnv = None
 main_win = None
-main_cnv = None
 main_hid = None
 
 def ask_file(pnam,dnam=inidir):
@@ -78,9 +77,8 @@ def ask_folders(pnam,dnam=inidir):
         defaults[pnam] = path
     return
 
-def set(parent,canvas):
+def set(parent):
     global main_win
-    global main_cnv
     global main_hid
     global child_win
     global child_cnv
@@ -93,8 +91,7 @@ def set(parent,canvas):
     if child_win is not None and child_win.winfo_exists():
         return
     main_win = parent
-    main_cnv = canvas
-    for x in main_cnv.winfo_children():
+    for x in main_win.winfo_children():
         if isinstance(x,ttk.Button) and x['text'] == 'check_{}'.format(proc_name):
             main_hid = x
     child_win = tk.Toplevel(parent)

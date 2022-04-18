@@ -45,119 +45,149 @@ defaults['output'] = True
 blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
 '8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
 
-entry_width = 90
-button_width = 40
-button_height = 21
+top_frame_height = 50
+left_frame_width = 30
+right_frame_width = 100
+left_cnv_height = 21
+right_cnv_height = 21
 
 def set_title():
+    pnam = 'set'
+    #top_lbl[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
 def run_all():
     for pnam in pnams:
-        if main_var[pnam].get():
+        if center_var[pnam].get():
             modules[pnam].run()
     return
 
 def set_child(pnam):
-    modules[pnam].set(main_win,main_cnv)
+    modules[pnam].set(root)
 
 def check_child(pnam):
-    x0 = 220+40
-    y0 = 15
-    dy = 25
-    y = y0
     for p in pnams:
         if p != pnam:
-            y += dy
             continue
-        if main_var[pnam].get():
+        if center_var[pnam].get():
             check_values,check_errors = modules[pnam].check(source='value')
             err = False
             for error in check_errors.values():
                 if error:
                     err = True
             if err:
-                main_err[pnam].place(x=x0,y=y); y += dy
+                right_lbl[pnam].pack(side=tk.LEFT)
             else:
-                main_err[pnam].place_forget(); y += dy
+                right_lbl[pnam].pack_forget()
         else:
-            main_err[pnam].place_forget(); y += dy
+            right_lbl[pnam].pack_forget()
     return
 
 def exit():
     sys.exit()
     return
 
-main_win = tk.Tk()
-main_win.title('BLB Damage Estimation')
-main_win.geometry('{}x{}'.format(290+40,100+25*len(pnams)))
-main_cnv = tk.Canvas(main_win,width=290+40,height=100+25*len(pnams))
-main_cnv.pack()
+root = tk.Tk()
+root.title('BLB Damage Estimation')
+root.geometry('330x{}'.format(50+40+30*len(pnams)))
+top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
+middle_frame = tk.Frame(root,width=10,height=20,background=None)
+bottom_frame = tk.Frame(root,width=10,height=40,background=None)
+left_frame = tk.Frame(middle_frame,width=left_frame_width,height=10,background=None)
+center_canvas = tk.Canvas(middle_frame,width=30,height=10,background=None)
+right_frame = tk.Frame(middle_frame,width=right_frame_width,height=10,background=None)
+top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+middle_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,expand=True)
+bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.BOTTOM)
+left_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
+center_canvas.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
+right_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.RIGHT)
+top_frame.pack_propagate(False)
+middle_frame.pack_propagate(False)
+bottom_frame.pack_propagate(False)
+left_frame.pack_propagate(False)
+center_canvas.pack_propagate(False)
+right_frame.pack_propagate(False)
 
-x0 = 30
-y0 = 10
-dy = 25
-y = y0
-main_label01 = ttk.Label(main_cnv,text='Block')
-main_label01.place(x=x0,y=y)
-main_label02 = ttk.Label(main_cnv,text='Date')
-main_label02.place(x=x0+entry_width+1,y=y)
-y += 20
-main_combo01 = ttk.Combobox(main_cnv,values=['Cihea-'+block for block in blocks])
-main_combo01.current(0)
-main_combo01.place(x=x0,y=y,width=entry_width)
-main_combo02 = CustomDateEntry(main_cnv,date_pattern='yyyy-mmm-dd')
-main_combo02.place(x=x0+entry_width+1,y=y,width=entry_width)
-x0 = 180+40
-main_set = ttk.Button(main_cnv,text='Set',command=set_title)
-main_set.place(x=x0,y=y,width=button_width,height=button_height)
+top_left_frame = tk.Frame(top_frame,width=left_frame_width,height=10,background=None)
+top_center_frame = tk.Frame(top_frame,width=30,height=10,background=None)
+top_right_frame = tk.Frame(top_frame,width=right_frame_width,height=10,background=None)
+top_left_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
+top_center_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
+top_right_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.RIGHT)
+top_left_frame.pack_propagate(False)
+top_center_frame.pack_propagate(False)
+top_right_frame.pack_propagate(False)
 
-main_var = {}
-for pnam in pnams:
-    main_var[pnam] = tk.BooleanVar()
-    main_var[pnam].set(defaults[pnam])
+top_center_top_frame = tk.Frame(top_center_frame,width=30,height=10,background=None)
+top_center_bottom_frame = tk.Frame(top_center_frame,width=30,height=10,background=None)
+top_center_top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP,expand=True)
+top_center_bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
 
-x0 = 30
-y0 = 55
-y = y0
-main_chk = {}
-for pnam in pnams:
-    main_chk[pnam] = tk.Checkbutton(main_cnv,variable=main_var[pnam],text=titles[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
-    main_chk[pnam].place(x=x0,y=y); y += dy
+top_right_top_frame = tk.Frame(top_right_frame,width=30,height=10,background=None)
+top_right_bottom_frame = tk.Frame(top_right_frame,width=30,height=10,background=None)
+top_right_top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP,expand=True)
+top_right_bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+top_right_top_frame.pack_propagate(False)
 
-main_hid = {}
-for pnam in pnams:
-    main_hid[pnam] = ttk.Button(main_cnv,text='check_{}'.format(pnam),command=eval('lambda:check_child("{}")'.format(pnam)))
-    main_hid[pnam].place_forget() # hidden
+top_lbl = {}
+top_btn = {}
+for pnam in ['block','date']:
+    top_lbl[pnam] = tk.Label(top_center_top_frame,text=pnam.capitalize())
+    top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
+top_cmb = ttk.Combobox(top_center_bottom_frame,width=10,values=['Cihea-'+block for block in blocks])
+top_cmb.current(0)
+top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(0,4),fill=tk.X,side=tk.LEFT,expand=True)
+top_cde = CustomDateEntry(top_center_bottom_frame,width=10,date_pattern='yyyy-mmm-dd')
+top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(0,4),fill=tk.X,side=tk.LEFT,expand=True)
+pnam = 'set'
+top_btn[pnam] = tk.Button(top_right_bottom_frame,text=pnam.capitalize(),width=4,command=set_title)
+top_btn[pnam].pack(padx=(1,0),pady=(0,3),side=tk.LEFT)
+top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
 
-x0 = 180+40
-y = y0
-main_btn = {}
-for pnam in pnams:
-    main_btn[pnam] = ttk.Button(main_cnv,text='Set',command=eval('lambda:set_child("{}")'.format(pnam)))
-    main_btn[pnam].place(x=x0,y=y,width=button_width,height=button_height); y += dy
-y += dy*0.2
+bottom_lbl = {}
+bottom_btn = {}
+pnam = 'left'
+bottom_lbl[pnam] = tk.Label(bottom_frame,text='')
+bottom_lbl[pnam].pack(fill=tk.X,side=tk.LEFT,expand=True)
+pnam = 'run'
+bottom_btn[pnam] = tk.Button(bottom_frame,text=pnam.capitalize(),width=8,command=run_all)
+bottom_btn[pnam].pack(padx=10,side=tk.LEFT)
+pnam = 'exit'
+bottom_btn[pnam] = tk.Button(bottom_frame,text=pnam.capitalize(),width=8,command=exit)
+bottom_btn[pnam].pack(padx=10,side=tk.LEFT)
+pnam = 'right'
+bottom_lbl[pnam] = tk.Label(bottom_frame,text='')
+bottom_lbl[pnam].pack(fill=tk.X,side=tk.LEFT,expand=True)
 
-x0 = 220+40
-y = y0
-main_err = {}
-for pnam in pnams:
-    main_err[pnam] = ttk.Label(main_cnv,text='ERROR',foreground='red')
-    check_values,check_errors = modules[pnam].check(source='value')
-    err = False
-    for error in check_errors.values():
-        if error:
-            err = True
-    if err and main_var[pnam].get():
-        main_err[pnam].place(x=x0,y=y); y += dy
-    else:
-        main_err[pnam].place_forget(); y += dy
-main_btn01 = ttk.Button(main_cnv,text='Run',command=run_all)
-main_btn02 = ttk.Button(main_cnv,text='Exit',command=exit)
-main_btn01.place(x=60+20,y=y)
-main_btn02.place(x=150+20,y=y)
-
-main_win.columnconfigure(0,weight=1)
-main_win.rowconfigure(0,weight=1)
-main_cnv.columnconfigure(1,weight=1)
-main_win.mainloop()
+bgs = [None,None]
+center_var = {}
+center_cnv = {}
+center_chk = {}
+center_sep = {}
+left_cnv = {}
+left_btn = {}
+right_cnv = {}
+right_btn = {}
+right_lbl = {}
+for i,pnam in enumerate(pnams):
+    center_var[pnam] = tk.BooleanVar()
+    center_var[pnam].set(defaults[pnam])
+    center_cnv[pnam] = tk.Canvas(center_canvas,background=bgs[i%2])
+    center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2),fill=tk.X,expand=True)
+    center_chk[pnam] = tk.Checkbutton(center_cnv[pnam],background=bgs[i%2],variable=center_var[pnam],text=titles[pnam],command=eval('lambda:check_child("{}")'.format(pnam)))
+    center_chk[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+    center_sep[pnam] = ttk.Separator(center_cnv[pnam],orient='horizontal')
+    center_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
+    left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2])
+    left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,expand=True)
+    left_btn[pnam] = ttk.Button(root,text='check_{}'.format(pnam),command=eval('lambda:check_child("{}")'.format(pnam)))
+    left_btn[pnam].pack_forget() # hidden
+    right_cnv[pnam] = tk.Canvas(right_frame,width=right_frame_width,height=right_cnv_height,background=bgs[i%2])
+    right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2),expand=True)
+    right_cnv[pnam].pack_propagate(False)
+    right_btn[pnam] = tk.Button(right_cnv[pnam],text='Set',width=4,command=eval('lambda:set_child("{}")'.format(pnam)))
+    right_btn[pnam].pack(side=tk.LEFT)
+    right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
+    check_child(pnam)
+root.mainloop()
