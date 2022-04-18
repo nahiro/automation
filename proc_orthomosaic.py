@@ -71,6 +71,7 @@ input_types['test8'] = 'box'
 input_types['test9'] = 'box'
 
 top_frame_height = 5
+bottom_frame_height = 40
 left_frame_width = 130
 right_frame_width = 70
 middle_left_frame_width = 400
@@ -84,6 +85,7 @@ if not os.path.isdir(inidir):
 browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
 root = None
 chk_btn = None
+middle_left_canvas = None
 middle_left_frame = None
 center_var = None
 center_cnv = None
@@ -220,6 +222,7 @@ def check(source='input'):
 def set(parent):
     global root
     global chk_btn
+    global middle_left_canvas
     global middle_left_frame
     global center_var
     global center_cnv
@@ -236,8 +239,8 @@ def set(parent):
     root.geometry('400x200')
     top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
     middle_frame = tk.Frame(root,width=10,height=20,background=None)
-    bottom_frame = tk.Frame(root,width=10,height=40,background=None)
-    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,400,8000),background=None)
+    bottom_frame = tk.Frame(root,width=10,height=bottom_frame_height,background=None)
+    middle_left_canvas = tk.Canvas(middle_frame,width=30,height=10,scrollregion=(0,0,400,top_frame_height+bottom_frame_height+len(params)*(center_cnv_height+2)),background=None)
     middle_left_canvas.bind_all('<MouseWheel>',on_mousewheel)
     middle_right_scr = tk.Scrollbar(middle_frame,orient=tk.VERTICAL,command=middle_left_canvas.yview)
     top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
