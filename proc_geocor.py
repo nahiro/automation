@@ -281,6 +281,39 @@ def check_file(s,t):
         sys.stderr.write(str(e)+'\n')
         return False
 
+def check_files(s,t):
+    try:
+        for item in t.split(';'):
+            if not os.path.isdir(item):
+                raise IOError('Error in {}, no such file >>> {}'.format(s,item))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_folder(s,t,make=False):
+    try:
+        if make and not os.path.exists(t):
+            os.makedirs(t)
+        if not os.path.isdir(t):
+            raise IOError('Error in {}, no such folder >>> {}'.format(s,t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_folders(s,t,make=False):
+    try:
+        for item in t.split(';'):
+            if make and not os.path.exists(item):
+                os.makedirs(item)
+            if not os.path.isdir(item):
+                raise IOError('Error in {}, no such folder >>> {}'.format(s,item))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
 def check_int(s,t,vmin=-sys.maxsize,vmax=sys.maxsize):
     try:
         n = int(t)
