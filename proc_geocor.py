@@ -8,79 +8,145 @@ from subprocess import call
 proc_name = 'geocor'
 proc_title = 'Geometric Correction'
 pnams = []
+pnams.append('gis_fnam')
 pnams.append('ref_fnam')
 pnams.append('ref_bands')
 pnams.append('ref_pixel')
+pnams.append('ref_range')
 pnams.append('trg_fnam')
+pnams.append('trg_bands')
+pnams.append('trg_ndvi')
 pnams.append('trg_binning')
+pnams.append('trg_range')
 pnams.append('part_sizes')
 pnams.append('gcp_intervals')
 pnams.append('max_shifts')
 pnams.append('margins')
+pnams.append('scan_steps')
 pnams.append('higher_flags')
+pnams.append('boundary_width')
+pnams.append('boundary_nmin')
+pnams.append('boundary_cmins')
+pnams.append('boundary_rmax')
+pnams.append('boundary_emaxs')
 params = {}
+params['gis_fnam'] = 'Polygon File'
 params['ref_fnam'] = 'Reference Image'
 params['ref_bands'] = 'Reference Band'
-params['ref_pixel'] = 'Reference Pixel Size'
-params['trg_fnam'] = 'Orthomosaic Image'
+params['ref_pixel'] = 'Reference Resample Size'
+params['ref_range'] = 'Reference DN Range'
+params['trg_fnam'] = 'Target Image'
+params['trg_bands'] = 'Target Band'
+params['trg_ndvi'] = 'Target NDVI Flag'
 params['trg_binning'] = 'Target Binning Size'
+params['trg_range'] = 'Target DN Range'
 params['part_sizes'] = 'Partial Image Size'
 params['gcp_intervals'] = 'GCP Interval'
 params['max_shifts'] = 'Max Shift'
 params['margins'] = 'Image Margin'
+params['scan_steps'] = 'Scan Step'
 params['higher_flags'] = 'Higher Order Flag'
+params['boundary_width'] = 'Boundary Width'
+params['boundary_nmin'] = 'Min Boundary Ratio'
+params['boundary_cmins'] = 'Min Contrast'
+params['boundary_rmax'] = 'Max Contrast Spread'
+params['boundary_emaxs'] = 'Max Error'
 param_types = {}
+param_types['gis_fnam'] = 'string'
 param_types['ref_fnam'] = 'string'
 param_types['ref_bands'] = 'int_list'
 param_types['ref_pixel'] = 'double'
+param_types['ref_range'] = 'double_list'
 param_types['trg_fnam'] = 'string'
+param_types['trg_bands'] = 'int_list'
+param_types['trg_ndvi'] = 'boolean'
 param_types['trg_binning'] = 'int'
+param_types['trg_range'] = 'double_list'
 param_types['part_sizes'] = 'int_list'
 param_types['gcp_intervals'] = 'int_list'
 param_types['max_shifts'] = 'int_list'
 param_types['margins'] = 'int_list'
+param_types['scan_steps'] = 'int_list'
 param_types['higher_flags'] = 'boolean_list'
+param_types['boundary_width'] = 'double'
+param_types['boundary_nmin'] = 'double'
+param_types['boundary_cmins'] = 'double_list'
+param_types['boundary_rmax'] = 'double'
+param_types['boundary_emaxs'] = 'double_list'
 defaults = {}
+defaults['gis_fnam'] = 'All_area_polygon_20210914.shp'
 defaults['ref_fnam'] = 'wv2_180629_pan.tif'
-defaults['ref_bands'] = [-1,None]
+defaults['ref_bands'] = [-1,-9999]
 defaults['ref_pixel'] = 0.2
+defaults['ref_range'] = [180.0,320.0]
 defaults['trg_fnam'] = 'test.tif'
+defaults['trg_bands'] = [2,4]
+defaults['trg_ndvi'] = True
 defaults['trg_binning'] = 8
+defaults['trg_range'] = [-10000.0,32767.0]
 defaults['part_sizes'] = [250,250,120,120,80]
 defaults['gcp_intervals'] = [125,125,60,60,40]
 defaults['max_shifts'] = [40,25,12,8,8]
 defaults['margins'] = [60,40,18,12,12]
+defaults['scan_steps'] = [2,2,1,1,1]
 defaults['higher_flags'] = [True,True,True]
 defaults['boundary_width'] = 0.6
+defaults['boundary_nmin'] = 0.1
+defaults['boundary_cmins'] = [0.01,1.3]
+defaults['boundary_rmax'] = 1.0
+defaults['boundary_emaxs'] = [3.0,2.0,1.5]
 list_sizes = {}
 list_sizes['ref_bands'] = 2
+list_sizes['ref_range'] = 2
+list_sizes['trg_bands'] = 2
+list_sizes['trg_range'] = 2
 list_sizes['part_sizes'] = 5
 list_sizes['gcp_intervals'] = 5
 list_sizes['max_shifts'] = 5
 list_sizes['margins'] = 5
+list_sizes['scan_steps'] = 5
 list_sizes['higher_flags'] = 3
+list_sizes['boundary_cmins'] = 2
+list_sizes['boundary_emaxs'] = 3
 list_labels = {}
 list_labels['ref_bands'] = ['','']
+list_labels['ref_range'] = ['','']
+list_labels['trg_bands'] = ['','']
+list_labels['trg_range'] = ['','']
 #list_labels['part_sizes'] = ['1','2','3','4','5']
 list_labels['part_sizes'] = ['','','','','']
 list_labels['gcp_intervals'] = ['','','','','']
 list_labels['max_shifts'] = ['','','','','']
 list_labels['margins'] = ['','','','','']
+list_labels['scan_steps'] = ['','','','','']
 list_labels['higher_flags'] = ['1st','2nd','3rd']
+list_labels['boundary_cmins'] = ['','']
+list_labels['boundary_emaxs'] = ['','','']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
 input_types = {}
+input_types['gis_fnam'] = 'ask_file'
 input_types['ref_fnam'] = 'ask_file'
 input_types['ref_bands'] = 'int_list'
 input_types['ref_pixel'] = 'box'
+input_types['ref_range'] = 'double_list'
 input_types['trg_fnam'] = 'ask_file'
+input_types['trg_bands'] = 'int_list'
+input_types['trg_ndvi'] = 'boolean'
 input_types['trg_binning'] = 'box'
+input_types['trg_range'] = 'double_list'
 input_types['part_sizes'] = 'int_list'
 input_types['gcp_intervals'] = 'int_list'
 input_types['max_shifts'] = 'int_list'
 input_types['margins'] = 'int_list'
+input_types['scan_steps'] = 'int_list'
 input_types['higher_flags'] = 'boolean_list'
+input_types['boundary_width'] = 'box'
+input_types['boundary_nmin'] = 'box'
+input_types['boundary_cmins'] = 'double_list'
+input_types['boundary_rmax'] = 'box'
+input_types['boundary_emaxs'] = 'double_list'
 
 top_frame_height = 5
 bottom_frame_height = 40
@@ -217,9 +283,6 @@ def check_file(s,t):
 
 def check_int(s,t,vmin=-sys.maxsize,vmax=sys.maxsize):
     try:
-        print('HEREEEEE, t=',t)
-        if t is None or t == '':
-            return True
         n = int(t)
         if n < vmin or n > vmax:
             raise ValueError('Error in {}, out of range >>> {}'.format(s,t))
@@ -238,25 +301,45 @@ def check_double(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max):
         sys.stderr.write(str(e)+'\n')
         return False
 
+def check_gis_fnam(t):
+    pnam = 'gis_fnam'
+    return check_file(params[pnam],t)
+
 def check_ref_fnam(t):
     pnam = 'ref_fnam'
     return check_file(params[pnam],t)
 
 def check_ref_bands(t):
     pnam = 'ref_bands'
-    return check_int(params[pnam],t,-1,1000)
+    return check_int(params[pnam],t,-10000,10000)
 
 def check_ref_pixel(t):
     pnam = 'ref_pixel'
     return check_double(params[pnam],t,0.01,50.0)
 
+def check_ref_range(t):
+    pnam = 'ref_range'
+    return check_double(params[pnam],t,-1.0e50,1.0e50)
+
 def check_trg_fnam(t):
     pnam = 'trg_fnam'
     return check_file(params[pnam],t)
 
+def check_trg_bands(t):
+    pnam = 'trg_bands'
+    return check_int(params[pnam],t,-10000,10000)
+
+def check_trg_ndvi(t):
+    pnam = 'trg_ndvi'
+    return True
+
 def check_trg_binning(t):
     pnam = 'trg_binning'
     return check_int(params[pnam],t,1,64)
+
+def check_trg_range(t):
+    pnam = 'trg_range'
+    return check_double(params[pnam],t,-1.0e50,1.0e50)
 
 def check_part_sizes(t):
     pnam = 'part_sizes'
@@ -274,9 +357,33 @@ def check_margins(t):
     pnam = 'margins'
     return check_int(params[pnam],t,1,1000000)
 
+def check_scan_steps(t):
+    pnam = 'scan_steps'
+    return check_int(params[pnam],t,1,1000000)
+
 def check_higher_flags(t):
     pnam = 'higher_flags'
     return True
+
+def check_boundary_width(t):
+    pnam = 'boundary_width'
+    return check_double(params[pnam],t,1.0e-6,1.0e6)
+
+def check_boundary_nmin(t):
+    pnam = 'boundary_nmin'
+    return check_double(params[pnam],t,1.0e-6,1.0)
+
+def check_boundary_cmins(t):
+    pnam = 'boundary_cmins'
+    return check_double(params[pnam],t,-1.0e6,1.0e6)
+
+def check_boundary_rmax(t):
+    pnam = 'boundary_rmax'
+    return check_double(params[pnam],t,1.0e-6,1.0e6)
+
+def check_boundary_emaxs(t):
+    pnam = 'boundary_emaxs'
+    return check_double(params[pnam],t,1.0e-6,1.0e6)
 
 def check_err(pnam,t):
     ret = eval('check_{}(t)'.format(pnam))
@@ -367,7 +474,7 @@ def set(parent):
             chk_btn = x
     root = tk.Toplevel(parent)
     root.title(proc_title)
-    root.geometry('{}x200'.format(middle_left_frame_width))
+    root.geometry('{}x{}'.format(middle_left_frame_width,top_frame_height+bottom_frame_height+len(pnams)*(center_cnv_height+2)))
     top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
     middle_frame = tk.Frame(root,width=10,height=20,background=None)
     bottom_frame = tk.Frame(root,width=10,height=bottom_frame_height,background=None)
@@ -497,12 +604,17 @@ def set(parent):
             center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
             center_btn[pnam].image = browse_img
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif input_types[pnam] == 'boolean':
+            center_inp[pnam] = tk.Checkbutton(center_cnv[pnam],background=bgs[i%2],variable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+            #center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif input_types[pnam] == 'boolean_list':
             center_inp[pnam] = []
             center_lbl[pnam] = []
             for j in range(list_sizes[pnam]):
                 center_inp[pnam].append(tk.Checkbutton(center_cnv[pnam],background=bgs[i%2],variable=center_var[pnam][j],text=list_labels[pnam][j]))
-                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                #center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif '_list' in input_types[pnam]:
             center_inp[pnam] = []
             center_lbl[pnam] = []
@@ -526,7 +638,7 @@ def set(parent):
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     for pnam in pnams:
-        if param_types[pnam] == 'boolean_list':
+        if param_types[pnam] == 'boolean' or param_types[pnam] == 'boolean_list':
             pass
         elif '_list' in param_types[pnam]:
             for j in range(list_sizes[pnam]):
