@@ -10,9 +10,9 @@ proc_title = 'Make Orthomosaic'
 pnams = []
 pnams.append('inpdirs')
 pnams.append('outdir')
-pnams.append('test1')
-pnams.append('test2')
-pnams.append('test3')
+pnams.append('qmin')
+pnams.append('sflag')
+pnams.append('align_level')
 pnams.append('test4')
 pnams.append('test5')
 pnams.append('test6')
@@ -22,9 +22,9 @@ pnams.append('test9')
 params = {}
 params['inpdirs'] = 'Input Folders'
 params['outdir'] = 'Output Folder'
-params['test1'] = 'Test 1'
-params['test2'] = 'Test 2'
-params['test3'] = 'Test 3'
+params['qmin'] = 'Min Image Quality'
+params['sflag'] = 'Solar Sensor Flag'
+params['align_level'] = 'Alignment Accuracy'
 params['test4'] = 'Test 4'
 params['test5'] = 'Test 5'
 params['test6'] = 'Test 6'
@@ -34,9 +34,9 @@ params['test9'] = 'Test 9'
 param_types = {}
 param_types['inpdirs'] = 'string'
 param_types['outdir'] = 'string'
-param_types['test1'] = 'int'
-param_types['test2'] = 'int'
-param_types['test3'] = 'int'
+param_types['qmin'] = 'double'
+param_types['sflag'] = 'boolean'
+param_types['align_level'] = 'string_select'
 param_types['test4'] = 'int'
 param_types['test5'] = 'int'
 param_types['test6'] = 'int'
@@ -46,32 +46,34 @@ param_types['test9'] = 'int'
 defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
-defaults['test1'] = 1
-defaults['test2'] = 2
-defaults['test3'] = 3
+defaults['qmin'] = 0.5
+defaults['sflag'] = True
+defaults['align_level'] = 'High'
 defaults['test4'] = 4
 defaults['test5'] = 5
 defaults['test6'] = 6
 defaults['test7'] = 7
 defaults['test8'] = 8
 defaults['test9'] = 9
+list_sizes = {}
+list_sizes['align_level'] = 3
+list_labels = {}
+list_labels['align_level'] = ['High','Medium','Low']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
 input_types = {}
 input_types['inpdirs'] = 'ask_folders'
 input_types['outdir'] = 'ask_folder'
-input_types['test1'] = 'box'
-input_types['test2'] = 'box'
-input_types['test3'] = 'box'
+input_types['qmin'] = 'box'
+input_types['sflag'] = 'boolean'
+input_types['align_level'] = 'string_select'
 input_types['test4'] = 'box'
 input_types['test5'] = 'box'
 input_types['test6'] = 'box'
 input_types['test7'] = 'box'
 input_types['test8'] = 'box'
 input_types['test9'] = 'box'
-
-
 
 top_frame_height = 5
 bottom_frame_height = 40
@@ -267,17 +269,17 @@ def check_outdir(t):
     pnam = 'outdir'
     return check_folder(params[pnam],t,make=True)
 
-def check_test1(t):
-    pnam = 'test1'
-    return check_int(params[pnam],t,0,100)
+def check_qmin(t):
+    pnam = 'qmin'
+    return check_double(params[pnam],t,0.0,1.0)
 
-def check_test2(t):
-    pnam = 'test2'
-    return check_int(params[pnam],t,0,100)
+def check_sflag(t):
+    pnam = 'sflag'
+    return True
 
-def check_test3(t):
-    pnam = 'test3'
-    return check_int(params[pnam],t,0,100)
+def check_align_level(t):
+    pnam = 'align_level'
+    return True
 
 def check_test4(t):
     pnam = 'test4'
@@ -467,6 +469,8 @@ def set(parent):
             center_var[pnam] = tk.DoubleVar()
         elif param_types[pnam] == 'boolean':
             center_var[pnam] = tk.BooleanVar()
+        elif param_types[pnam] == 'string_select':
+            center_var[pnam] = tk.StringVar()
         elif param_types[pnam] == 'string_list':
             center_var[pnam] = []
             for j in range(list_sizes[pnam]):
@@ -497,6 +501,10 @@ def set(parent):
         center_cnv[pnam].pack_propagate(False)
         if input_types[pnam] == 'box':
             center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+        elif '_select' in input_types[pnam]:
+            center_inp[pnam] = ttk.Combobox(center_cnv[pnam],background=bgs[i%2],values=list_labels[pnam],state='readonly',textvariable=center_var[pnam])
+            center_inp[pnam].current(list_labels[pnam].index(values[pnam]))
             center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif input_types[pnam] == 'ask_file':
             center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
@@ -557,6 +565,8 @@ def set(parent):
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     for pnam in pnams:
         if param_types[pnam] == 'boolean' or param_types[pnam] == 'boolean_list':
+            pass
+        elif '_select' in param_types[pnam]:
             pass
         elif '_list' in param_types[pnam]:
             for j in range(list_sizes[pnam]):
