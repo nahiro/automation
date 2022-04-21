@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 import tkinter as tk
 from tkinter import ttk
 import tkfilebrowser
@@ -12,65 +13,81 @@ pnams.append('inpdirs')
 pnams.append('outdir')
 pnams.append('qmin')
 pnams.append('sflag')
+pnams.append('panel_fnam')
 pnams.append('align_level')
 pnams.append('preselect')
 pnams.append('point_limit')
 pnams.append('cam_flags')
 pnams.append('cam_params')
-pnams.append('depth_quality')
-pnams.append('depth_filter')
+pnams.append('depth_map')
+pnams.append('epsg')
+pnams.append('pixel_size')
+pnams.append('scale_factor')
+pnams.append('output_type')
 params = {}
 params['inpdirs'] = 'Input Folders'
 params['outdir'] = 'Output Folder'
 params['qmin'] = 'Min Image Quality'
-params['sflag'] = 'Solar Sensor Flag'
+params['sflag'] = 'Sun Sensor Flag'
+params['panel_fnam'] = 'Panel Reflectance File'
 params['align_level'] = 'Alignment Accuracy'
 params['preselect'] = 'Preselection'
 params['point_limit'] = 'Point Limit'
 params['cam_flags'] = 'Adaptive Fitting'
 params['cam_params'] = 'Optimize Parameters'
-params['depth_quality'] = 'Depth Map Quality'
-params['depth_filter'] = 'Depth Map Filter'
+params['depth_map'] = 'Depth Map'
+params['epsg'] = 'EPSG'
+params['pixel_size'] = 'Pixel Size'
+params['scale_factor'] = 'Scale Factor'
+params['output_type'] = 'Output type'
 param_types = {}
 param_types['inpdirs'] = 'string'
 param_types['outdir'] = 'string'
 param_types['qmin'] = 'double'
 param_types['sflag'] = 'boolean'
+param_types['panel_fnam'] = 'string'
 param_types['align_level'] = 'string_select'
 param_types['preselect'] = 'boolean_list'
 param_types['point_limit'] = 'int_list'
 param_types['cam_flags'] = 'boolean_list'
 param_types['cam_params'] = 'boolean_list'
-param_types['depth_quality'] = 'string_select'
-param_types['depth_filter'] = 'string_select'
+param_types['depth_map'] = 'string_select_list'
+param_types['epsg'] = 'int'
+param_types['pixel_size'] = 'double'
+param_types['scale_factor'] = 'double'
+param_types['output_type'] = 'string_select'
 defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
 defaults['qmin'] = 0.5
-defaults['sflag'] = True
+defaults['sflag'] = False
+defaults['panel_fnam'] = 'panel.csv'
 defaults['align_level'] = 'High'
 defaults['preselect'] = [True,True]
 defaults['point_limit'] = [40000,4000]
 defaults['cam_flags'] = [True,True]
 defaults['cam_params'] = [True,True,True,True,False,True,True,True,False,False]
-defaults['depth_quality'] = 'Medium'
-defaults['depth_filter'] = 'Aggressive'
+defaults['depth_map'] = ['Medium','Aggressive']
+defaults['epsg'] = 32748
+defaults['pixel_size'] = np.nan
+defaults['scale_factor'] = 10.0
+defaults['output_type'] = 'Int16'
 list_sizes = {}
 list_sizes['align_level'] = 3
 list_sizes['preselect'] = 2
 list_sizes['point_limit'] = 2
 list_sizes['cam_flags'] = 2
 list_sizes['cam_params'] = 10
-list_sizes['depth_quality'] = 3
-list_sizes['depth_filter'] = 4
+list_sizes['depth_map'] = 2
+list_sizes['output_type'] = 3
 list_labels = {}
 list_labels['align_level'] = ['High','Medium','Low']
 list_labels['preselect'] = ['Generic','Reference']
 list_labels['point_limit'] = ['Key :',' Tie :']
 list_labels['cam_flags'] = ['Align','Optimize']
 list_labels['cam_params'] = ['f','k1','k2','k3','k4','cx,cy','p1','p2','b1','b2']
-list_labels['depth_quality'] = ['High','Medium','Low']
-list_labels['depth_filter'] = ['None','Mild','Moderate','Aggressive']
+list_labels['depth_map'] = [('Quality :',['High','Medium','Low']),(' Filter :',['None','Mild','Moderate','Aggressive'])]
+list_labels['output_type'] = ['UInt16','Int16','Float32']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
@@ -79,13 +96,17 @@ input_types['inpdirs'] = 'ask_folders'
 input_types['outdir'] = 'ask_folder'
 input_types['qmin'] = 'box'
 input_types['sflag'] = 'boolean'
+input_types['panel_fnam'] = 'ask_file'
 input_types['align_level'] = 'string_select'
 input_types['preselect'] = 'boolean_list'
 input_types['point_limit'] = 'int_list'
 input_types['cam_flags'] = 'boolean_list'
 input_types['cam_params'] = 'boolean_list'
-input_types['depth_quality'] = 'string_select'
-input_types['depth_filter'] = 'string_select'
+input_types['depth_map'] = 'string_select_list'
+input_types['epsg'] = 'box'
+input_types['pixel_size'] = 'box'
+input_types['scale_factor'] = 'box'
+input_types['output_type'] = 'string_select'
 
 top_frame_height = 5
 bottom_frame_height = 40
@@ -211,20 +232,25 @@ def get_value(pnam,indx=None):
     else:
         return values[pnam]
 
-def check_file(s,t):
+def check_file(s,t,flag=True):
     try:
-        if not os.path.exists(t):
+        if not flag:
+            return True
+        elif not os.path.exists(t):
             raise IOError('Error in {}, no such file >>> {}'.format(s,t))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_files(s,t):
+def check_files(s,t,flag=True):
     try:
-        for item in t.split(';'):
-            if not os.path.isdir(item):
-                raise IOError('Error in {}, no such file >>> {}'.format(s,item))
+        if not flag:
+            return True
+        else:
+            for item in t.split(';'):
+                if not os.path.isdir(item):
+                    raise IOError('Error in {}, no such file >>> {}'.format(s,item))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
@@ -263,9 +289,11 @@ def check_int(s,t,vmin=-sys.maxsize,vmax=sys.maxsize):
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_double(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max):
+def check_double(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max,allow_nan=False):
     try:
         v = float(t)
+        if allow_nan and np.isnan(v):
+            return True
         if v < vmin or v > vmax:
             raise ValueError('Error in {}, out of range >>> {}'.format(s,t))
         return True
@@ -289,6 +317,10 @@ def check_sflag(t):
     pnam = 'sflag'
     return True
 
+def check_panel_fnam(t):
+    pnam = 'panel_fnam'
+    return check_file(params[pnam],t,flag=values['sflag'])
+
 def check_align_level(t):
     pnam = 'align_level'
     return True
@@ -309,12 +341,24 @@ def check_cam_params(t):
     pnam = 'cam_params'
     return True
 
-def check_depth_quality(t):
-    pnam = 'depth_quality'
+def check_depth_map(t):
+    pnam = 'depth_map'
     return True
 
-def check_depth_filter(t):
-    pnam = 'depth_filter'
+def check_epsg(t):
+    pnam = 'epsg'
+    return check_int(params[pnam],t,1,100000)
+
+def check_pixel_size(t):
+    pnam = 'pixel_size'
+    return check_double(params[pnam],t,1.0e-6,1.0e6,allow_nan=True)
+
+def check_scale_factor(t):
+    pnam = 'scale_factor'
+    return check_double(params[pnam],t,1.0e-50,1.0e50)
+
+def check_output_type(t):
+    pnam = 'output_type'
     return True
 
 def check_err(pnam,t):
@@ -499,6 +543,10 @@ def set(parent):
             center_var[pnam] = []
             for j in range(list_sizes[pnam]):
                 center_var[pnam].append(tk.BooleanVar())
+        elif param_types[pnam] == 'string_select_list':
+            center_var[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_var[pnam].append(tk.StringVar())
         else:
             raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
         if '_list' in input_types[pnam]:
@@ -513,10 +561,6 @@ def set(parent):
         center_cnv[pnam].pack_propagate(False)
         if input_types[pnam] == 'box':
             center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
-            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-        elif '_select' in input_types[pnam]:
-            center_inp[pnam] = ttk.Combobox(center_cnv[pnam],background=bgs[i%2],values=list_labels[pnam],state='readonly',textvariable=center_var[pnam])
-            center_inp[pnam].current(list_labels[pnam].index(values[pnam]))
             center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif input_types[pnam] == 'ask_file':
             center_inp[pnam] = tk.Entry(center_cnv[pnam],background=bgs[i%2],textvariable=center_var[pnam])
@@ -553,6 +597,16 @@ def set(parent):
                 center_inp[pnam].append(tk.Checkbutton(center_cnv[pnam],background=bgs[i%2],variable=center_var[pnam][j],text=list_labels[pnam][j]))
                 center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
                 #center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+        elif '_select_list' in input_types[pnam]:
+            center_inp[pnam] = []
+            center_lbl[pnam] = []
+            for j in range(list_sizes[pnam]):
+                if list_labels[pnam][j] != '':
+                    center_lbl[pnam].append(ttk.Label(center_cnv[pnam],text=list_labels[pnam][j][0]))
+                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                center_inp[pnam].append(ttk.Combobox(center_cnv[pnam],width=1,background=bgs[i%2],values=list_labels[pnam][j][1],state='readonly',textvariable=center_var[pnam][j]))
+                center_inp[pnam][j].current(list_labels[pnam][j][1].index(values[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif '_list' in input_types[pnam]:
             center_inp[pnam] = []
             center_lbl[pnam] = []
@@ -562,6 +616,10 @@ def set(parent):
                     center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
                 center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
                 center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+        elif '_select' in input_types[pnam]:
+            center_inp[pnam] = ttk.Combobox(center_cnv[pnam],background=bgs[i%2],values=list_labels[pnam],state='readonly',textvariable=center_var[pnam])
+            center_inp[pnam].current(list_labels[pnam].index(values[pnam]))
+            center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
