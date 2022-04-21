@@ -110,9 +110,9 @@ list_sizes['boundary_cmins'] = 2
 list_sizes['boundary_emaxs'] = 3
 list_labels = {}
 list_labels['ref_bands'] = ['','']
-list_labels['ref_range'] = ['','']
+list_labels['ref_range'] = ['Min :',' Max :']
 list_labels['trg_bands'] = ['','']
-list_labels['trg_range'] = ['','']
+list_labels['trg_range'] = ['Min :',' Max :']
 #list_labels['part_sizes'] = ['1','2','3','4','5']
 list_labels['part_sizes'] = ['','','','','']
 list_labels['gcp_intervals'] = ['','','','','']
@@ -652,11 +652,11 @@ def set(parent):
             center_inp[pnam] = []
             center_lbl[pnam] = []
             for j in range(list_sizes[pnam]):
-                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
-                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
                 if list_labels[pnam][j] != '':
                     center_lbl[pnam].append(ttk.Label(center_cnv[pnam],text=list_labels[pnam][j]))
-                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=(0,5),pady=0,anchor=tk.W,side=tk.LEFT)
+                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)

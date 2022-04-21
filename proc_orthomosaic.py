@@ -13,52 +13,64 @@ pnams.append('outdir')
 pnams.append('qmin')
 pnams.append('sflag')
 pnams.append('align_level')
-pnams.append('test4')
-pnams.append('test5')
-pnams.append('test6')
-pnams.append('test7')
-pnams.append('test8')
-pnams.append('test9')
+pnams.append('preselect')
+pnams.append('point_limit')
+pnams.append('cam_flags')
+pnams.append('cam_params')
+pnams.append('depth_quality')
+pnams.append('depth_filter')
 params = {}
 params['inpdirs'] = 'Input Folders'
 params['outdir'] = 'Output Folder'
 params['qmin'] = 'Min Image Quality'
 params['sflag'] = 'Solar Sensor Flag'
 params['align_level'] = 'Alignment Accuracy'
-params['test4'] = 'Test 4'
-params['test5'] = 'Test 5'
-params['test6'] = 'Test 6'
-params['test7'] = 'Test 7'
-params['test8'] = 'Test 8'
-params['test9'] = 'Test 9'
+params['preselect'] = 'Preselection'
+params['point_limit'] = 'Point Limit'
+params['cam_flags'] = 'Adaptive Fitting'
+params['cam_params'] = 'Optimize Parameters'
+params['depth_quality'] = 'Depth Map Quality'
+params['depth_filter'] = 'Depth Map Filter'
 param_types = {}
 param_types['inpdirs'] = 'string'
 param_types['outdir'] = 'string'
 param_types['qmin'] = 'double'
 param_types['sflag'] = 'boolean'
 param_types['align_level'] = 'string_select'
-param_types['test4'] = 'int'
-param_types['test5'] = 'int'
-param_types['test6'] = 'int'
-param_types['test7'] = 'int'
-param_types['test8'] = 'int'
-param_types['test9'] = 'int'
+param_types['preselect'] = 'boolean_list'
+param_types['point_limit'] = 'int_list'
+param_types['cam_flags'] = 'boolean_list'
+param_types['cam_params'] = 'boolean_list'
+param_types['depth_quality'] = 'string_select'
+param_types['depth_filter'] = 'string_select'
 defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
 defaults['qmin'] = 0.5
 defaults['sflag'] = True
 defaults['align_level'] = 'High'
-defaults['test4'] = 4
-defaults['test5'] = 5
-defaults['test6'] = 6
-defaults['test7'] = 7
-defaults['test8'] = 8
-defaults['test9'] = 9
+defaults['preselect'] = [True,True]
+defaults['point_limit'] = [40000,4000]
+defaults['cam_flags'] = [True,True]
+defaults['cam_params'] = [True,True,True,True,False,True,True,True,False,False]
+defaults['depth_quality'] = 'Medium'
+defaults['depth_filter'] = 'Aggressive'
 list_sizes = {}
 list_sizes['align_level'] = 3
+list_sizes['preselect'] = 2
+list_sizes['point_limit'] = 2
+list_sizes['cam_flags'] = 2
+list_sizes['cam_params'] = 10
+list_sizes['depth_quality'] = 3
+list_sizes['depth_filter'] = 4
 list_labels = {}
 list_labels['align_level'] = ['High','Medium','Low']
+list_labels['preselect'] = ['Generic','Reference']
+list_labels['point_limit'] = ['Key :',' Tie :']
+list_labels['cam_flags'] = ['Align','Optimize']
+list_labels['cam_params'] = ['f','k1','k2','k3','k4','cx,cy','p1','p2','b1','b2']
+list_labels['depth_quality'] = ['High','Medium','Low']
+list_labels['depth_filter'] = ['None','Mild','Moderate','Aggressive']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
@@ -68,18 +80,18 @@ input_types['outdir'] = 'ask_folder'
 input_types['qmin'] = 'box'
 input_types['sflag'] = 'boolean'
 input_types['align_level'] = 'string_select'
-input_types['test4'] = 'box'
-input_types['test5'] = 'box'
-input_types['test6'] = 'box'
-input_types['test7'] = 'box'
-input_types['test8'] = 'box'
-input_types['test9'] = 'box'
+input_types['preselect'] = 'boolean_list'
+input_types['point_limit'] = 'int_list'
+input_types['cam_flags'] = 'boolean_list'
+input_types['cam_params'] = 'boolean_list'
+input_types['depth_quality'] = 'string_select'
+input_types['depth_filter'] = 'string_select'
 
 top_frame_height = 5
 bottom_frame_height = 40
 left_frame_width = 180
 right_frame_width = 70
-middle_left_frame_width = 450
+middle_left_frame_width = 700
 left_cnv_height = 25
 center_cnv_height = 25
 right_cnv_height = 25
@@ -281,29 +293,29 @@ def check_align_level(t):
     pnam = 'align_level'
     return True
 
-def check_test4(t):
-    pnam = 'test4'
-    return check_int(params[pnam],t,0,100)
+def check_preselect(t):
+    pnam = 'preselect'
+    return True
 
-def check_test5(t):
-    pnam = 'test5'
-    return check_int(params[pnam],t,0,100)
+def check_point_limit(t):
+    pnam = 'point_limit'
+    return check_int(params[pnam],t,1,1000000)
 
-def check_test6(t):
-    pnam = 'test6'
-    return check_int(params[pnam],t,0,100)
+def check_cam_flags(t):
+    pnam = 'cam_flags'
+    return True
 
-def check_test7(t):
-    pnam = 'test7'
-    return check_int(params[pnam],t,0,100)
+def check_cam_params(t):
+    pnam = 'cam_params'
+    return True
 
-def check_test8(t):
-    pnam = 'test8'
-    return check_int(params[pnam],t,0,100)
+def check_depth_quality(t):
+    pnam = 'depth_quality'
+    return True
 
-def check_test9(t):
-    pnam = 'test9'
-    return check_int(params[pnam],t,0,100)
+def check_depth_filter(t):
+    pnam = 'depth_filter'
+    return True
 
 def check_err(pnam,t):
     ret = eval('check_{}(t)'.format(pnam))
@@ -545,11 +557,11 @@ def set(parent):
             center_inp[pnam] = []
             center_lbl[pnam] = []
             for j in range(list_sizes[pnam]):
-                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
-                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
                 if list_labels[pnam][j] != '':
                     center_lbl[pnam].append(ttk.Label(center_cnv[pnam],text=list_labels[pnam][j]))
-                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=(0,5),pady=0,anchor=tk.W,side=tk.LEFT)
+                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
