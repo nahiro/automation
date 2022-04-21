@@ -13,7 +13,7 @@ pnams.append('trg_fnam')
 pnams.append('ref_pixel')
 pnams.append('trg_binning')
 pnams.append('part_sizes')
-#pnams.append('higher_flags')
+pnams.append('higher_flags')
 params = {}
 params['ref_fnam'] = 'Reference Image'
 params['trg_fnam'] = 'Orthomosaic Image'
@@ -40,7 +40,8 @@ list_sizes = {}
 list_sizes['part_sizes'] = 5
 list_sizes['higher_flags'] = 3
 list_labels = {}
-list_labels['part_sizes'] = ['1','2','3','4','5']
+list_labels['part_sizes'] = ['','','','','']
+#list_labels['part_sizes'] = ['1','2','3','4','5']
 list_labels['higher_flags'] = ['1st','2nd','3rd']
 values = {}
 for pnam in pnams:
@@ -159,10 +160,15 @@ def modify():
     return
 
 def get_input(pnam,indx=None):
-    if indx is not None:
-        return center_inp[pnam][indx].get()
+    if param_types[pnam] == 'boolean':
+        return center_var[pnam].get()
+    elif param_types[pnam] == 'boolean_list':
+        return center_var[pnam][indx].get()
     else:
-        return center_inp[pnam].get()
+        if indx is not None:
+            return center_inp[pnam][indx].get()
+        else:
+            return center_inp[pnam].get()
 
 def get_value(pnam,indx=None):
     if indx is not None:
@@ -222,6 +228,10 @@ def check_part_sizes(t):
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
+
+def check_higher_flags(t):
+    pnam = 'higher_flags'
+    return True
 
 def check_err(pnam,t):
     ret = eval('check_{}(t)'.format(pnam))
@@ -367,6 +377,7 @@ def set(parent):
     center_var = {}
     center_cnv = {}
     center_inp = {}
+    center_lbl = {}
     center_btn = {}
     center_left_frame = {}
     center_right_frame = {}
@@ -439,11 +450,21 @@ def set(parent):
             center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
             center_btn[pnam].image = browse_img
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif input_types[pnam] == 'boolean_list':
+            center_inp[pnam] = []
+            center_lbl[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_inp[pnam].append(tk.Checkbutton(center_cnv[pnam],background=bgs[i%2],variable=center_var[pnam][j],text=list_labels[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
         elif '_list' in input_types[pnam]:
             center_inp[pnam] = []
+            center_lbl[pnam] = []
             for j in range(list_sizes[pnam]):
-                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=10,background=bgs[i%2],textvariable=center_var[pnam][j]))
-                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT,expand=True)
+                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=1,background=bgs[i%2],textvariable=center_var[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                if list_labels[pnam][j] != '':
+                    center_lbl[pnam].append(ttk.Label(center_cnv[pnam],text=list_labels[pnam][j]))
+                    center_lbl[pnam][j].pack(ipadx=0,ipady=0,padx=(0,5),pady=0,anchor=tk.W,side=tk.LEFT)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
@@ -458,7 +479,9 @@ def set(parent):
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     for pnam in pnams:
-        if '_list' in param_types[pnam]:
+        if param_types[pnam] == 'boolean_list':
+            pass
+        elif '_list' in param_types[pnam]:
             for j in range(list_sizes[pnam]):
                 vcmd = (center_inp[pnam][j].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
                 center_inp[pnam][j].config(validatecommand=vcmd,validate='focusout')
