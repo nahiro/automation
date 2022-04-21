@@ -12,22 +12,36 @@ pnams.append('ref_fnam')
 pnams.append('trg_fnam')
 pnams.append('ref_pixel')
 pnams.append('trg_binning')
+pnams.append('part_sizes')
+#pnams.append('higher_flags')
 params = {}
 params['ref_fnam'] = 'Reference Image'
 params['trg_fnam'] = 'Orthomosaic Image'
 params['ref_pixel'] = 'Reference Pixel Size'
 params['trg_binning'] = 'Target Binning Number'
+params['part_sizes'] = 'Partial Image Size'
+params['higher_flags'] = 'Higher Order Flag'
 param_types = {}
 param_types['ref_fnam'] = 'string'
 param_types['trg_fnam'] = 'string'
 param_types['ref_pixel'] = 'double'
 param_types['trg_binning'] = 'int'
+param_types['part_sizes'] = 'int_list'
+param_types['higher_flags'] = 'boolean_list'
 defaults = {}
 defaults['ref_fnam'] = 'wv2_180629_pan.tif'
 defaults['trg_fnam'] = 'test.tif'
 defaults['ref_pixel'] = 0.2
 defaults['trg_binning'] = 8
+defaults['part_sizes'] = [250,250,120,120,80]
+defaults['higher_flags'] = [True,True,True]
 defaults['boundary_width'] = 0.6
+list_sizes = {}
+list_sizes['part_sizes'] = 5
+list_sizes['higher_flags'] = 3
+list_labels = {}
+list_labels['part_sizes'] = ['1','2','3','4','5']
+list_labels['higher_flags'] = ['1st','2nd','3rd']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
@@ -36,6 +50,8 @@ input_types['ref_fnam'] = 'ask_file'
 input_types['trg_fnam'] = 'ask_file'
 input_types['ref_pixel'] = 'box'
 input_types['trg_binning'] = 'box'
+input_types['part_sizes'] = 'int_list'
+input_types['higher_flags'] = 'boolean_list'
 
 top_frame_height = 5
 bottom_frame_height = 40
@@ -99,7 +115,11 @@ def on_frame_configure(event):
 
 def reset():
     for pnam in pnams:
-        center_var[pnam].set(values[pnam])
+        if '_list' in param_types[pnam]:
+            for j in range(list_sizes[pnam]):
+                center_var[pnam][j].set(values[pnam][j])
+        else:
+            center_var[pnam].set(values[pnam])
     return
 
 def exit():
@@ -118,22 +138,37 @@ def modify():
     check_values,check_errors = check_all(source='input')
     err = False
     for pnam in pnams:
-        value = check_values[pnam]
-        error = check_errors[pnam]
-        if error:
-            err = True
+        if '_list' in param_types[pnam]:
+            for j in range(list_sizes[pnam]):
+                value = check_values[pnam][j]
+                error = check_errors[pnam][j]
+                if error:
+                    err = True
+                else:
+                    values[pnam][j] = value
         else:
-            values[pnam] = value
+            value = check_values[pnam]
+            error = check_errors[pnam]
+            if error:
+                err = True
+            else:
+                values[pnam] = value
     if not err:
         chk_btn.invoke()
         root.destroy()
     return
 
-def get_input(pnam):
-    return center_inp[pnam].get()
+def get_input(pnam,indx=None):
+    if indx is not None:
+        return center_inp[pnam][indx].get()
+    else:
+        return center_inp[pnam].get()
 
-def get_value(pnam):
-    return values[pnam]
+def get_value(pnam,indx=None):
+    if indx is not None:
+        return values[pnam][indx]
+    else:
+        return values[pnam]
 
 def check_ref_fnam(t):
     pnam = 'ref_fnam'
@@ -177,6 +212,17 @@ def check_trg_binning(t):
         sys.stderr.write(str(e)+'\n')
         return False
 
+def check_part_sizes(t):
+    pnam = 'part_sizes'
+    try:
+        n = int(t)
+        if n < 10 or n > 1000000:
+            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
 def check_err(pnam,t):
     ret = eval('check_{}(t)'.format(pnam))
     if right_lbl[pnam] is not None:
@@ -196,29 +242,57 @@ def check_all(source='input'):
     check_values = {}
     check_errors = {}
     for pnam in pnams:
-        check_values[pnam] = None
-        check_errors[pnam] = True
-        try:
-            t = get(pnam)
-            ret = eval('check_{}(t)'.format(pnam))
-            if ret:
-                if center_var is None:
-                    check_values[pnam] = values[pnam]
+        if '_list' in param_types[pnam]:
+            check_values[pnam] = []
+            check_errors[pnam] = []
+            for j in range(list_sizes[pnam]):
+                check_values[pnam].append(None)
+                check_errors[pnam].append(True)
+            try:
+                for j in range(list_sizes[pnam]):
+                    t = get(pnam,j)
+                    ret = eval('check_{}(t)'.format(pnam))
+                    if ret:
+                        if center_var is None:
+                            check_values[pnam][j] = values[pnam][j]
+                        else:
+                            check_values[pnam][j] = center_var[pnam][j].get()
+                    else:
+                        raise ValueError('ERROR')
+                    check_errors[pnam][j] = False
+            except Exception as e:
+                sys.stderr.write(str(e)+'\n')
+        else:
+            check_values[pnam] = None
+            check_errors[pnam] = True
+            try:
+                t = get(pnam)
+                ret = eval('check_{}(t)'.format(pnam))
+                if ret:
+                    if center_var is None:
+                        check_values[pnam] = values[pnam]
+                    else:
+                        check_values[pnam] = center_var[pnam].get()
                 else:
-                    check_values[pnam] = center_var[pnam].get()
+                    raise ValueError('ERROR')
                 check_errors[pnam] = False
-            else:
-                raise ValueError('ERROR')
-        except Exception as e:
-            sys.stderr.write(str(e)+'\n')
+            except Exception as e:
+                sys.stderr.write(str(e)+'\n')
     if source == 'input':
         for pnam in pnams:
             if not pnam in check_errors or not pnam in right_lbl:
                 continue
-            if check_errors[pnam]:
-                right_lbl[pnam].pack(side=tk.LEFT)
+
+            if '_list' in param_types[pnam]:
+                if True in check_errors[pnam]:
+                    right_lbl[pnam].pack(side=tk.LEFT)
+                else:
+                    right_lbl[pnam].pack_forget()
             else:
-                right_lbl[pnam].pack_forget()
+                if check_errors[pnam]:
+                    right_lbl[pnam].pack(side=tk.LEFT)
+                else:
+                    right_lbl[pnam].pack_forget()
     return check_values,check_errors
 
 def set(parent):
@@ -312,9 +386,29 @@ def set(parent):
             center_var[pnam] = tk.DoubleVar()
         elif param_types[pnam] == 'boolean':
             center_var[pnam] = tk.BooleanVar()
+        elif param_types[pnam] == 'string_list':
+            center_var[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_var[pnam].append(tk.StringVar())
+        elif param_types[pnam] == 'int_list':
+            center_var[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_var[pnam].append(tk.IntVar())
+        elif param_types[pnam] == 'double_list':
+            center_var[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_var[pnam].append(tk.DoubleVar())
+        elif param_types[pnam] == 'boolean_list':
+            center_var[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_var[pnam].append(tk.BooleanVar())
         else:
             raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
-        center_var[pnam].set(values[pnam])
+        if '_list' in input_types[pnam]:
+            for j in range(list_sizes[pnam]):
+                center_var[pnam][j].set(values[pnam][j])
+        else:
+            center_var[pnam].set(values[pnam])
         center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2],highlightthickness=0)
         center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         center_cnv[pnam].pack_propagate(False)
@@ -345,6 +439,11 @@ def set(parent):
             center_btn[pnam] = tk.Button(center_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folders("{}")'.format(pnam)))
             center_btn[pnam].image = browse_img
             center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+        elif '_list' in input_types[pnam]:
+            center_inp[pnam] = []
+            for j in range(list_sizes[pnam]):
+                center_inp[pnam].append(tk.Entry(center_cnv[pnam],width=10,background=bgs[i%2],textvariable=center_var[pnam][j]))
+                center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT,expand=True)
         else:
             raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,input_types[pnam]))
         left_cnv[pnam] = tk.Canvas(left_frame,width=left_frame_width,height=left_cnv_height,background=bgs[i%2],highlightthickness=0)
@@ -359,7 +458,12 @@ def set(parent):
         right_cnv[pnam].pack_propagate(False)
         right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     for pnam in pnams:
-        vcmd = (center_inp[pnam].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
-        center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
+        if '_list' in param_types[pnam]:
+            for j in range(list_sizes[pnam]):
+                vcmd = (center_inp[pnam][j].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
+                center_inp[pnam][j].config(validatecommand=vcmd,validate='focusout')
+        else:
+            vcmd = (center_inp[pnam].register(eval('lambda x:check_err("{}",x)'.format(pnam))),'%P')
+            center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
     check_all(source='input')
     root.bind('<Configure>',on_frame_configure)
