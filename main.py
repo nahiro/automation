@@ -73,8 +73,16 @@ def check_child(pnam):
             check_values,check_errors = modules[pnam].check_all(source='value')
             err = False
             for error in check_errors.values():
-                if error:
-                    err = True
+                if hasattr(error,'__iter__'):
+                    for e in error:
+                        if e:
+                            err = True
+                            break
+                else:
+                    if error:
+                        err = True
+                if err:
+                    break
             if err:
                 right_lbl[pnam].pack(side=tk.LEFT)
             else:
