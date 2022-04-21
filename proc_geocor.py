@@ -9,49 +9,77 @@ proc_name = 'geocor'
 proc_title = 'Geometric Correction'
 pnams = []
 pnams.append('ref_fnam')
-pnams.append('trg_fnam')
+pnams.append('ref_bands')
 pnams.append('ref_pixel')
+pnams.append('trg_fnam')
 pnams.append('trg_binning')
 pnams.append('part_sizes')
+pnams.append('gcp_intervals')
+pnams.append('max_shifts')
+pnams.append('margins')
 pnams.append('higher_flags')
 params = {}
 params['ref_fnam'] = 'Reference Image'
-params['trg_fnam'] = 'Orthomosaic Image'
+params['ref_bands'] = 'Reference Band'
 params['ref_pixel'] = 'Reference Pixel Size'
-params['trg_binning'] = 'Target Binning Number'
+params['trg_fnam'] = 'Orthomosaic Image'
+params['trg_binning'] = 'Target Binning Size'
 params['part_sizes'] = 'Partial Image Size'
+params['gcp_intervals'] = 'GCP Interval'
+params['max_shifts'] = 'Max Shift'
+params['margins'] = 'Image Margin'
 params['higher_flags'] = 'Higher Order Flag'
 param_types = {}
 param_types['ref_fnam'] = 'string'
-param_types['trg_fnam'] = 'string'
+param_types['ref_bands'] = 'int_list'
 param_types['ref_pixel'] = 'double'
+param_types['trg_fnam'] = 'string'
 param_types['trg_binning'] = 'int'
 param_types['part_sizes'] = 'int_list'
+param_types['gcp_intervals'] = 'int_list'
+param_types['max_shifts'] = 'int_list'
+param_types['margins'] = 'int_list'
 param_types['higher_flags'] = 'boolean_list'
 defaults = {}
 defaults['ref_fnam'] = 'wv2_180629_pan.tif'
-defaults['trg_fnam'] = 'test.tif'
+defaults['ref_bands'] = [-1,None]
 defaults['ref_pixel'] = 0.2
+defaults['trg_fnam'] = 'test.tif'
 defaults['trg_binning'] = 8
 defaults['part_sizes'] = [250,250,120,120,80]
+defaults['gcp_intervals'] = [125,125,60,60,40]
+defaults['max_shifts'] = [40,25,12,8,8]
+defaults['margins'] = [60,40,18,12,12]
 defaults['higher_flags'] = [True,True,True]
 defaults['boundary_width'] = 0.6
 list_sizes = {}
+list_sizes['ref_bands'] = 2
 list_sizes['part_sizes'] = 5
+list_sizes['gcp_intervals'] = 5
+list_sizes['max_shifts'] = 5
+list_sizes['margins'] = 5
 list_sizes['higher_flags'] = 3
 list_labels = {}
-list_labels['part_sizes'] = ['','','','','']
+list_labels['ref_bands'] = ['','']
 #list_labels['part_sizes'] = ['1','2','3','4','5']
+list_labels['part_sizes'] = ['','','','','']
+list_labels['gcp_intervals'] = ['','','','','']
+list_labels['max_shifts'] = ['','','','','']
+list_labels['margins'] = ['','','','','']
 list_labels['higher_flags'] = ['1st','2nd','3rd']
 values = {}
 for pnam in pnams:
     values[pnam] = defaults[pnam]
 input_types = {}
 input_types['ref_fnam'] = 'ask_file'
-input_types['trg_fnam'] = 'ask_file'
+input_types['ref_bands'] = 'int_list'
 input_types['ref_pixel'] = 'box'
+input_types['trg_fnam'] = 'ask_file'
 input_types['trg_binning'] = 'box'
 input_types['part_sizes'] = 'int_list'
+input_types['gcp_intervals'] = 'int_list'
+input_types['max_shifts'] = 'int_list'
+input_types['margins'] = 'int_list'
 input_types['higher_flags'] = 'boolean_list'
 
 top_frame_height = 5
@@ -118,9 +146,11 @@ def reset():
     for pnam in pnams:
         if '_list' in param_types[pnam]:
             for j in range(list_sizes[pnam]):
-                center_var[pnam][j].set(values[pnam][j])
+                if values[pnam][j] is not None:
+                    center_var[pnam][j].set(values[pnam][j])
         else:
-            center_var[pnam].set(values[pnam])
+            if values[pnam] is not None:
+                center_var[pnam].set(values[pnam])
     return
 
 def exit():
@@ -176,58 +206,73 @@ def get_value(pnam,indx=None):
     else:
         return values[pnam]
 
-def check_ref_fnam(t):
-    pnam = 'ref_fnam'
+def check_file(s,t):
     try:
         if not os.path.exists(t):
-            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
+            raise IOError('Error in {}, no such file >>> {}'.format(s,t))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_trg_fnam(t):
-    pnam = 'trg_fnam'
+def check_int(s,t,vmin=-sys.maxsize,vmax=sys.maxsize):
     try:
-        if not os.path.exists(t):
-            raise IOError('Error in {}, no such file >>> {}'.format(params[pnam],t))
+        print('HEREEEEE, t=',t)
+        if t is None or t == '':
+            return True
+        n = int(t)
+        if n < vmin or n > vmax:
+            raise ValueError('Error in {}, out of range >>> {}'.format(s,t))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
+
+def check_double(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max):
+    try:
+        v = float(t)
+        if v < vmin or v > vmax:
+            raise ValueError('Error in {}, out of range >>> {}'.format(s,t))
+        return True
+    except Exception as e:
+        sys.stderr.write(str(e)+'\n')
+        return False
+
+def check_ref_fnam(t):
+    pnam = 'ref_fnam'
+    return check_file(params[pnam],t)
+
+def check_ref_bands(t):
+    pnam = 'ref_bands'
+    return check_int(params[pnam],t,-1,1000)
 
 def check_ref_pixel(t):
     pnam = 'ref_pixel'
-    try:
-        v = float(t)
-        if v < 0.01 or v > 50.0:
-            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        return True
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        return False
+    return check_double(params[pnam],t,0.01,50.0)
+
+def check_trg_fnam(t):
+    pnam = 'trg_fnam'
+    return check_file(params[pnam],t)
 
 def check_trg_binning(t):
     pnam = 'trg_binning'
-    try:
-        n = int(t)
-        if n < 1 or n > 64:
-            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        return True
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        return False
+    return check_int(params[pnam],t,1,64)
 
 def check_part_sizes(t):
     pnam = 'part_sizes'
-    try:
-        n = int(t)
-        if n < 10 or n > 1000000:
-            raise ValueError('Error in {}, out of range >>> {}'.format(params[pnam],t))
-        return True
-    except Exception as e:
-        sys.stderr.write(str(e)+'\n')
-        return False
+    return check_int(params[pnam],t,2,1000000)
+
+def check_gcp_intervals(t):
+    pnam = 'gcp_intervals'
+    return check_int(params[pnam],t,1,1000000)
+
+def check_max_shifts(t):
+    pnam = 'max_shifts'
+    return check_int(params[pnam],t,1,1000000)
+
+def check_margins(t):
+    pnam = 'margins'
+    return check_int(params[pnam],t,1,1000000)
 
 def check_higher_flags(t):
     pnam = 'higher_flags'
@@ -417,9 +462,11 @@ def set(parent):
             raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,param_types[pnam]))
         if '_list' in input_types[pnam]:
             for j in range(list_sizes[pnam]):
-                center_var[pnam][j].set(values[pnam][j])
+                if values[pnam][j] is not None:
+                    center_var[pnam][j].set(values[pnam][j])
         else:
-            center_var[pnam].set(values[pnam])
+            if values[pnam] is not None:
+                center_var[pnam].set(values[pnam])
         center_cnv[pnam] = tk.Canvas(center_frame,width=center_frame_width,height=center_cnv_height,background=bgs[i%2],highlightthickness=0)
         center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
         center_cnv[pnam].pack_propagate(False)
