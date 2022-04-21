@@ -12,7 +12,7 @@ pnams = []
 pnams.append('inpdirs')
 pnams.append('outdir')
 pnams.append('qmin')
-pnams.append('sflag')
+pnams.append('calib_flag')
 pnams.append('panel_fnam')
 pnams.append('align_level')
 pnams.append('preselect')
@@ -28,7 +28,7 @@ params = {}
 params['inpdirs'] = 'Input Folders'
 params['outdir'] = 'Output Folder'
 params['qmin'] = 'Min Image Quality'
-params['sflag'] = 'Sun Sensor Flag'
+params['calib_flag'] = 'Reflectance Calibration'
 params['panel_fnam'] = 'Panel Reflectance File'
 params['align_level'] = 'Alignment Accuracy'
 params['preselect'] = 'Preselection'
@@ -44,7 +44,7 @@ param_types = {}
 param_types['inpdirs'] = 'string'
 param_types['outdir'] = 'string'
 param_types['qmin'] = 'double'
-param_types['sflag'] = 'boolean'
+param_types['calib_flag'] = 'boolean_list'
 param_types['panel_fnam'] = 'string'
 param_types['align_level'] = 'string_select'
 param_types['preselect'] = 'boolean_list'
@@ -60,8 +60,8 @@ defaults = {}
 defaults['inpdirs'] = 'input'
 defaults['outdir'] = 'output'
 defaults['qmin'] = 0.5
-defaults['sflag'] = False
-defaults['panel_fnam'] = 'panel.csv'
+defaults['calib_flag'] = [False,True]
+defaults['panel_fnam'] = ''
 defaults['align_level'] = 'High'
 defaults['preselect'] = [True,True]
 defaults['point_limit'] = [40000,4000]
@@ -73,6 +73,7 @@ defaults['pixel_size'] = np.nan
 defaults['scale_factor'] = 10.0
 defaults['output_type'] = 'Int16'
 list_sizes = {}
+list_sizes['calib_flag'] = 2
 list_sizes['align_level'] = 3
 list_sizes['preselect'] = 2
 list_sizes['point_limit'] = 2
@@ -81,6 +82,7 @@ list_sizes['cam_params'] = 10
 list_sizes['depth_map'] = 2
 list_sizes['output_type'] = 3
 list_labels = {}
+list_labels['calib_flag'] = ['Reflectance Panel  ','Sun Sensor']
 list_labels['align_level'] = ['High','Medium','Low']
 list_labels['preselect'] = ['Generic','Reference']
 list_labels['point_limit'] = ['Key :',' Tie :']
@@ -95,7 +97,7 @@ input_types = {}
 input_types['inpdirs'] = 'ask_folders'
 input_types['outdir'] = 'ask_folder'
 input_types['qmin'] = 'box'
-input_types['sflag'] = 'boolean'
+input_types['calib_flag'] = 'boolean_list'
 input_types['panel_fnam'] = 'ask_file'
 input_types['align_level'] = 'string_select'
 input_types['preselect'] = 'boolean_list'
@@ -313,13 +315,14 @@ def check_qmin(t):
     pnam = 'qmin'
     return check_double(params[pnam],t,0.0,1.0)
 
-def check_sflag(t):
-    pnam = 'sflag'
+def check_calib_flag(t):
+    pnam = 'calib_flag'
     return True
 
 def check_panel_fnam(t):
     pnam = 'panel_fnam'
-    return check_file(params[pnam],t,flag=values['sflag'])
+    return True
+    #return check_file(params[pnam],t,flag=values['calib_flag'][0])
 
 def check_align_level(t):
     pnam = 'align_level'
