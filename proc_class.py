@@ -45,26 +45,34 @@ class Process:
         self.center_inp = None
         self.right_lbl = None
 
-    def ask_file(self,pnam,dnam=inidir):
+    def ask_file(self,pnam,dnam=None):
+        if dnam is None:
+            dnam = self.inidir
         path = tkfilebrowser.askopenfilename(initialdir=dnam)
         if len(path) > 0:
             self.center_var[pnam].set(path)
         return
 
-    def ask_files(self,pnam,dnam=inidir):
+    def ask_files(self,pnam,dnam=None):
+        if dnam is None:
+            dnam = self.inidir
         files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
         if len(files) > 0:
             path = ';'.join(files)
             self.center_var[pnam].set(path)
         return
 
-    def ask_folder(self,pnam,dnam=inidir):
+    def ask_folder(self,pnam,dnam=None):
+        if dnam is None:
+            dnam = self.inidir
         path = tkfilebrowser.askopendirname(initialdir=dnam)
         if len(path) > 0:
             self.center_var[pnam].set(path)
         return
 
-    def ask_folders(self,pnam,dnam=inidir):
+    def ask_folders(self,pnam,dnam=None):
+        if dnam is None:
+            dnam = self.inidir
         dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
         if len(dirs) > 0:
             path = ';'.join(dirs)
