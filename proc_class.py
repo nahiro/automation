@@ -108,7 +108,7 @@ class Process:
     def run(self):
         sys.stderr.write('Running process {}.\n'.format(self.proc_name))
         command = 'python'
-        command += ' {}'.format(os.path.join(scrdir,'func.py'))
+        command += ' {}'.format(os.path.join(self.scrdir,'func.py'))
         call(command,shell=True)
         return
 
@@ -158,25 +158,25 @@ class Process:
             if self.param_types[pnam] == 'string':
                 return True
             elif self.param_types[pnam] == 'int':
-                return check_int(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+                return check_int(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
             elif self.param_types[pnam] == 'double':
-                return check_double(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+                return check_double(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif self.input_types[pnam] == 'ask_file':
-            return check_file(params[pnam],t)
+            return check_file(self.params[pnam],t)
         elif self.input_types[pnam] == 'ask_files':
-            return check_files(params[pnam],t)
+            return check_files(self.params[pnam],t)
         elif self.input_types[pnam] == 'ask_folder':
-            return check_folder(params[pnam],t)
+            return check_folder(self.params[pnam],t)
         elif self.input_types[pnam] == 'ask_folders':
-            return check_folders(params[pnam],t)
+            return check_folders(self.params[pnam],t)
         elif self.input_types[pnam] == 'boolean':
             return True
         elif self.input_types[pnam] == 'boolean_list':
             return True
         elif 'int_list' in self.input_types[pnam]:
-            return check_int(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+            return check_int(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif 'double_list' in self.input_types[pnam]:
-            return check_double(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+            return check_double(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif '_select' in self.input_types[pnam]:
             return True
         elif '_select_list' in self.input_types[pnam]:
@@ -314,7 +314,7 @@ class Process:
         self.bottom_lbl[pnam] = tk.Label(self.bottom_frame,text='')
         self.bottom_lbl[pnam].pack(fill=tk.X,side=tk.LEFT,expand=True)
 
-        browse_img = tk.PhotoImage(file=browse_image)
+        browse_img = tk.PhotoImage(file=self.browse_image)
         bgs = [None,None]
         self.center_var = {}
         self.center_cnv = {}
@@ -377,25 +377,25 @@ class Process:
             elif self.input_types[pnam] == 'ask_file':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda:self.ask_file("{}")'.format(pnam)))
+                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_file("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_files':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda:self.ask_files("{}")'.format(pnam)))
+                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_files("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folder':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda:self.ask_folder("{}")'.format(pnam)))
+                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_folder("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folders':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda:self.ask_folders("{}")'.format(pnam)))
+                self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_folders("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'boolean':
@@ -452,10 +452,10 @@ class Process:
                 pass
             elif '_list' in self.param_types[pnam]:
                 for j in range(self.list_sizes[pnam]):
-                    vcmd = (self.center_inp[pnam][j].register(eval('lambda x:self.check_err("{}",x)'.format(pnam))),'%P')
+                    vcmd = (self.center_inp[pnam][j].register(eval('lambda x,self=self:self.check_err("{}",x)'.format(pnam))),'%P')
                     self.center_inp[pnam][j].config(validatecommand=vcmd,validate='focusout')
             else:
-                vcmd = (self.center_inp[pnam].register(eval('lambda x:self.check_err("{}",x)'.format(pnam))),'%P')
+                vcmd = (self.center_inp[pnam].register(eval('lambda x,self=self:self.check_err("{}",x)'.format(pnam))),'%P')
                 self.center_inp[pnam].config(validatecommand=vcmd,validate='focusout')
         self.check_all(source='input')
         self.root.bind('<Configure>',self.on_frame_configure)
