@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkfilebrowser
 from subprocess import call
+from proc_func import *
 
 class Process:
 
@@ -14,6 +15,7 @@ class Process:
         self.pnams = []
         self.params = {}
         self.param_types = {}
+        self.param_range = {}
         self.defaults = {}
         self.list_sizes = {}
         self.list_labels = {}
@@ -143,8 +145,39 @@ class Process:
         else:
             return self.values[pnam]
 
+    def check_par(self,pnam,t):
+        if self.input_types[pnam] == 'box':
+            if self.param_types[pnam] == 'string':
+                return True
+            elif self.param_types[pnam] == 'int':
+                return check_int(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+            elif self.param_types[pnam] == 'double':
+                return check_double(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+        elif self.input_types[pnam] == 'ask_file':
+            return check_file(params[pnam],t)
+        elif self.input_types[pnam] == 'ask_files':
+            return check_files(params[pnam],t)
+        elif self.input_types[pnam] == 'ask_folder':
+            return check_folder(params[pnam],t)
+        elif self.input_types[pnam] == 'ask_folders':
+            return check_folders(params[pnam],t)
+        elif self.input_types[pnam] == 'boolean':
+            return True
+        elif self.input_types[pnam] == 'boolean_list':
+            return True
+        elif 'int_list' in self.input_types[pnam]:
+            return check_int(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+        elif 'double_list' in self.input_types[pnam]:
+            return check_double(self.params[pnam],t,param_range[pnam][0],param_range[pnam][1])
+        elif '_select' in self.input_types[pnam]:
+            return True
+        elif '_select_list' in self.input_types[pnam]:
+            return True
+        else:
+            raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,self.input_types[pnam]))
+
     def check_err(self,pnam,t):
-        ret = eval('check_{}(t)'.format(pnam))
+        ret = self.check_par(pnam,t)
         if self.right_lbl[pnam] is not None:
             if ret:
                 self.right_lbl[pnam].pack_forget()
@@ -171,7 +204,7 @@ class Process:
                 try:
                     for j in range(self.list_sizes[pnam]):
                         t = get(pnam,j)
-                        ret = eval('check_{}(t)'.format(pnam))
+                        ret = self.check_par(pnam,t)
                         if ret:
                             if self.center_var is None:
                                 check_values[pnam][j] = self.values[pnam][j]
@@ -187,7 +220,7 @@ class Process:
                 check_errors[pnam] = True
                 try:
                     t = get(pnam)
-                    ret = eval('check_{}(t)'.format(pnam))
+                    ret = self.check_par(pnam,t)
                     if ret:
                         if self.center_var is None:
                             check_values[pnam] = self.values[pnam]
