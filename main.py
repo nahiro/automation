@@ -2,14 +2,14 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 from custom_calendar import CustomDateEntry
-import proc_orthomosaic
-import proc_geocor
-import proc_indices
-import proc_identify
-import proc_extract
-import proc_formula
-import proc_apply
-import proc_output
+from proc_orthomosaic import proc_orthomosaic
+from proc_geocor import proc_geocor
+from proc_indices import proc_indices
+from proc_identify import proc_identify
+from proc_extract import proc_extract
+from proc_formula import proc_formula
+from proc_apply import proc_apply
+from proc_output import proc_output
 
 pnams = []
 pnams.append('orthomosaic')

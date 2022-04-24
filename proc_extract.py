@@ -1,13 +1,5 @@
-import sys
+from proc_class import Process
 
-proc_name = 'extract'
-proc_title = 'Extract Indices'
-
-def set(parent):
-    return
-
-def check_all(source='input'):
-    return {},{}
-
-def run():
-    sys.stderr.write('Running process {}.\n'.format(proc_name))
+proc_extract = Process()
+proc_extract.proc_name = 'extract'
+proc_extract.proc_title = 'Extract Indices'

@@ -1,13 +1,5 @@
-import sys
+from proc_class import Process
 
-proc_name = 'apply'
-proc_title = 'Apply Formula'
-
-def set(parent):
-    return
-
-def check_all(source='input'):
-    return {},{}
-
-def run():
-    sys.stderr.write('Running process {}.\n'.format(proc_name))
+proc_apply = Process()
+proc_apply.proc_name = 'apply'
+proc_apply.proc_title = 'Apply Formula'
