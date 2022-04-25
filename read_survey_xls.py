@@ -5,16 +5,17 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import pyproj
-from pyproj import Proj,transform
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Defaults
+SHEET = 0
 EPSG = 32748 # UTM zone 48S
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--inp_fnam',default=None,help='Input file name (%default)')
 parser.add_option('-O','--out_fnam',default=None,help='Output file name (%default)')
+parser.add_option('-S','--sheet',default=SHEET,type='int',help='Sheet number (%default)')
 parser.add_option('-E','--epsg',default=EPSG,help='Output EPSG (%default)')
 (opts,args) = parser.parse_args()
 
@@ -36,13 +37,18 @@ if int(pyproj.__version__[0]) > 1:
         return pyproj.Transformer.from_crs(4326,opts.epsg,always_xy=True).transform(longitude,latitude)
 else:
     def transform_wgs84_to_utm(longitude,latitude):
-        inProj = Proj(init='epsg:4326')
-        outProj = Proj(init='epsg:{}'.format(opts.epsg))
-        return transform(inProj,outProj,longitude,latitude)
+        inProj = pyproj.Proj(init='epsg:4326')
+        outProj = pyproj.Proj(init='epsg:{}'.format(opts.epsg))
+        return pyproj.transform(inProj,outProj,longitude,latitude)
     
 xl = pd.ExcelFile(opts.inp_fnam)
-sheets = xl.sheet_names
-df = pd.read_excel(xl,header=None)
+if opts.sheet > 0:
+    sheets = xl.sheet_names
+    if len(sheets) <= opts.sheet:
+        raise ValueError('Error, len(sheets)={}, opts.sheet={}'.format(len(sheets),opts.sheet))
+    df = pd.read_excel(xl,header=None,sheet_name=sheets[opts.sheet])
+else:
+    df = pd.read_excel(xl,header=None)
 ny,nx = df.shape
 
 location = None
@@ -256,5 +262,7 @@ with open(opts.out_fnam,'w') as fp:
         fp.write('\n')
     fp.write('# Variety: {}\n'.format(variety))
     fp.write('# Village: {}\n'.format(village))
+    fp.write('#------------------------\n')
+    fp.write('# Bunch Number, Plot Paddy, Easting, Northing, Damaged by BLB\n')
     for i in range(len(plot_bunch)):
         fp.write('{:3d} {:3d} {:12.4f} {:13.4f} {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
