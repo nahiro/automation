@@ -21,13 +21,13 @@ def read_gps(s):
     m = re.search('([nNsS])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\.]+)\s*\"\s*([eEwW])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\.]+)',s)
     if not m:
         raise ValueError('Error, cannot read GPS coordinates >>> {}'.format(s))
-    n = float(m.group(2))+float(m.group(3))/60.0+float(m.group(4))/3600.0
+    lat = float(m.group(2))+float(m.group(3))/60.0+float(m.group(4))/3600.0
     if m.group(1).upper() == 'S':
-        n *= -1
-    e = float(m.group(6))+float(m.group(7))/60.0+float(m.group(8))/3600.0
+        lat *= -1
+    lon = float(m.group(6))+float(m.group(7))/60.0+float(m.group(8))/3600.0
     if m.group(5).upper() == 'W':
-        e *= -1
-    return n,e
+        lon *= -1
+    return lon,lat
 
 def transform_wgs84_to_utm(longitude,latitude):
     inProj = Proj(init='epsg:4326')
@@ -44,10 +44,6 @@ date = None
 trans_date = None
 variety = None
 village = None
-plot_bunch = None
-gps_bunch = None
-blb_bunch = None
-gps_plot = None
 for i in range(ny):
     line = ''
     for j in range(nx):
@@ -194,6 +190,8 @@ plot_bunch = []
 lon_bunch = []
 lat_bunch = []
 blb_bunch = []
+lon_plot = {}
+lat_plot = {}
 plot = None
 for i in range(row_number_str,row_number_end):
     v1 = df.iloc[i,col_plot_1]
@@ -204,15 +202,53 @@ for i in range(row_number_str,row_number_end):
         plot = v1
     number_bunch.append(df.iloc[i,col_number_1])
     plot_bunch.append(plot)
-    lat,lon = read_gps(df.iloc[i,col_gps_bunch])
+    lon,lat = read_gps(df.iloc[i,col_gps_bunch])
     lon_bunch.append(lon)
     lat_bunch.append(lat)
     blb = df.iloc[i,col_blb_bunch]
     if np.isnan(blb):
         blb = 0
     blb_bunch.append(blb)
+    if not plot in lon_plot:
+        lon_plot[plot] = []
+        lat_plot[plot] = []
+    try:
+        lon,lat = read_gps(df.iloc[i,col_gps_paddy])
+        lon_plot[plot].append(lon)
+        lat_plot[plot].append(lat)
+    except Exception:
+        continue
 x_bunch,y_bunch = transform_wgs84_to_utm(lon_bunch,lat_bunch)
+if len(lon_plot) < 1 or len(lon_plot) != len(lat_plot):
+    raise ValueError('Error, len(lon_plot)={}, len(lat_plot)={}'.format(len(lon_plot),len(lat_plot)))
+plots = np.unique(plot_bunch)
+x_plot = {}
+y_plot = {}
+for plot in plots:
+    if len(lon_plot[plot]) < 1 or len(lon_plot[plot]) != len(lat_plot[plot]):
+        raise ValueError('Error, len(lon_plot[{}])={}, len(lat_plot[{}])={}'.format(plot,len(lon_plot[plot]),plot,len(lat_plot[plot])))
+    x,y = transform_wgs84_to_utm(lon_plot[plot],lat_plot[plot])
+    x_plot[plot] = x
+    y_plot[plot] = y
+date_plot = {}
+dtim_plot = {}
+for plot in plots:
+    # Plot 1. 04.01.2022 Plot 2. 04.01.2022 Plot 3. 04.01.2022
+    m = re.search('Plot\s*{}[\D]+([\d\.]+)\s*'.format(plot),trans_date)
+    if not m:
+        raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
+    date_plot[plot] = m.group(1)
+    dtim_plot[plot] = datetime.strptime(date_plot[plot],'%d.%m.%Y')
 
 with open(opts.out_fnam,'w') as fp:
+    fp.write('# Location: {}\n'.format(location))
+    fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
+    for plot in plots:
+        fp.write('# Plot{}: {:%Y-%m-%d}'.format(plot,dtim_plot[plot]))
+        for i in range(len(x_plot[plot])):
+            fp.write(' {:12.4f} {:13.4f}'.format(x_plot[plot][i],y_plot[plot][i]))
+        fp.write('\n')
+    fp.write('# Variety: {}\n'.format(variety))
+    fp.write('# Village: {}\n'.format(village))
     for i in range(len(plot_bunch)):
         fp.write('{:3d} {:3d} {:12.4f} {:13.4f} {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
