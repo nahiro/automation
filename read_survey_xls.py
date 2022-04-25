@@ -1,19 +1,20 @@
-import pandas as pd
 import sys
 import re
 import numpy as np
-from pyproj import Proj,transform
+import pandas as pd
 from datetime import datetime
+from pyproj import Proj,transform
+from optparse import OptionParser,IndentedHelpFormatter
 
-location = None
-date = None
-trans_date = None
-variety = None
-village = None
-plot_bunch = None
-gps_bunch = None
-blb_bunch = None
-gps_plot = None
+# Defaults
+EPSG = 32748 # UTM zone 48S
+
+# Read options
+parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser.add_option('-I','--inp_fnam',default=None,help='Input file name (%default)')
+parser.add_option('-O','--out_fnam',default=None,help='Output file name (%default)')
+parser.add_option('-E','--epsg',default=EPSG,help='Output EPSG (%default)')
+(opts,args) = parser.parse_args()
 
 def read_gps(s):
     #'S 06°50\'31.62"  E 107°16\'41.50"'
@@ -30,14 +31,23 @@ def read_gps(s):
 
 def transform_wgs84_to_utm(longitude,latitude):
     inProj = Proj(init='epsg:4326')
-    outProj = Proj(init='epsg:32748')
+    outProj = Proj(init='epsg:{}'.format(opts.epsg))
     return transform(inProj,outProj,longitude,latitude)
     
-fnam = 'CIHEA - 11 B (20220311).xls'
-xl = pd.ExcelFile(fnam)
+xl = pd.ExcelFile(opts.inp_fnam)
 sheets = xl.sheet_names
 df = pd.read_excel(xl,header=None)
 ny,nx = df.shape
+
+location = None
+date = None
+trans_date = None
+variety = None
+village = None
+plot_bunch = None
+gps_bunch = None
+blb_bunch = None
+gps_plot = None
 for i in range(ny):
     line = ''
     for j in range(nx):
@@ -49,7 +59,7 @@ for i in range(ny):
     if location is None:
         m = re.search('Location[^:]*:\s*([^,]+)\s*,',line)
         if m:
-            location = m.group(1).strip()
+            location = m.group(1).strip().replace(' ','')
     if date is None:
         m = re.search('Time Observation[^:]*:\s*([^,]+)\s*,',line)
         if m:
@@ -66,6 +76,13 @@ for i in range(ny):
         m = re.search('Village[^:]*:\s*(.*)\s*,\s*Village',line)
         if m:
             village = m.group(1).strip()
+if location is None:
+    raise ValueError('Error, failed in finding location.')
+if date is None:
+    raise ValueError('Error, failed in finding date.')
+dtim = datetime.strptime(date,'%d.%m.%Y')
+if opts.out_fnam is None:
+    opts.out_fnam = '{}_{:%Y-%m-%d}_blb.csv'.format(location,dtim)
 
 row_number_str = None
 col_number_1 = 0
@@ -172,7 +189,7 @@ for j in range(col_number_2+1,nx):
 if col_gps_paddy is None:
     raise ValueError('Error, failed in finding col_gps_paddy.')
 
-
+number_bunch = []
 plot_bunch = []
 lon_bunch = []
 lat_bunch = []
@@ -185,6 +202,7 @@ for i in range(row_number_str,row_number_end):
         if v1 != v2:
             raise ValueError('Error, different plot number, v1={}, v2={}'.format(v1,v2))
         plot = v1
+    number_bunch.append(df.iloc[i,col_number_1])
     plot_bunch.append(plot)
     lat,lon = read_gps(df.iloc[i,col_gps_bunch])
     lon_bunch.append(lon)
@@ -193,3 +211,8 @@ for i in range(row_number_str,row_number_end):
     if np.isnan(blb):
         blb = 0
     blb_bunch.append(blb)
+x_bunch,y_bunch = transform_wgs84_to_utm(lon_bunch,lat_bunch)
+
+with open(opts.out_fnam,'w') as fp:
+    for i in range(len(plot_bunch)):
+        fp.write('{:3d} {:3d} {:12.4f} {:13.4f} {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
