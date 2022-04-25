@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 import sys
 import re
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import pyproj
 from pyproj import Proj,transform
 from optparse import OptionParser,IndentedHelpFormatter
 
@@ -29,10 +31,14 @@ def read_gps(s):
         lon *= -1
     return lon,lat
 
-def transform_wgs84_to_utm(longitude,latitude):
-    inProj = Proj(init='epsg:4326')
-    outProj = Proj(init='epsg:{}'.format(opts.epsg))
-    return transform(inProj,outProj,longitude,latitude)
+if int(pyproj.__version__[0]) > 1:
+    def transform_wgs84_to_utm(longitude,latitude):
+        return pyproj.Transformer.from_crs(4326,opts.epsg,always_xy=True).transform(longitude,latitude)
+else:
+    def transform_wgs84_to_utm(longitude,latitude):
+        inProj = Proj(init='epsg:4326')
+        outProj = Proj(init='epsg:{}'.format(opts.epsg))
+        return transform(inProj,outProj,longitude,latitude)
     
 xl = pd.ExcelFile(opts.inp_fnam)
 sheets = xl.sheet_names
