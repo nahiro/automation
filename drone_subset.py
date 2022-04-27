@@ -20,6 +20,8 @@ XMGN = 10.0 # m
 YWID = 0.01 # m
 BUFFER = 5.0 # m
 FIGNAM = 'drone_subset.pdf'
+FACT = 10.0
+GAMMA = 2.2
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -33,6 +35,8 @@ parser.add_option('-M','--ymgn',default=None,type='float',help='Y margin in m (%
 parser.add_option('-W','--ywid',default=YWID,type='float',help='Y width in m (%default)')
 parser.add_option('-b','--buffer',default=BUFFER,type='float',help='Buffer radius in m (%default)')
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
+parser.add_option('-S','--fact',default=FACT,type='float',help='Scale factor of output figure for debug (%default)')
+parser.add_option('-G','--gamma',default=GAMMA,type='float',help='Gamma factor of output figure for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.ymgn is None:
@@ -125,7 +129,7 @@ for plot in plots:
     if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
         raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
     tnam = bnam+'_{}_temp'.format(plot)+enam
-    onam = bnam+'_{}'.format(plot)+enam
+    onam = bnam+'_plot{}'.format(plot)+enam
     command = 'gdal_translate'
     command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
     command += ' {}'.format(opts.src_geotiff)
@@ -244,11 +248,14 @@ for plot in plots:
         b = tmp_data[0].astype(np.float32)
         g = tmp_data[1].astype(np.float32)
         r = tmp_data[2].astype(np.float32)
-        fact = 10.0
+        fact = opts.fact
         b = (b*fact/32768.0).clip(0,1)
         g = (g*fact/32768.0).clip(0,1)
         r = (r*fact/32768.0).clip(0,1)
-        rgb = np.power(np.dstack((r,g,b)),1.0/2.2)
+        if np.abs(opts.gamma-1.0) > 1.0e-6:
+            rgb = np.power(np.dstack((r,g,b)),1.0/opts.gamma)
+        else:
+            rgb = np.dstack((r,g,b))
         fig.clear()
         if tmp_ny > tmp_nx:
             wx = tmp_nx/tmp_ny
@@ -271,6 +278,9 @@ for plot in plots:
             ax1.add_patch(patch)
         ax1.plot(xg,yg,'ko')
         ax1.plot(xf,yf,'k:')
+        ng = number_bunch[groups[plot]]
+        for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+            ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         ax1.set_xlim(tmp_xmin,tmp_xmax)
         ax1.set_ylim(tmp_ymin,tmp_ymax)
         plt.savefig(pdf,format='pdf')
