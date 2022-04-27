@@ -65,7 +65,7 @@ def calc_vout(vpix):
     vout = (cnv1*filt1.size-cnv2*filt2.size)/(filt1.size-filt2.size)
     return vout
 
-def calc_sn(vpix,vout)
+def calc_sn(vpix,vout):
     vpix2 = np.square(vpix)
     cnv1 = convolve2d(vpix2,filt1,mode='same')
     cnv2 = convolve2d(vpix2,filt2,mode='same')
@@ -73,7 +73,7 @@ def calc_sn(vpix,vout)
     sn = (vpix-vout)/np.sqrt(vout2-vout*vout)
     return sn
 
-def calc_sb(vpix,vout)
+def calc_sb(vpix,vout):
     sb = (vpix-vout)/vout
     return sb
 
@@ -254,7 +254,7 @@ dst_nodata = np.nan
 dst_data = [rr]
 dst_band = ['{}'.format(opts.param)]
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(onam,dst_nx,dst_ny,dst_nb,dst_dtype)
+ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)
