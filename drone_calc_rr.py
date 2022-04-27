@@ -4,6 +4,7 @@ import gdal
 import numpy as np
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
@@ -104,8 +105,10 @@ src_dtype = band.DataType
 src_nodata = band.GetNoDataValue()
 src_xmin = src_trans[0]
 src_xstp = src_trans[1]
+src_xmax = src_xmin+src_nx*src_xstp
 src_ymax = src_trans[3]
 src_ystp = src_trans[5]
+src_ymin = src_ymax+src_ny*src_ystp
 ds = None
 
 fnam = opts.src_geotiff
@@ -271,10 +274,10 @@ if opts.debug:
     plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     fig.clear()
-    ax1 = plot.subplot(111)
+    ax1 = plt.subplot(111)
     ax1.set_xticks([])
     ax1.set_yticks([])
-    ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),interpolation='none')
+    ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
     ax1.set_xlim(src_xmin,src_xmax)
     ax1.set_ylim(src_ymin,src_ymax)
     plt.savefig(opts.fignam)
