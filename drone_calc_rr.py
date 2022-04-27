@@ -27,7 +27,6 @@ band_index['n'] = 4
 PARAM = 'Lrg'
 INNER_SIZE = 29 # pixel
 OUTER_SIZE = 35 # pixel
-FIGNAM = 'drone_calc_rr.pdf'
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -38,7 +37,7 @@ parser.add_option('--data_min',default=None,type='float',help='Minimum data valu
 parser.add_option('--data_max',default=None,type='float',help='Maximum data value (%default)')
 parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
 parser.add_option('-o','--outer_size',default=OUTER_SIZE,type='int',help='Outer region size in pixel (%default)')
-parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
+parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp (%default)')
@@ -46,9 +45,12 @@ parser.add_option('-d','--debug',default=False,action='store_true',help='Debug m
 (opts,args) = parser.parse_args()
 if not opts.param in PARAMS:
     raise ValueError('Error, unknown parameter >>> {}'.format(opts.param))
-if opts.dst_geotiff is None:
+if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
-    opts.dst_geotiff = bnam+'_{}'.format(opts.param)+enam
+    if opts.dst_geotiff is None:
+        opts.dst_geotiff = bnam+'_{}'.format(opts.param)+enam
+    if opts.fignam is None:
+        opts.fignam = bnam+'_{}'.format(opts.param)+'.pdf'
 
 filt1 = np.ones((opts.outer_size,opts.outer_size))
 norm = filt1.sum()
