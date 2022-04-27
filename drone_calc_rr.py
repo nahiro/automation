@@ -90,6 +90,12 @@ if src_trans[2] != 0.0 or src_trans[4] != 0.0:
     raise ValueError('Error, src_trans={} >>> {}'.format(src_trans,opts.src_geotiff))
 src_meta = ds.GetMetadata()
 src_data = ds.ReadAsArray().astype(np.float64).reshape(src_nb,src_ny,src_nx)
+if opts.data_min is not None:
+    cnd = src_data < opts.data_min
+    src_data[cnd] = np.nan
+if opts.data_max is not None:
+    cnd = src_data > opts.data_max
+    src_data[cnd] = np.nan
 src_band = []
 for iband in range(src_nb):
     band = ds.GetRasterBand(iband+1)
@@ -102,8 +108,22 @@ src_ymax = src_trans[3]
 src_ystp = src_trans[5]
 ds = None
 
+fnam = opts.src_geotiff
+data_shape = (src_ny,src_nx)
 value_pix = {}
 value_out = {}
+band1 = 'r'
+band2 = 'g'
+if not band1 in value_pix:
+    value_pix[band1] = calc_vpix(src_data,band1)
+red = value_pix[band1]
+if red.shape != data_shape:
+    raise ValueError('Error, red.shape={}, data_shape={} >>> {}'.format(red.shape,data_shape,fnam))
+if not band2 in value_pix:
+    value_pix[band2] = calc_vpix(src_data,band2)
+green = value_pix[band2]
+if green.shape != data_shape:
+    raise ValueError('Error, green.shape={}, data_shape={} >>> {}'.format(green.shape,data_shape,fnam))
 if opts.param[0] == 'L':
     if len(opts.param) == 2:
         band1 = opts.param[1]
@@ -115,7 +135,6 @@ if opts.param[0] == 'L':
         norm = value_out[band1]
         if norm.shape != data_shape:
             raise ValueError('Error, norm.shape={}, data_shape={} >>> {}'.format(norm.shape,data_shape,fnam))
-        norm[norm<10.0] = np.nan
     elif len(opts.param) == 3:
         band1 = opts.param[1]
         band2 = opts.param[2]
@@ -127,7 +146,6 @@ if opts.param[0] == 'L':
         norm1 = value_out[band1]
         if norm1.shape != data_shape:
             raise ValueError('Error, norm1.shape={}, data_shape={} >>> {}'.format(norm1.shape,data_shape,fnam))
-        norm1[norm1<10.0] = np.nan
         if not band2 in value_pix:
             value_pix[band2] = calc_vpix(src_data,band2)
         if not band2 in value_out:
@@ -135,7 +153,6 @@ if opts.param[0] == 'L':
         norm2 = value_out[band2]
         if norm2.shape != data_shape:
             raise ValueError('Error, norm2.shape={}, data_shape={} >>> {}'.format(norm2.shape,data_shape,fnam))
-        norm2[norm2<10.0] = np.nan
         norm = norm1+norm2
     else:
         raise ValueError('Error, len(opts.param)={} >>> {}'.format(len(opts.param),opts.param))
@@ -148,7 +165,6 @@ elif opts.param[0] == 'G':
         norm1 = value_pix[band1]
         if norm1.shape != data_shape:
             raise ValueError('Error, norm1.shape={}, data_shape={} >>> {}'.format(norm1.shape,data_shape,fnam))
-        norm1[norm1<10.0] = np.nan
         norm = norm1[cnd_all].mean()
     elif len(opts.param) == 3:
         band1 = opts.param[1]
@@ -159,13 +175,11 @@ elif opts.param[0] == 'G':
         norm1 = value_pix[band1]
         if norm1.shape != data_shape:
             raise ValueError('Error, norm1.shape={}, data_shape={} >>> {}'.format(norm1.shape,data_shape,fnam))
-        norm1[norm1<10.0] = np.nan
         if not band2 in value_pix:
             value_pix[band2] = calc_vpix(src_data,band2)
         norm2 = value_pix[band2]
         if norm2.shape != data_shape:
             raise ValueError('Error, norm2.shape={}, data_shape={} >>> {}'.format(norm2.shape,data_shape,fnam))
-        norm2[norm2<10.0] = np.nan
         norm = norm1[cnd_all].mean()+norm2[cnd_all].mean()
     else:
         raise ValueError('Error, len(opts.param)={} >>> {}'.format(len(opts.param),opts.param))
@@ -178,7 +192,6 @@ elif opts.param[0] == 'S':
         norm = value_pix[band1]
         if norm.shape != data_shape:
             raise ValueError('Error, norm.shape={}, data_shape={} >>> {}'.format(norm.shape,data_shape,fnam))
-        norm[norm<10.0] = np.nan
     elif len(opts.param) == 3:
         band1 = opts.param[1]
         band2 = opts.param[2]
@@ -188,13 +201,11 @@ elif opts.param[0] == 'S':
         norm1 = value_pix[band1]
         if norm1.shape != data_shape:
             raise ValueError('Error, norm1.shape={}, data_shape={} >>> {}'.format(norm1.shape,data_shape,fnam))
-        norm1[norm1<10.0] = np.nan
         if not band2 in value_pix:
             value_pix[band2] = calc_vpix(src_data,band2)
         norm2 = value_pix[band2]
         if norm2.shape != data_shape:
             raise ValueError('Error, norm2.shape={}, data_shape={} >>> {}'.format(norm2.shape,data_shape,fnam))
-        norm2[norm2<10.0] = np.nan
         norm = norm1+norm2
     else:
         raise ValueError('Error, len(opts.param)={} >>> {}'.format(len(opts.param),opts.param))
@@ -229,20 +240,6 @@ else:
 if opts.param[0] == 'N' or opts.param[0] == 'B':
     rr = sn
 else:
-    band1 = 'r'
-    band2 = 'g'
-    if not band1 in value_pix:
-        value_pix[band1] = calc_vpix(src_data,band1)
-    red = value_pix[band1]
-    if red.shape != data_shape:
-        raise ValueError('Error, red.shape={}, data_shape={} >>> {}'.format(red.shape,data_shape,fnam))
-    red[red<10.0] = np.nan
-    if not band2 in value_pix:
-        value_pix[band2] = calc_vpix(src_data,band2)
-    green = value_pix[band2]
-    if green.shape != data_shape:
-        raise ValueError('Error, green.shape={}, data_shape={} >>> {}'.format(green.shape,data_shape,fnam))
-    green[green<10.0] = np.nan
     rr = (red-green)/norm
 
 # Write Destination GeoTIFF
