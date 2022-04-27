@@ -3,12 +3,39 @@ import os
 import gdal
 import numpy as np
 from scipy.signal import convolve2d
+import matplotlib.pyplot as plt
+from optparse import OptionParser,IndentedHelpFormatter
 
-filt1 = np.ones((35,35))
+# Constants
+PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn']
+
+# Default values
+PARAM = 'Lrg'
+INNER_SIZE = 29 # pixel
+OUTER_SIZE = 35 # pixel
+FIGNAM = 'drone_calc_ri.pdf'
+
+# Read options
+parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
+parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
+parser.add_option('-p','--param',default=PARAM,help='Outer parameter (%default)')
+parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
+parser.add_option('-o','--outer_size',default=OUTER_SIZE,type='int',help='Outer region size in pixel (%default)')
+parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
+parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
+(opts,args) = parser.parse_args()
+if not opts.param in PARAMS:
+    raise ValueError('Error, unknown parameter >>> {}'.format(opts.param))
+if opts.dst_geotiff is None:
+    bnam,enam = os.path.splitext(opts.src_geotiff)
+    opts.dst_geotiff = bnam+'_ri'+enam
+
+filt1 = np.ones((opts.outer_size,opts.outer_size))
 norm = filt1.sum()
 filt1 *= 1.0/norm
 
-filt2 = np.ones((29,29))
+filt2 = np.ones((opts.inner_size,opts.inner_size))
 norm = filt2.sum()
 filt2 *= 1.0/norm
 
@@ -73,3 +100,62 @@ for block,date in zip(BLOCKS,DATES):
     vout = (cnv1*filt1.size-cnv2*filt2.size)/(filt1.size-filt2.size)
     np.save('P4M_RTK_{}_{}_nir.npy'.format(block,date),nir)
     np.save('P4M_RTK_{}_{}_nir_out.npy'.format(block,date),vout)
+
+ds = gdal.Open(opts.src_geotiff)
+src_nx = ds.RasterXSize
+src_ny = ds.RasterYSize
+src_nb = ds.RasterCount
+src_prj = ds.GetProjection()
+src_trans = ds.GetGeoTransform()
+if src_trans[2] != 0.0 or src_trans[4] != 0.0:
+    raise ValueError('Error, src_trans={}'.format(src_trans))
+src_meta = ds.GetMetadata()
+src_band = []
+for iband in range(src_nb):
+    band = ds.GetRasterBand(iband+1)
+    src_band.append(band.GetDescription())
+src_dtype = band.DataType
+src_nodata = band.GetNoDataValue()
+src_xmin = src_trans[0]
+src_xstp = src_trans[1]
+src_ymax = src_trans[3]
+src_ystp = src_trans[5]
+ds = None
+
+# Write GeoTIFF
+dst_nx = src_nx
+dst_ny = src_ny
+dst_nb = 1
+dst_prj = src_prj
+dst_trans = src_trans
+dst_meta = src_meta
+dst_dtype = gdal.GDT_Float32
+dst_nodata = np.nan
+dst_data = [ri]
+dst_band = ['{}'.format(opts.ri_type)]
+drv = gdal.GetDriverByName('GTiff')
+ds = drv.Create(onam,dst_nx,dst_ny,dst_nb,dst_dtype)
+ds.SetProjection(dst_prj)
+ds.SetGeoTransform(dst_trans)
+ds.SetMetadata(dst_meta)
+for iband in range(dst_nb):
+    band = ds.GetRasterBand(iband+1)
+    band.WriteArray(dst_data[iband])
+    band.SetDescription(dst_band[iband])
+band.SetNoDataValue(dst_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
+ds.FlushCache()
+ds = None # close dataset
+
+# For debug
+if opts.debug:
+    plt.interactive(True)
+    fig = plt.figure(1,facecolor='w',figsize=(5,5))
+    fig.clear()
+    ax1 = plot.subplot(111)
+    ax1.set_xticks([])
+    ax1.set_yticks([])
+    ax1.imshow(ri,extent=(src_xmin,src_xmax,src_ymin,src_ymax),interpolation='none')
+    ax1.set_xlim(src_xmin,src_xmax)
+    ax1.set_ylim(src_ymin,src_ymax)
+    plt.savefig(opts.fignam)
+    plt.draw()
