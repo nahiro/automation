@@ -5,6 +5,7 @@ import numpy as np
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
@@ -38,6 +39,9 @@ parser.add_option('--data_max',default=None,type='float',help='Maximum data valu
 parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
 parser.add_option('-o','--outer_size',default=OUTER_SIZE,type='int',help='Outer region size in pixel (%default)')
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
+parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min (%default)')
+parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max (%default)')
+parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
 if not opts.param in PARAMS:
@@ -273,11 +277,28 @@ ds = None # close dataset
 if opts.debug:
     plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
+    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     fig.clear()
     ax1 = plt.subplot(111)
     ax1.set_xticks([])
     ax1.set_yticks([])
-    ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+    if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
+        im = ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+    elif opts.ax1_zmin is not None:
+        im = ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
+    elif opts.ax1_zmax is not None:
+        im = ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+    else:
+        im = ax1.imshow(rr,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+    divider = make_axes_locatable(ax1)
+    cax = divider.append_axes('right',size='5%',pad=0.05)
+    if opts.ax1_zstp is not None:
+        ax2 = plt.colorbar(im,cax=cax,ticks=np.arange((np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp,np.nanmax(rr),opts.ax1_zstp)).ax
+    else:
+        ax2 = plt.colorbar(im,cax=cax).ax
+    ax2.minorticks_on()
+    ax2.set_ylabel(pnam)
+    ax2.yaxis.set_label_coords(3.5,0.5)
     ax1.set_xlim(src_xmin,src_xmax)
     ax1.set_ylim(src_ymin,src_ymax)
     plt.savefig(opts.fignam)
