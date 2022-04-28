@@ -27,6 +27,7 @@ FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 0.4  # m
 POINT_SMIN = 0.08 # m
 POINT_SMAX = 0.45 # m
+POINT_EMAX = 2.0  # sigma
 POINT_DMAX = 3.0  # m
 POINT_AREA = 0.05 # m2
 POINT_NMIN = 5
@@ -47,6 +48,7 @@ parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%defau
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
 parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point size in m (%default)')
 parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point size in m (%default)')
+parser.add_option('-E','--point_emax',default=POINT_EMAX,type='float',help='Maximum distance of a point from the fit line in sigma (%default)')
 parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maximum distance of a point from the fit line in m (%default)')
 parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
 parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
@@ -193,12 +195,15 @@ for plot in plots:
     xd_bunch *= norm
     yd_bunch *= norm
     # Search points
-    rr_copy = rr.copy()
+    cnd_dist = None
     rthr = opts.rthr
     while True:
-        cnd = cnd_sn & (rr_copy > rthr)
+        if cnd_dist is None:
+            cnd_all = cnd_sn & (rr > rthr)
+        else:
+            cnd_all = cnd_sn & cnd_dist & (rr > rthr)
         rthr -= opts.rstp
-        labels,num = label(cnd,return_num=True)
+        labels,num = label(cnd_all,return_num=True)
         if num < opts.point_nmin:
             continue
         number_point = []
@@ -310,32 +315,29 @@ for plot in plots:
             del ymax_point[indx]
             del x_point[indx]
             del y_point[indx]
+            del xctr_point[indx]
+            del yctr_point[indx]
         num = len(number_point)
         if num >= size_plot[plot]:
+            if num > size_plot[plot]:
+                area_point = np.array(number_point)*np.abs(rr_xstp*rr_ystp)
+                indexes_to_be_removed = np.argsort(np.abs(area_point-opts.point_area))[size_plot[plot]:]
+                for indx in sorted(indexes_to_be_removed,reverse=True):
+                    del number_point[indx]
+                    del xmin_point[indx]
+                    del xmax_point[indx]
+                    del ymin_point[indx]
+                    del ymax_point[indx]
+                    del x_point[indx]
+                    del y_point[indx]
+                    del xctr_point[indx]
+                    del yctr_point[indx]
             break
+        dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+        cnd_dist = (dist < opts.point_dmax)
     rr_copy = rr.copy()
-    cnd = cnd_sn & (rr_copy > rthr)
+    cnd = cnd_sn & cnd_dist
     rr_copy[~cnd] = np.nan
-    #print('HERE, cnd.sum={}'.format(cnd.sum()))
-
-
-#   points = []
-#   for xtmp,ytmp in zip(point_xp,point_yp):
-#       flag = False
-#       for point in points:
-#           for x_member,y_member in point:
-#               r = np.sqrt(np.square(xtmp-x_member)+np.square(ytmp-y_member))
-#               if r < opts.rmax:
-#                   point.append((xtmp,ytmp))
-#                   flag = True
-#                   break
-#           if flag:
-#               break
-#       if not flag:
-#           points.append([(xtmp,ytmp)])
-#   for p in points:
-#       if len(p) < opts.nmin:
-#           points.remove(p)
 
     if opts.debug:
         fig.clear()
