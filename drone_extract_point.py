@@ -104,58 +104,74 @@ if opts.debug:
     pdf = PdfPages(opts.fignam)
 bnam,enam = os.path.splitext(opts.src_geotiff)
 for plot in plots:
-    xg = x_bunch[groups[plot]]
-    yg = y_bunch[groups[plot]]
+    # Read redness ratio image
     onam = bnam+'_plot{}_{}'.format(plot,opts.rr_param)+enam
-    # Read subset image
     ds = gdal.Open(onam)
-    tmp_nx = ds.RasterXSize
-    tmp_ny = ds.RasterYSize
-    tmp_nb = ds.RasterCount
-    tmp_shape = (tmp_ny,tmp_nx)
-    tmp_trans = ds.GetGeoTransform()
-    if tmp_trans[2] != 0.0 or tmp_trans[4] != 0.0:
-        raise ValueError('Error, tmp_trans={}'.format(tmp_trans))
-    rr = ds.ReadAsArray().reshape(tmp_ny,tmp_nx)
-    tmp_xmin = tmp_trans[0]
-    tmp_xstp = tmp_trans[1]
-    tmp_ymax = tmp_trans[3]
-    tmp_ystp = tmp_trans[5]
-    tmp_xmax = tmp_xmin+tmp_nx*tmp_xstp
-    tmp_ymin = tmp_ymax+tmp_ny*tmp_ystp
-    tmp_xgrd = tmp_xmin+(np.arange(tmp_nx)+0.5)*tmp_xstp
-    tmp_ygrd = tmp_ymax+(np.arange(tmp_ny)+0.5)*tmp_ystp
+    rr_nx = ds.RasterXSize
+    rr_ny = ds.RasterYSize
+    rr_nb = ds.RasterCount
+    if rr_nb != 1:
+        raise ValueError('Error, rr_nb={} >>> {}'.format(rr_nb,onam))
+    rr_shape = (rr_ny,rr_nx)
+    rr_trans = ds.GetGeoTransform()
+    if rr_trans[2] != 0.0 or rr_trans[4] != 0.0:
+        raise ValueError('Error, rr_trans={}'.format(rr_trans))
+    rr = ds.ReadAsArray().reshape(rr_ny,rr_nx)
+    rr_xmin = rr_trans[0]
+    rr_xstp = rr_trans[1]
+    rr_ymax = rr_trans[3]
+    rr_ystp = rr_trans[5]
+    rr_xmax = rr_xmin+rr_nx*rr_xstp
+    rr_ymin = rr_ymax+rr_ny*rr_ystp
+    rr_xgrd = rr_xmin+(np.arange(rr_nx)+0.5)*rr_xstp
+    rr_ygrd = rr_ymax+(np.arange(rr_ny)+0.5)*rr_ystp
     ds = None
-    tmp_indy,tmp_indx = np.indices(tmp_shape)
-    tmp_xp = tmp_trans[0]+(tmp_indx+0.5)*tmp_trans[1]+(tmp_indy+0.5)*tmp_trans[2]
-    tmp_yp = tmp_trans[3]+(tmp_indx+0.5)*tmp_trans[4]+(tmp_indy+0.5)*tmp_trans[5]
+    rr_indy,rr_indx = np.indices(rr_shape)
+    rr_xp = rr_trans[0]+(rr_indx+0.5)*rr_trans[1]+(rr_indy+0.5)*rr_trans[2]
+    rr_yp = rr_trans[3]+(rr_indx+0.5)*rr_trans[4]+(rr_indy+0.5)*rr_trans[5]
+    # Read signal ratio image
+    onam = bnam+'_plot{}_{}'.format(plot,opts.sn_param)+enam
+    ds = gdal.Open(onam)
+    sn_nx = ds.RasterXSize
+    sn_ny = ds.RasterYSize
+    sn_nb = ds.RasterCount
+    if sn_nb != 1:
+        raise ValueError('Error, sn_nb={} >>> {}'.format(sn_nb,onam))
+    sn_shape = (sn_ny,sn_nx)
+    if sn_shape != rr_shape:
+        raise ValueError('Error, sn_shape={}, rr_shape={} >>> {}'.format(sn_shape,rr_shape,onam))
+    sn = ds.ReadAsArray().reshape(sn_ny,sn_nx)
+
+
     # Fit line
-    xc = xg.copy()
-    yc = yg.copy()
-    coef = np.polyfit(xc,yc,1)
-    dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+    xg_bunch = x_bunch[groups[plot]]
+    yg_bunch = y_bunch[groups[plot]]
+    xc_bunch = xg_bunch.copy()
+    yc_bunch = yg_bunch.copy()
+    coef = np.polyfit(xc_bunch,yc_bunch,1)
+    dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
     cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
     if not np.all(cnd):
-        xc = xc[cnd]
-        yc = yc[cnd]
-        coef = np.polyfit(xc,yc,1)
-        dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+        xc_bunch = xc_bunch[cnd]
+        yc_bunch = yc_bunch[cnd]
+        coef = np.polyfit(xc_bunch,yc_bunch,1)
+        dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
         cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
         if not np.all(cnd):
-            xc = xc[cnd]
-            yc = yc[cnd]
-            coef = np.polyfit(xc,yc,1)
-    xf = tmp_xgrd.copy()
-    yf = np.polyval(coef,xf)
+            xc_bunch = xc_bunch[cnd]
+            yc_bunch = yc_bunch[cnd]
+            coef = np.polyfit(xc_bunch,yc_bunch,1)
+    xf_bunch = rr_xgrd.copy()
+    yf_bunch = np.polyval(coef,xf_bunch)
     # Origin
-    xo = xf[0]
-    yo = yf[0]
+    xo_bunch = xf_bunch[0]
+    yo_bunch = yf_bunch[0]
     # Unit direction vector
-    xd = xf[-1]-xo
-    yd = yf[-1]-yo
-    norm = 1.0/np.sqrt(xd*xd+yd*yd)
-    xd *= norm
-    yd *= norm
+    xd_bunch = xf_bunch[-1]-xo_bunch
+    yd_bunch = yf_bunch[-1]-yo_bunch
+    norm = 1.0/np.sqrt(xd_bunch*xd_bunch+yd_bunch*yd_bunch)
+    xd_bunch *= norm
+    yd_bunch *= norm
 
     if opts.debug:
         fig.clear()
@@ -163,13 +179,13 @@ for plot in plots:
         ax1.set_xticks([])
         ax1.set_yticks([])
         if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(rr,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmin is not None:
-            im = ax1.imshow(rr,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmax is not None:
-            im = ax1.imshow(rr,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(rr,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if opts.ax1_zstp is not None:
@@ -187,21 +203,26 @@ for plot in plots:
         ax2.minorticks_on()
         ax2.set_ylabel(opts.rr_param)
         ax2.yaxis.set_label_coords(3.5,0.5)
-        ax1.plot(xg,yg,'o',mfc='none',mec='k')
-        ax1.plot(xf,yf,'k:')
+        ax1.plot(xg_bunch,yg_bunch,'o',mfc='none',mec='k')
+        ax1.plot(xf_bunch,yf_bunch,'k:')
         ng = number_bunch[groups[plot]]
-        #for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+        #for ntmp,xtmp,ytmp in zip(ng,xg_bunch,yg_bunch):
         #    ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if opts.remove_nan:
             cnd = ~np.isnan(rr)
-            tmp_xp = tmp_xp[cnd]
-            tmp_yp = tmp_yp[cnd]
-            tmp_xmin = tmp_xp.min()
-            tmp_xmax = tmp_xp.max()
-            tmp_ymin = tmp_yp.min()
-            tmp_ymax = tmp_yp.max()
-        ax1.set_xlim(tmp_xmin,tmp_xmax)
-        ax1.set_ylim(tmp_ymin,tmp_ymax)
+            xp = rr_xp[cnd]
+            yp = rr_yp[cnd]
+            fig_xmin = xp.min()
+            fig_xmax = xp.max()
+            fig_ymin = yp.min()
+            fig_ymax = yp.max()
+        else:
+            fig_xmin = rr_xmin
+            fig_xmax = rr_xmax
+            fig_ymin = rr_ymin
+            fig_ymax = rr_ymax
+        ax1.set_xlim(fig_xmin,fig_xmax)
+        ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
