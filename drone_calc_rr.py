@@ -32,7 +32,7 @@ OUTER_SIZE = 35 # pixel
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
-parser.add_option('-p','--param',default=PARAM,help='Outer parameter (%default)')
+parser.add_option('-p','--param',default=PARAM,help='Output parameter (%default)')
 parser.add_option('--data_min',default=None,type='float',help='Minimum data value (%default)')
 parser.add_option('--data_max',default=None,type='float',help='Maximum data value (%default)')
 parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
