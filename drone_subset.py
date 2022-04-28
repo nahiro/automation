@@ -66,6 +66,7 @@ index_bunch = np.arange(len(number_bunch))
 
 plots = np.unique(plot_bunch)
 groups = {}
+groups_removed = {}
 for plot in plots:
     cnd = (plot_bunch == plot)
     if cnd.sum() < opts.nmin:
@@ -85,6 +86,7 @@ for plot in plots:
             flag.append(True)
     flag = np.array(flag)
     groups[plot] = indx[flag]
+    groups_removed[plot] = indx[~flag]
     if len(groups[plot]) < opts.nmin:
         raise ValueError('Error, plot={}, len(groups[{}])={} >>> {}'.format(plot,len(groups[plot]),opts.gps_fnam))
 
