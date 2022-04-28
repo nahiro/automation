@@ -7,10 +7,12 @@ import numpy as np
 from scipy.signal import convolve2d
 from subprocess import call
 from shapely.geometry import Point,Polygon
+from skimage.measure import label,regionprops
 from matplotlib.path import Path
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.patches as mpatches
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
@@ -22,8 +24,10 @@ SN_PARAMS = ['Nr','Br']
 # Default values
 GPS_FNAM = 'gps_points.dat'
 FIGNAM = 'drone_extract_points.pdf'
-RMAX = 10.0 # m
+RMAX = 0.4 # m
 NMIN = 5
+GROUP_RMAX = 10.0 # m
+GROUP_NMIN = 5
 RR_PARAM = 'Lrg'
 SN_PARAM = 'Nr'
 RTHR = 0.1
@@ -38,6 +42,8 @@ parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%defau
 parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
 parser.add_option('-R','--rmax',default=RMAX,type='float',help='Maximum distance in m (%default)')
 parser.add_option('-N','--nmin',default=NMIN,type='int',help='Minimum number (%default)')
+parser.add_option('--group_rmax',default=GROUP_RMAX,type='float',help='Maximum group distance in m (%default)')
+parser.add_option('--group_nmin',default=GROUP_NMIN,type='int',help='Minimum group in a plot (%default)')
 parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
 parser.add_option('-P','--sn_param',default=SN_PARAM,help='Signal ratio parameter (%default)')
 parser.add_option('-t','--rthr',default=RTHR,type='float',help='Threshold of redness ratio (%default)')
@@ -82,7 +88,7 @@ groups = {}
 groups_removed = {}
 for plot in plots:
     cnd = (plot_bunch == plot)
-    if cnd.sum() < opts.nmin:
+    if cnd.sum() < opts.group_nmin:
         raise ValueError('Error, plot={}, cnd.sum()={} >>> {}'.format(plot,cnd.sum(),opts.gps_fnam))
     indx = index_bunch[cnd]
     ng = len(indx)
@@ -93,14 +99,14 @@ for plot in plots:
     for i_temp in index_member:
         cnd = (index_member != i_temp)
         r = np.sqrt(np.square(xg[cnd]-xg[i_temp])+np.square(yg[cnd]-yg[i_temp]))
-        if r.min() > opts.rmax:
+        if r.min() > opts.group_rmax:
             flag.append(False)
         else:
             flag.append(True)
     flag = np.array(flag)
     groups[plot] = indx[flag]
     groups_removed[plot] = indx[~flag]
-    if len(groups[plot]) < opts.nmin:
+    if len(groups[plot]) < opts.group_nmin:
         raise ValueError('Error, plot={}, len(groups[{}])={} >>> {}'.format(plot,len(groups[plot]),opts.gps_fnam))
 
 if opts.debug:
@@ -176,10 +182,40 @@ for plot in plots:
     norm = 1.0/np.sqrt(xd_bunch*xd_bunch+yd_bunch*yd_bunch)
     xd_bunch *= norm
     yd_bunch *= norm
-    #
+    # Search points
     rr_point = rr.copy()
     cnd = (rr < opts.rthr) | (sn < opts.sthr)
     rr_point[cnd] = np.nan
+    print('HERE, cnd.sum={}'.format(cnd.sum()))
+
+
+    rr_label = label(~cnd)
+    rr_region = regionprops(rr_label)
+    print(len(rr_region))
+
+    """
+    point_xp = rr_xp[~cnd]
+    point_yp = rr_yp[~cnd]
+    points = []
+    for xtmp,ytmp in zip(point_xp,point_yp):
+        flag = False
+        for point in points:
+            for x_member,y_member in point:
+                r = np.sqrt(np.square(xtmp-x_member)+np.square(ytmp-y_member))
+                if r < opts.rmax:
+                    point.append((xtmp,ytmp))
+                    flag = True
+                    break
+            if flag:
+                break
+        if not flag:
+            points.append([(xtmp,ytmp)])
+    for p in points:
+        if len(p) < opts.nmin:
+            points.remove(p)
+    """
+
+
 
     if opts.debug:
         fig.clear()
@@ -211,6 +247,35 @@ for plot in plots:
         ax2.minorticks_on()
         ax2.set_ylabel(opts.rr_param)
         ax2.yaxis.set_label_coords(3.5,0.5)
+
+
+
+        for i,region in enumerate(regionprops(rr_label)):
+            # take regions with large enough areas
+            if region.area < 0:
+                raise ValueError('Error, region.area={}'.format(region.area))
+            inds = np.ravel_multi_index((region.coords[:,0],region.coords[:,1]),rr_shape)
+            # draw rectangle around segmented coins
+            minr0,minc0,maxr0,maxc0 = region.bbox
+            minr = rr_yp[minr0,minc0]
+            minc = rr_xp[minr0,minc0]
+            maxr = rr_yp[min(maxr0,rr_ny-1),min(maxc0,rr_nx-1)]
+            maxc = rr_xp[min(maxr0,rr_ny-1),min(maxc0,rr_nx-1)]
+            #minr,minc,maxr,maxc = region.bbox
+            #p1 = (xp[minr,minc],yp[minr,minc])
+            #p2 = (xp[minr,maxc],yp[minr,maxc])
+            #p3 = (xp[maxr,maxc],yp[maxr,maxc])
+            #p4 = (xp[maxr,minc],yp[maxr,minc])
+            rect = mpatches.Rectangle((minc,minr),maxc-minc,maxr-minr,fill=False,edgecolor='red',linewidth=2)
+            #rect = mpatches.PathPatch(mpatches.Path([p1,p2,p3,p4,p1]),fill=False,edgecolor='red',linewidth=2)
+            ax1.add_patch(rect)
+            #if region.area > 100:
+            #    #ax1.text(0.5*(minc+maxc),0.5*(minr+maxr),'{}'.format(object_id),ha='center',va='center',color='r')
+            #    ax1.text(0.5*(minc+maxc),0.5*(minr+maxr),'{}'.format(object_id),ha='center',va='center',color='r')
+
+
+
+
         #ax1.plot(xg_bunch,yg_bunch,'o',mfc='none',mec='k')
         #ax1.plot(xf_bunch,yf_bunch,'k:')
         #ng = number_bunch[groups[plot]]
@@ -234,5 +299,6 @@ for plot in plots:
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
+    break
 if opts.debug:
     pdf.close()
