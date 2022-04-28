@@ -315,13 +315,18 @@ if opts.debug:
         src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
         src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
         cnd = ~np.isnan(rr)
-        src_xp = src_xp[cnd]
-        src_yp = src_yp[cnd]
-        src_xmin = src_xp.min()
-        src_xmax = src_xp.max()
-        src_ymin = src_yp.min()
-        src_ymax = src_yp.max()
-    ax1.set_xlim(src_xmin,src_xmax)
-    ax1.set_ylim(src_ymin,src_ymax)
+        xp = src_xp[cnd]
+        yp = src_yp[cnd]
+        fig_xmin = xp.min()
+        fig_xmax = xp.max()
+        fig_ymin = yp.min()
+        fig_ymax = yp.max()
+    else:
+        fig_xmin = src_xmin
+        fig_xmax = src_xmax
+        fig_ymin = src_ymin
+        fig_ymax = src_ymax
+    ax1.set_xlim(fig_xmin,fig_xmax)
+    ax1.set_ylim(fig_ymin,fig_ymax)
     plt.savefig(opts.fignam)
     plt.draw()
