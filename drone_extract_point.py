@@ -28,9 +28,9 @@ PIXEL_RMAX = 1.0  # m
 POINT_SMIN = 0.08 # m
 POINT_SMAX = 0.45 # m
 POINT_EMAX = 2.0  # sigma
-POINT_DMAX = 2.0  # m
+POINT_DMAX = 1.0  # m
 POINT_AREA = 0.05 # m2
-POINT_NMIN = 3
+POINT_NMIN = 5
 BUNCH_RMAX = 10.0 # m
 BUNCH_EMAX = 2.0  # sigma
 BUNCH_NMIN = 5
@@ -97,7 +97,8 @@ y_bunch = np.array(y_bunch)
 
 plots = np.unique(plot_bunch)
 size_plot = {}
-indx_plot = {}
+number_plot = {}
+inside_plot = {}
 removed_plot = {}
 for plot in plots:
     cnd = (plot_bunch == plot)
@@ -105,6 +106,7 @@ for plot in plots:
     size_plot[plot] = len(indx)
     if size_plot[plot] < opts.bunch_nmin:
         raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.gps_fnam))
+    number_plot[plot] = number_bunch[indx]
     xg = x_bunch[indx]
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
@@ -117,10 +119,10 @@ for plot in plots:
         else:
             flag.append(True)
     flag = np.array(flag)
-    indx_plot[plot] = indx[flag]
+    inside_plot[plot] = indx[flag]
     removed_plot[plot] = indx[~flag]
-    if len(indx_plot[plot]) < opts.bunch_nmin:
-        raise ValueError('Error, plot={}, len(indx_plot[{}])={} >>> {}'.format(plot,plot,len(indx_plot[plot]),opts.gps_fnam))
+    if len(inside_plot[plot]) < opts.bunch_nmin:
+        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),opts.gps_fnam))
 
 if opts.debug:
     plt.interactive(True)
@@ -168,8 +170,8 @@ for plot in plots:
     sn = ds.ReadAsArray().reshape(sn_ny,sn_nx)
     cnd_sn = (sn > opts.sthr)
     # Fit line
-    xg_bunch = x_bunch[indx_plot[plot]]
-    yg_bunch = y_bunch[indx_plot[plot]]
+    xg_bunch = x_bunch[inside_plot[plot]]
+    yg_bunch = y_bunch[inside_plot[plot]]
     xc_bunch = xg_bunch.copy()
     yc_bunch = yg_bunch.copy()
     coef = np.polyfit(xc_bunch,yc_bunch,1)
@@ -227,7 +229,8 @@ for plot in plots:
             y = rr_ymax+(indy+0.5)*rr_ystp
             flag = False
             for i_point in range(len(number_point)):
-                if (xmax < xmin_point[i_point]) or (xmin > xmax_point[i_point]) or (ymax < ymin_point[i_point]) or (ymin > ymax_point[i_point]):
+                if (xmax < xmin_point[i_point]-opts.pixel_rmax) or (xmin > xmax_point[i_point]+opts.pixel_rmax) \
+                or (ymax < ymin_point[i_point]-opts.pixel_rmax) or (ymin > ymax_point[i_point]+opts.pixel_rmax):
                     continue
                 for xtmp,ytmp in zip(x,y):
                     r = np.sqrt(np.square(xtmp-x_point[i_point])+np.square(ytmp-y_point[i_point]))
@@ -379,9 +382,9 @@ for plot in plots:
 
         ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')
         ax1.plot(xf_point,yf_point,'k:')
-        #ng = number_bunch[indx_plot[plot]]
-        #for ntmp,xtmp,ytmp in zip(ng,xg_bunch,yg_bunch):
-        #    ax1.text(xtmp,ytmp,'{}'.format(ntmp))
+        ng = number_plot[plot]
+        for ntmp,xtmp,ytmp in zip(ng,xctr_point,yctr_point):
+            ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if opts.remove_nan:
             cnd = ~np.isnan(rr)
             xp = rr_xp[cnd]
