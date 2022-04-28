@@ -26,6 +26,9 @@ RMAX = 10.0 # m
 NMIN = 5
 RR_PARAM = 'Lrg'
 SN_PARAM = 'Nr'
+RTHR = 0.1
+STHR = 2.0
+RSTP = 0.01
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -37,6 +40,9 @@ parser.add_option('-R','--rmax',default=RMAX,type='float',help='Maximum distance
 parser.add_option('-N','--nmin',default=NMIN,type='int',help='Minimum number (%default)')
 parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
 parser.add_option('-P','--sn_param',default=SN_PARAM,help='Signal ratio parameter (%default)')
+parser.add_option('-t','--rthr',default=RTHR,type='float',help='Threshold of redness ratio (%default)')
+parser.add_option('-T','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
+parser.add_option('-r','--rstp',default=RSTP,type='float',help='Threshold step of redness ratio (%default)')
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
@@ -141,8 +147,6 @@ for plot in plots:
     if sn_shape != rr_shape:
         raise ValueError('Error, sn_shape={}, rr_shape={} >>> {}'.format(sn_shape,rr_shape,onam))
     sn = ds.ReadAsArray().reshape(sn_ny,sn_nx)
-
-
     # Fit line
     xg_bunch = x_bunch[groups[plot]]
     yg_bunch = y_bunch[groups[plot]]
@@ -172,6 +176,10 @@ for plot in plots:
     norm = 1.0/np.sqrt(xd_bunch*xd_bunch+yd_bunch*yd_bunch)
     xd_bunch *= norm
     yd_bunch *= norm
+    #
+    rr_point = rr.copy()
+    cnd = (rr < opts.rthr) | (sn < opts.sthr)
+    rr_point[cnd] = np.nan
 
     if opts.debug:
         fig.clear()
@@ -179,13 +187,13 @@ for plot in plots:
         ax1.set_xticks([])
         ax1.set_yticks([])
         if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr_point,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmin is not None:
-            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr_point,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmax is not None:
-            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr_point,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(rr,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(rr_point,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if opts.ax1_zstp is not None:
@@ -203,9 +211,9 @@ for plot in plots:
         ax2.minorticks_on()
         ax2.set_ylabel(opts.rr_param)
         ax2.yaxis.set_label_coords(3.5,0.5)
-        ax1.plot(xg_bunch,yg_bunch,'o',mfc='none',mec='k')
-        ax1.plot(xf_bunch,yf_bunch,'k:')
-        ng = number_bunch[groups[plot]]
+        #ax1.plot(xg_bunch,yg_bunch,'o',mfc='none',mec='k')
+        #ax1.plot(xf_bunch,yf_bunch,'k:')
+        #ng = number_bunch[groups[plot]]
         #for ntmp,xtmp,ytmp in zip(ng,xg_bunch,yg_bunch):
         #    ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if opts.remove_nan:
