@@ -38,9 +38,10 @@ parser.add_option('--data_max',default=None,type='float',help='Maximum data valu
 parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
 parser.add_option('-o','--outer_size',default=OUTER_SIZE,type='int',help='Outer region size in pixel (%default)')
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
-parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min (%default)')
-parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max (%default)')
-parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp (%default)')
+parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
+parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
+parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp for debug (%default)')
+parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
 if not opts.param in PARAMS:
@@ -295,12 +296,31 @@ if opts.debug:
     divider = make_axes_locatable(ax1)
     cax = divider.append_axes('right',size='5%',pad=0.05)
     if opts.ax1_zstp is not None:
-        ax2 = plt.colorbar(im,cax=cax,ticks=np.arange((np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp,np.nanmax(rr),opts.ax1_zstp)).ax
+        if opts.ax1_zmin is not None:
+            zmin = min((np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp,opts.ax1_zmin)
+        else:
+            zmin = (np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp
+        if opts.ax1_zmax is not None:
+            zmax = max(np.nanmax(rr),opts.ax1_zmax+0.1*opts.ax1_zstp)
+        else:
+            zmax = np.nanmax(rr)+0.1*opts.ax1_zstp
+        ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp)).ax
     else:
         ax2 = plt.colorbar(im,cax=cax).ax
     ax2.minorticks_on()
     ax2.set_ylabel(pnam)
     ax2.yaxis.set_label_coords(3.5,0.5)
+    if opts.remove_nan:
+        src_indy,src_indx = np.indices(data_shape)
+        src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
+        src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
+        cnd = ~np.isnan(rr)
+        src_xp = src_xp[cnd]
+        src_yp = src_yp[cnd]
+        src_xmin = src_xp.min()
+        src_xmax = src_xp.max()
+        src_ymin = src_yp.min()
+        src_ymax = src_yp.max()
     ax1.set_xlim(src_xmin,src_xmax)
     ax1.set_ylim(src_ymin,src_ymax)
     plt.savefig(opts.fignam)
