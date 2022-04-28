@@ -24,14 +24,15 @@ SN_PARAMS = ['Nr','Br']
 # Default values
 GPS_FNAM = 'gps_points.dat'
 FIGNAM = 'drone_extract_points.pdf'
-PIXEL_RMAX = 0.4  # m
+PIXEL_RMAX = 1.0  # m
 POINT_SMIN = 0.08 # m
 POINT_SMAX = 0.45 # m
 POINT_EMAX = 2.0  # sigma
-POINT_DMAX = 3.0  # m
+POINT_DMAX = 2.0  # m
 POINT_AREA = 0.05 # m2
-POINT_NMIN = 5
+POINT_NMIN = 3
 BUNCH_RMAX = 10.0 # m
+BUNCH_EMAX = 2.0  # sigma
 BUNCH_NMIN = 5
 RR_PARAM = 'Lrg'
 SN_PARAM = 'Nr'
@@ -53,6 +54,7 @@ parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maxi
 parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
 parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
 parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
+parser.add_option('--bunch_emax',default=BUNCH_EMAX,type='float',help='Maximum distance of a bunch from the fit line in sigma (%default)')
 parser.add_option('--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
 parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
 parser.add_option('-P','--sn_param',default=SN_PARAM,help='Signal ratio parameter (%default)')
@@ -172,13 +174,13 @@ for plot in plots:
     yc_bunch = yg_bunch.copy()
     coef = np.polyfit(xc_bunch,yc_bunch,1)
     dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-    cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+    cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
     if not np.all(cnd):
         xc_bunch = xc_bunch[cnd]
         yc_bunch = yc_bunch[cnd]
         coef = np.polyfit(xc_bunch,yc_bunch,1)
         dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+        cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
         if not np.all(cnd):
             xc_bunch = xc_bunch[cnd]
             yc_bunch = yc_bunch[cnd]
@@ -275,13 +277,13 @@ for plot in plots:
         yc_point = yctr_point.copy()
         coef = np.polyfit(xc_point,yc_point,1)
         dist = np.abs(coef[0]*xc_point-yc_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+        cnd = np.abs(dist-dist.mean()) < opts.point_emax*dist.std()
         if not np.all(cnd):
             xc_point = xc_point[cnd]
             yc_point = yc_point[cnd]
             coef = np.polyfit(xc_point,yc_point,1)
             dist = np.abs(coef[0]*xc_point-yc_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-            cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+            cnd = np.abs(dist-dist.mean()) < opts.point_emax*dist.std()
             if not np.all(cnd):
                 xc_point = xc_point[cnd]
                 yc_point = yc_point[cnd]
@@ -315,8 +317,8 @@ for plot in plots:
             del ymax_point[indx]
             del x_point[indx]
             del y_point[indx]
-            del xctr_point[indx]
-            del yctr_point[indx]
+            xctr_point = np.delete(xctr_point,indx)
+            yctr_point = np.delete(yctr_point,indx)
         num = len(number_point)
         if num >= size_plot[plot]:
             if num > size_plot[plot]:
@@ -330,11 +332,12 @@ for plot in plots:
                     del ymax_point[indx]
                     del x_point[indx]
                     del y_point[indx]
-                    del xctr_point[indx]
-                    del yctr_point[indx]
+                    xctr_point = np.delete(xctr_point,indx)
+                    yctr_point = np.delete(yctr_point,indx)
             break
-        dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd_dist = (dist < opts.point_dmax)
+        else:
+            dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+            cnd_dist = (dist < opts.point_dmax)
     rr_copy = rr.copy()
     cnd = cnd_sn & cnd_dist
     rr_copy[~cnd] = np.nan
@@ -397,6 +400,7 @@ for plot in plots:
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
-    break
+    if plot == 2:
+        break
 if opts.debug:
     pdf.close()
