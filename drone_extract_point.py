@@ -27,6 +27,8 @@ FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 0.4  # m
 POINT_SMIN = 0.08 # m
 POINT_SMAX = 0.45 # m
+POINT_DMAX = 3.0  # m
+POINT_AREA = 0.05 # m2
 POINT_NMIN = 5
 BUNCH_RMAX = 10.0 # m
 BUNCH_NMIN = 5
@@ -45,6 +47,8 @@ parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%defau
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
 parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point size in m (%default)')
 parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point size in m (%default)')
+parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maximum distance of a point from the fit line in m (%default)')
+parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
 parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
 parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
 parser.add_option('--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
@@ -293,10 +297,22 @@ for plot in plots:
             yo_point = yf_point[-1]
             xd_point *= -1
             yd_point *= -1
-
-
-
-        break
+        indexes_to_be_removed = []
+        for i_point in range(len(number_point)):
+            dist = np.abs(coef[0]*xctr_point[i_point]-yctr_point[i_point]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+            if dist > opts.point_dmax:
+                indexes_to_be_removed.append(i_point)
+        for indx in sorted(indexes_to_be_removed,reverse=True):
+            del number_point[indx]
+            del xmin_point[indx]
+            del xmax_point[indx]
+            del ymin_point[indx]
+            del ymax_point[indx]
+            del x_point[indx]
+            del y_point[indx]
+        num = len(number_point)
+        if num >= size_plot[plot]:
+            break
     rr_copy = rr.copy()
     cnd = cnd_sn & (rr_copy > rthr)
     rr_copy[~cnd] = np.nan
