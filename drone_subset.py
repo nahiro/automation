@@ -2,6 +2,7 @@
 import os
 import sys
 import shutil
+import re
 import gdal
 import numpy as np
 from subprocess import call
@@ -42,6 +43,7 @@ parser.add_option('-d','--debug',default=False,action='store_true',help='Debug m
 if opts.ymgn is None:
     opts.ymgn = opts.xmgn
 
+header = None
 number_bunch = []
 plot_bunch = []
 x_bunch = []
@@ -49,8 +51,17 @@ y_bunch = []
 with open(opts.gps_fnam,'r') as fp:
     #BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB
     #  1,  1, 751739.0086, 9243034.0783,  1
-    line = fp.readline() # skip header
     for line in fp:
+        if len(line) < 1:
+            continue
+        elif line[0] == '#':
+            continue
+        elif re.search('[a-zA-Z]',line):
+            if header is None:
+                header = line # skip header
+                continue
+            else:
+                raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
         item = line.split(sep=',')
         if len(item) < 4:
             continue
