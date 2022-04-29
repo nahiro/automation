@@ -263,6 +263,6 @@ with open(opts.out_fnam,'w') as fp:
     fp.write('# Variety: {}\n'.format(variety))
     fp.write('# Village: {}\n'.format(village))
     fp.write('#------------------------\n')
-    fp.write('# Bunch Number, Plot Paddy, Easting, Northing, Damaged by BLB\n')
+    fp.write('BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB\n')
     for i in range(len(plot_bunch)):
-        fp.write('{:3d} {:3d} {:12.4f} {:13.4f} {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
