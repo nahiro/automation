@@ -403,7 +403,7 @@ for plot in plots:
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
-    if plot == 2:
-        break
+    #if plot == 2:
+    #    break
 if opts.debug:
     pdf.close()
