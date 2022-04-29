@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+import os
 import sys
 import re
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import gdal
 import pyproj
+from subprocess import call
+from io import StringIO
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Defaults
@@ -17,6 +21,9 @@ parser.add_option('-I','--inp_fnam',default=None,help='Input file name (%default
 parser.add_option('-O','--out_fnam',default=None,help='Output file name (%default)')
 parser.add_option('-S','--sheet',default=SHEET,type='int',help='Sheet number (%default)')
 parser.add_option('-E','--epsg',default=EPSG,help='Output EPSG (%default)')
+parser.add_option('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%default)')
+parser.add_option('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%default)')
+parser.add_option('-n','--geocor_npoly',default=None,type='int',help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
 (opts,args) = parser.parse_args()
 
 def read_gps(s):
@@ -40,7 +47,7 @@ else:
         inProj = pyproj.Proj(init='epsg:4326')
         outProj = pyproj.Proj(init='epsg:{}'.format(opts.epsg))
         return pyproj.transform(inProj,outProj,longitude,latitude)
-    
+
 xl = pd.ExcelFile(opts.inp_fnam)
 if opts.sheet > 0:
     sheets = xl.sheet_names
@@ -251,6 +258,72 @@ for plot in plots:
         raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
     date_plot[plot] = m.group(1)
     dtim_plot[plot] = datetime.strptime(date_plot[plot],'%d.%m.%Y')
+
+if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
+    bnam,enam = os.path.splitext(opts.out_fnam)
+    tmp_fnam = bnam+'_tmp'+enam
+    ds = gdal.Open(opts.geocor_geotiff)
+    src_trans = ds.GetGeoTransform()
+    if src_trans[2] != 0.0 or src_trans[4] != 0.0:
+        raise ValueError('Error, src_trans={}'.format(src_trans))
+    src_xmin = src_trans[0]
+    src_xstp = src_trans[1]
+    src_ymax = src_trans[3]
+    src_ystp = src_trans[5]
+    ds = None
+    src_xi = []
+    src_yi = []
+    src_xp = []
+    src_yp = []
+    with open(opts.geocor_fnam,'r') as fp:
+        for line in fp:
+            #660.5    120.5 751655.112266 9243156.957321  -0.009634  -0.003979    2.10494      0.824779      0.016902   3555      0.789201   1440
+            #720.5    120.5 751667.515378 9243156.775077   0.393478  -0.186223    2.37634      0.832486      0.014921   5446      0.797028   1845
+            m = re.search('^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+',line)
+            if not m:
+                raise ValueError('Error in reading '+opts.geocor_fnam)
+            src_xi.append(float(m.group(1)))
+            src_yi.append(float(m.group(2)))
+            src_xp.append(float(m.group(3)))
+            src_yp.append(float(m.group(4)))
+    src_xi = np.array(src_xi)
+    src_yi = np.array(src_yi)
+    src_xp = np.array(src_xp)
+    src_yp = np.array(src_yp)
+    dst_xi = src_xmin+src_xstp*src_xi
+    dst_yi = src_ymax+src_ystp*src_yi
+    command = 'ogr2ogr'
+    command += ' -f CSV'
+    command += ' -s_srs EPSG:{}'.format(opts.epsg)
+    command += ' -t_srs EPSG:{}'.format(opts.epsg)
+    #command += ' -overwrite'
+    command += ' -oo X_POSSIBLE_NAMES=Easting'
+    command += ' -oo Y_POSSIBLE_NAMES=Northing'
+    command += ' -lco GEOMETRY=AS_XY'
+    command += ' -lco STRING_QUOTING=IF_NEEDED'
+    if opts.geocor_npoly is not None:
+        command += ' -order {}'.format(opts.geocor_npoly)
+    for xi,yi,xp,yp in zip(dst_xi,dst_yi,src_xp,src_yp):
+        command += ' -gcp {:22.15e} {:22.15e} {:22.15e} {:22.15e}'.format(xi,yi,xp,yp)
+    command += ' {}'.format(tmp_fnam)
+    command += ' {}'.format(opts.out_fnam)
+    #command += ' 2>err'
+    if os.path.exists(tmp_fnam):
+        os.remove(tmp_fnam)
+    with open(opts.out_fnam,'w') as fp:
+        fp.write('BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB\n')
+        for i in range(len(plot_bunch)):
+            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+    call(command,shell=True)
+    df = pd.read_csv(tmp_fnam)
+    x = list(df['X'])
+    y = list(df['Y'])
+    if (len(x) != len(x_bunch)) or (len(y) != len(y_bunch)):
+        raise ValueError('Error, len(x)={}, len(x_bunch)={}, len(y)={}, len(y_bunch)={}'.format(len(x),len(x_bunch),len(y),len(y_bunch)))
+    x_bunch = x
+    y_bunch = y
+    if os.path.exists(tmp_fnam):
+        os.remove(tmp_fnam)
 
 with open(opts.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
