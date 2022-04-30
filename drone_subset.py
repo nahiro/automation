@@ -38,6 +38,7 @@ parser.add_option('-b','--buffer',default=BUFFER,type='float',help='Buffer radiu
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
 parser.add_option('-S','--fact',default=FACT,type='float',help='Scale factor of output figure for debug (%default)')
 parser.add_option('-G','--gamma',default=GAMMA,type='float',help='Gamma factor of output figure for debug (%default)')
+parser.add_option('-i','--interp_point',default=False,action='store_true',help='Interpolate mode (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.ymgn is None:
@@ -83,10 +84,9 @@ for plot in plots:
     if cnd.sum() < opts.nmin:
         raise ValueError('Error, plot={}, cnd.sum()={} >>> {}'.format(plot,cnd.sum(),opts.gps_fnam))
     indx = index_bunch[cnd]
-    ng = len(indx)
     xg = x_bunch[indx]
     yg = y_bunch[indx]
-    index_member = np.arange(ng)
+    index_member = np.arange(len(indx))
     flag = []
     for i_temp in index_member:
         cnd = (index_member != i_temp)
@@ -128,6 +128,7 @@ if opts.debug:
     pdf = PdfPages(opts.fignam)
 bnam,enam = os.path.splitext(opts.dst_geotiff)
 for plot in plots:
+    ng = number_bunch[groups[plot]]
     xg = x_bunch[groups[plot]]
     yg = y_bunch[groups[plot]]
     # Create subset image
@@ -200,9 +201,22 @@ for plot in plots:
     norm = 1.0/np.sqrt(xd*xd+yd*yd)
     xd *= norm
     yd *= norm
+    # Interpolate
+    if opts.interp_point and groups_removed[plot].size > 0:
+        ng_removed = number_bunch[groups_removed[plot]]
+        prod = (xg-xo)*xd+(yg-yo)*yd
+        prod_removed = np.polyval(np.polyfit(ng,prod,1),ng_removed)
+        xg_removed = xo+prod_removed*xd
+        yg_removed = yo+prod_removed*yd
+        groups[plot] = np.append(groups[plot],groups_removed[plot])
+        ng = np.append(ng,ng_removed)
+        xg = np.append(xg,xg_removed)
+        yg = np.append(yg,yg_removed)
     # Inner product
-    prod = xg*xd+yg*yd
+    prod = (xg-xo)*xd+(yg-yo)*yd
     indx = np.argsort(prod)
+    groups[plot] = groups[plot][indx]
+    ng = ng[indx]
     xg = xg[indx]
     yg = yg[indx]
     points = []
@@ -291,7 +305,6 @@ for plot in plots:
             ax1.add_patch(patch)
         ax1.plot(xg,yg,'ko')
         ax1.plot(xf,yf,'k:')
-        ng = number_bunch[groups[plot]]
         for ntmp,xtmp,ytmp in zip(ng,xg,yg):
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         ax1.set_xlim(tmp_xmin,tmp_xmax)
