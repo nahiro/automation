@@ -2,6 +2,7 @@
 import os
 import sys
 import shutil
+import re
 import gdal
 import numpy as np
 from scipy.signal import convolve2d
