@@ -317,11 +317,10 @@ for plot in plots:
         norm = 1.0/np.sqrt(xd_point*xd_point+yd_point*yd_point)
         xd_point *= norm
         yd_point *= norm
-        if (xd_bunch*xd_point+yd_bunch*yd_point) < 0.0:
+        if (xd_bunch*xd_point+yd_bunch*yd_point) < 0.0: # opposite direction
             xo_point = xf_point[-1]
             yo_point = yf_point[-1]
-            xd_point *= -1
-            yd_point *= -1
+            xd_point,yd_point = np.negative([xd_point,yd_point])
         indexes_to_be_removed = []
         for i_point in range(len(number_point)):
             dist = np.abs(coef[0]*xctr_point[i_point]-yctr_point[i_point]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
@@ -392,7 +391,9 @@ for plot in plots:
         ax2.yaxis.set_label_coords(3.5,0.5)
 
         #for i_point in range(len(number_point)):
-        #    rect = mpatches.Rectangle((xmin_point[i_point],ymin_point[i_point]),xmax_point[i_point]-xmin_point[i_point],ymax_point[i_point]-ymin_point[i_point],fill=False,edgecolor='red',linewidth=2)
+        #    rect = mpatches.Rectangle((xmin_point[i_point],ymin_point[i_point]),
+        #                               xmax_point[i_point]-xmin_point[i_point],
+        #                               ymax_point[i_point]-ymin_point[i_point],fill=False,edgecolor='red',linewidth=2)
             #ax1.add_patch(rect)
 
         ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')
