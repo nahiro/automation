@@ -209,6 +209,10 @@ for plot in plots:
     norm = 1.0/np.sqrt(xd_bunch*xd_bunch+yd_bunch*yd_bunch)
     xd_bunch *= norm
     yd_bunch *= norm
+    prod = (xg_bunch-xo_bunch)*xd_bunch+(yg_bunch-yo_bunch)*yd_bunch
+    cnd = (np.diff(prod) < 0.0)
+    if cnd.sum() > (~cnd).sum(): # opposite direction
+        xd_bunch,yd_bunch = np.negative([xd_bunch,yd_bunch])
     # Search points
     cnd_dist = None
     rthr = opts.rthr
