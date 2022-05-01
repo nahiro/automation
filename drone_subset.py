@@ -201,6 +201,10 @@ for plot in plots:
     norm = 1.0/np.sqrt(xd*xd+yd*yd)
     xd *= norm
     yd *= norm
+    prod = (xg-xo)*xd+(yg-yo)*yd
+    cnd = (np.diff(prod) < 0.0)
+    if cnd.sum() > (~cnd).sum(): # opposite direction
+        xd,yd = np.negative([xd,yd])
     # Interpolate
     if opts.interp_point and groups_removed[plot].size > 0:
         ng_removed = number_bunch[groups_removed[plot]]
@@ -212,17 +216,20 @@ for plot in plots:
         ng = np.append(ng,ng_removed)
         xg = np.append(xg,xg_removed)
         yg = np.append(yg,yg_removed)
+        indx = np.argsort(groups[plot])
+        groups[plot] = groups[plot][indx]
+        ng = ng[indx]
+        xg = xg[indx]
+        yg = yg[indx]
     # Inner product
     prod = (xg-xo)*xd+(yg-yo)*yd
     indx = np.argsort(prod)
-    groups[plot] = groups[plot][indx]
-    ng = ng[indx]
-    xg = xg[indx]
-    yg = yg[indx]
+    xs = xg[indx]
+    ys = yg[indx]
     points = []
-    points.extend([(x,y+opts.ywid) for x,y in zip(xg,yg)])
-    points.extend([(x,y-opts.ywid) for x,y in zip(xg[::-1],yg[::-1])])
-    points.extend([(x,y+opts.ywid) for x,y in zip(xg[:1],yg[:1])])
+    points.extend([(x,y+opts.ywid) for x,y in zip(xs,ys)])
+    points.extend([(x,y-opts.ywid) for x,y in zip(xs[::-1],ys[::-1])])
+    points.extend([(x,y+opts.ywid) for x,y in zip(xs[:1],ys[:1])])
     poly_buffer = Polygon(points).buffer(opts.buffer)
     # Search internal points
     flags = []
