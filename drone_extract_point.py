@@ -5,6 +5,7 @@ import shutil
 import re
 import gdal
 import numpy as np
+from itertools import combinations
 from scipy.signal import convolve2d
 from subprocess import call
 from shapely.geometry import Point,Polygon
@@ -28,8 +29,8 @@ FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 1.0  # m
 POINT_SMIN = 0.08 # m
 POINT_SMAX = 0.45 # m
-POINT_EMAX = 2.0  # sigma
 POINT_DMAX = 1.0  # m
+POINT_LWID = 0.5  # m
 POINT_AREA = 0.05 # m2
 POINT_NMIN = 5
 BUNCH_RMAX = 10.0 # m
@@ -50,8 +51,8 @@ parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%defau
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
 parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point size in m (%default)')
 parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point size in m (%default)')
-parser.add_option('-E','--point_emax',default=POINT_EMAX,type='float',help='Maximum distance of a point from the fit line in sigma (%default)')
 parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maximum distance of a point from the fit line in m (%default)')
+parser.add_option('-W','--point_lwid',default=POINT_LWID,type='float',help='Maximum distance of a point from the selected line in m (%default)')
 parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
 parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
 parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
@@ -295,19 +296,37 @@ for plot in plots:
         yctr_point = np.array([y.mean() for y in y_point])
         xc_point = xctr_point.copy()
         yc_point = yctr_point.copy()
+        # Select line
+        indx_point = np.arange(num)
+        comb = list(combinations(indx_point,2))
+        csel = None
+        nmax = -1
+        rmin = 1.0e10
+        for c in comb:
+            indx_comb = np.array(c)
+            indx_others = np.array([i for i in indx_point if i not in c])
+            coef = np.polyfit(xctr_point[indx_comb],yctr_point[indx_comb],1)
+            dist = np.abs(coef[0]*xctr_point[indx_others]-yctr_point[indx_others]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+            cnd = (dist < opts.point_lwid)
+            n = cnd.sum()
+            if n == cnd.size: # all passed
+                csel = indx_point
+                break
+            elif n > nmax:
+                r = np.sqrt((dist*dist).mean())
+                nmax = n
+                rmin = r
+                csel = np.sort(np.append(indx_comb,indx_others[cnd]))
+            elif n == nmax:
+                r = np.sqrt((dist*dist).mean())
+                if r < rmin:
+                    rmin = r
+                    csel = np.sort(np.append(indx_comb,indx_others[cnd]))
+        if csel is None:
+            raise ValueError('Error in selecting line, plot={}'.format(plot))
+        xc_point = xctr_point[csel]
+        yc_point = yctr_point[csel]
         coef = np.polyfit(xc_point,yc_point,1)
-        dist = np.abs(coef[0]*xc_point-yc_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < opts.point_emax*dist.std()
-        if not np.all(cnd):
-            xc_point = xc_point[cnd]
-            yc_point = yc_point[cnd]
-            coef = np.polyfit(xc_point,yc_point,1)
-            dist = np.abs(coef[0]*xc_point-yc_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-            cnd = np.abs(dist-dist.mean()) < opts.point_emax*dist.std()
-            if not np.all(cnd):
-                xc_point = xc_point[cnd]
-                yc_point = yc_point[cnd]
-                coef = np.polyfit(xc_point,yc_point,1)
         xf_point = rr_xgrd.copy()
         yf_point = np.polyval(coef,xf_point)
         # Origin

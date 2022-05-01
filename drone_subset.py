@@ -181,13 +181,13 @@ for plot in plots:
     yc = yg.copy()
     coef = np.polyfit(xc,yc,1)
     dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-    cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
+    cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
     if not np.all(cnd):
         xc = xc[cnd]
         yc = yc[cnd]
         coef = np.polyfit(xc,yc,1)
         dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
+        cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
         if not np.all(cnd):
             xc = xc[cnd]
             yc = yc[cnd]
