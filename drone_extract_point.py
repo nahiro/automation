@@ -222,6 +222,8 @@ for plot in plots:
         else:
             cnd_all = cnd_sn & cnd_dist & (rr > rthr)
         rthr -= opts.rstp
+        if cnd_all.sum() < 1:
+            continue
         labels,num = label(cnd_all,return_num=True)
         if num < opts.point_nmin:
             continue
