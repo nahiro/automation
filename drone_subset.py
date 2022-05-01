@@ -15,8 +15,8 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Default values
 GPS_FNAM = 'gps_points.csv'
-RMAX = 10.0 # m
-NMIN = 5
+BUNCH_RMAX = 10.0 # m
+BUNCH_NMIN = 5
 XMGN = 10.0 # m
 YWID = 0.01 # m
 BUFFER = 5.0 # m
@@ -29,8 +29,8 @@ parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,widt
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%default)')
-parser.add_option('-R','--rmax',default=RMAX,type='float',help='Maximum distance in m (%default)')
-parser.add_option('-n','--nmin',default=NMIN,type='int',help='Minimum number (%default)')
+parser.add_option('-R','--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
+parser.add_option('-n','--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
 parser.add_option('-m','--xmgn',default=XMGN,type='float',help='X margin in m (%default)')
 parser.add_option('-M','--ymgn',default=None,type='float',help='Y margin in m (%default)')
 parser.add_option('-W','--ywid',default=YWID,type='float',help='Y width in m (%default)')
@@ -71,35 +71,35 @@ with open(opts.gps_fnam,'r') as fp:
         x_bunch.append(float(item[2]))
         y_bunch.append(float(item[3]))
 number_bunch = np.array(number_bunch)
+indx_bunch = np.arange(len(number_bunch))
 plot_bunch = np.array(plot_bunch)
 x_bunch = np.array(x_bunch)
 y_bunch = np.array(y_bunch)
-index_bunch = np.arange(len(number_bunch))
 
 plots = np.unique(plot_bunch)
-groups = {}
-groups_removed = {}
+inside_plot = {}
+removed_plot = {}
 for plot in plots:
     cnd = (plot_bunch == plot)
-    if cnd.sum() < opts.nmin:
-        raise ValueError('Error, plot={}, cnd.sum()={} >>> {}'.format(plot,cnd.sum(),opts.gps_fnam))
-    indx = index_bunch[cnd]
+    indx = indx_bunch[cnd]
+    if len(indx) < opts.bunch_nmin:
+        raise ValueError('Error, plot={}, len(indx)={} >>> {}'.format(plot,len(indx),opts.gps_fnam))
     xg = x_bunch[indx]
     yg = y_bunch[indx]
-    index_member = np.arange(len(indx))
+    indx_member = np.arange(len(indx))
     flag = []
-    for i_temp in index_member:
-        cnd = (index_member != i_temp)
+    for i_temp in indx_member:
+        cnd = (indx_member != i_temp)
         r = np.sqrt(np.square(xg[cnd]-xg[i_temp])+np.square(yg[cnd]-yg[i_temp]))
-        if r.min() > opts.rmax:
+        if r.min() > opts.bunch_rmax:
             flag.append(False)
         else:
             flag.append(True)
     flag = np.array(flag)
-    groups[plot] = indx[flag]
-    groups_removed[plot] = indx[~flag]
-    if len(groups[plot]) < opts.nmin:
-        raise ValueError('Error, plot={}, len(groups[{}])={} >>> {}'.format(plot,len(groups[plot]),opts.gps_fnam))
+    inside_plot[plot] = indx[flag]
+    removed_plot[plot] = indx[~flag]
+    if len(inside_plot[plot]) < opts.bunch_nmin:
+        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),opts.gps_fnam))
 
 ds = gdal.Open(opts.src_geotiff)
 src_nx = ds.RasterXSize
@@ -128,9 +128,9 @@ if opts.debug:
     pdf = PdfPages(opts.fignam)
 bnam,enam = os.path.splitext(opts.dst_geotiff)
 for plot in plots:
-    ng = number_bunch[groups[plot]]
-    xg = x_bunch[groups[plot]]
-    yg = y_bunch[groups[plot]]
+    ng = number_bunch[inside_plot[plot]]
+    xg = x_bunch[inside_plot[plot]]
+    yg = y_bunch[inside_plot[plot]]
     # Create subset image
     out_xmin = xg.min()-opts.xmgn
     out_ymin = yg.min()-opts.ymgn
@@ -206,18 +206,18 @@ for plot in plots:
     if cnd.sum() > (~cnd).sum(): # opposite direction
         xd,yd = np.negative([xd,yd])
     # Interpolate
-    if opts.interp_point and groups_removed[plot].size > 0:
-        ng_removed = number_bunch[groups_removed[plot]]
+    if opts.interp_point and removed_plot[plot].size > 0:
+        ng_removed = number_bunch[removed_plot[plot]]
         prod = (xg-xo)*xd+(yg-yo)*yd
         prod_removed = np.polyval(np.polyfit(ng,prod,1),ng_removed)
         xg_removed = xo+prod_removed*xd
         yg_removed = yo+prod_removed*yd
-        groups[plot] = np.append(groups[plot],groups_removed[plot])
+        inside_plot[plot] = np.append(inside_plot[plot],removed_plot[plot])
         ng = np.append(ng,ng_removed)
         xg = np.append(xg,xg_removed)
         yg = np.append(yg,yg_removed)
-        indx = np.argsort(groups[plot])
-        groups[plot] = groups[plot][indx]
+        indx = np.argsort(inside_plot[plot])
+        inside_plot[plot] = inside_plot[plot][indx]
         ng = ng[indx]
         xg = xg[indx]
         yg = yg[indx]
