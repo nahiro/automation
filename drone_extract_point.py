@@ -213,6 +213,8 @@ for plot in plots:
     prod = (xg_bunch-xo_bunch)*xd_bunch+(yg_bunch-yo_bunch)*yd_bunch
     cnd = (np.diff(prod) < 0.0)
     if cnd.sum() > (~cnd).sum(): # opposite direction
+        xo_bunch = xf_bunch[-1]
+        yo_bunch = yf_bunch[-1]
         xd_bunch,yd_bunch = np.negative([xd_bunch,yd_bunch])
     # Search points
     cnd_dist = None

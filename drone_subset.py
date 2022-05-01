@@ -206,6 +206,8 @@ for plot in plots:
     prod = (xg-xo)*xd+(yg-yo)*yd
     cnd = (np.diff(prod) < 0.0)
     if cnd.sum() > (~cnd).sum(): # opposite direction
+        xo = xf[-1]
+        yo = yf[-1]
         xd,yd = np.negative([xd,yd])
     # Interpolate
     if opts.interp_point and removed_plot[plot].size > 0:
