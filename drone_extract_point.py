@@ -188,13 +188,13 @@ for plot in plots:
     yc_bunch = yg_bunch.copy()
     coef = np.polyfit(xc_bunch,yc_bunch,1)
     dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-    cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
+    cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
     if not np.all(cnd):
         xc_bunch = xc_bunch[cnd]
         yc_bunch = yc_bunch[cnd]
         coef = np.polyfit(xc_bunch,yc_bunch,1)
         dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
+        cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
         if not np.all(cnd):
             xc_bunch = xc_bunch[cnd]
             yc_bunch = yc_bunch[cnd]
@@ -294,15 +294,12 @@ for plot in plots:
             continue
         xctr_point = np.array([x.mean() for x in x_point])
         yctr_point = np.array([y.mean() for y in y_point])
-        xc_point = xctr_point.copy()
-        yc_point = yctr_point.copy()
         # Select line
         indx_point = np.arange(num)
-        comb = list(combinations(indx_point,2))
-        csel = None
+        indx_select = None
         nmax = -1
         rmin = 1.0e10
-        for c in comb:
+        for c in combinations(indx_point,2):
             indx_comb = np.array(c)
             indx_others = np.array([i for i in indx_point if i not in c])
             coef = np.polyfit(xctr_point[indx_comb],yctr_point[indx_comb],1)
@@ -310,22 +307,22 @@ for plot in plots:
             cnd = (dist < opts.point_lwid)
             n = cnd.sum()
             if n == cnd.size: # all passed
-                csel = indx_point
+                indx_select = indx_point
                 break
             elif n > nmax:
                 r = np.sqrt((dist*dist).mean())
                 nmax = n
                 rmin = r
-                csel = np.sort(np.append(indx_comb,indx_others[cnd]))
+                indx_select = np.sort(np.append(indx_comb,indx_others[cnd]))
             elif n == nmax:
                 r = np.sqrt((dist*dist).mean())
                 if r < rmin:
                     rmin = r
-                    csel = np.sort(np.append(indx_comb,indx_others[cnd]))
-        if csel is None:
+                    indx_select = np.sort(np.append(indx_comb,indx_others[cnd]))
+        if indx_select is None:
             raise ValueError('Error in selecting line, plot={}'.format(plot))
-        xc_point = xctr_point[csel]
-        yc_point = yctr_point[csel]
+        xc_point = xctr_point[indx_select]
+        yc_point = yctr_point[indx_select]
         coef = np.polyfit(xc_point,yc_point,1)
         xf_point = rr_xgrd.copy()
         yf_point = np.polyval(coef,xf_point)
