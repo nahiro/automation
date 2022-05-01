@@ -16,6 +16,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 # Default values
 GPS_FNAM = 'gps_points.csv'
 BUNCH_RMAX = 10.0 # m
+BUNCH_EMAX = 2.0  # sigma
 BUNCH_NMIN = 5
 XMGN = 10.0 # m
 YWID = 0.01 # m
@@ -30,6 +31,7 @@ parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%default)')
 parser.add_option('-R','--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
+parser.add_option('-E','--bunch_emax',default=BUNCH_EMAX,type='float',help='Maximum distance of a bunch from the fit line in sigma (%default)')
 parser.add_option('-n','--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
 parser.add_option('-m','--xmgn',default=XMGN,type='float',help='X margin in m (%default)')
 parser.add_option('-M','--ymgn',default=None,type='float',help='Y margin in m (%default)')
@@ -179,13 +181,13 @@ for plot in plots:
     yc = yg.copy()
     coef = np.polyfit(xc,yc,1)
     dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-    cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+    cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
     if not np.all(cnd):
         xc = xc[cnd]
         yc = yc[cnd]
         coef = np.polyfit(xc,yc,1)
         dist = np.abs(coef[0]*xc-yc+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = np.abs(dist-dist.mean()) < 2.0*dist.std()
+        cnd = np.abs(dist-dist.mean()) < opts.bunch_emax*dist.std()
         if not np.all(cnd):
             xc = xc[cnd]
             yc = yc[cnd]
