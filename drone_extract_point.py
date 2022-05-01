@@ -122,6 +122,8 @@ for plot in plots:
     xg = x_bunch[indx]
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
+    if not np.all(np.argsort(number_plot[plot]) == indx_member): # wrong order
+        raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],opts.gps_fnam))
     flag = []
     for i_temp in indx_member:
         cnd = (indx_member != i_temp)
@@ -371,6 +373,10 @@ for plot in plots:
                     del y_point[indx]
                     xctr_point = np.delete(xctr_point,indx)
                     yctr_point = np.delete(yctr_point,indx)
+            prod = (xctr_point-xo_point)*xd_point+(yctr_point-yo_point)*yd_point
+            indx = np.argsort(prod)
+            xctr_point = xctr_point[indx]
+            yctr_point = yctr_point[indx]
             break
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
