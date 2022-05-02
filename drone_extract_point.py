@@ -22,6 +22,12 @@ from optparse import OptionParser,IndentedHelpFormatter
 # Constants
 RR_PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn']
 SN_PARAMS = ['Nr','Br']
+bands = {}
+bands['b'] = 'Blue'
+bands['g'] = 'Green'
+bands['r'] = 'Red'
+bands['e'] = 'RedEdge'
+bands['n'] = 'NIR'
 
 # Default values
 GPS_FNAM = 'gps_points.dat'
@@ -413,7 +419,39 @@ for plot in plots:
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        ax2.set_ylabel(opts.rr_param)
+        if opts.rr_param[0] == 'L':
+            if len(opts.rr_param) == 2:
+                band1 = opts.rr_param[1]
+                pnam = 'Redness Ratio (Local {})'.format(bands[band1])
+            elif len(opts.rr_param) == 3:
+                band1 = opts.rr_param[1]
+                band2 = opts.rr_param[2]
+                pnam = 'Redness Ratio (Local {} + {})'.format(bands[band1],bands[band2])
+            else:
+                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
+        elif opts.rr_param[0] == 'G':
+            if len(opts.rr_param) == 2:
+                band1 = opts.rr_param[1]
+                pnam = 'Redness Ratio (Global {})'.format(bands[band1])
+            elif len(opts.rr_param) == 3:
+                band1 = opts.rr_param[1]
+                band2 = opts.rr_param[2]
+                pnam = 'Redness Ratio (Global {} + {})'.format(bands[band1],bands[band2])
+            else:
+                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
+        elif opts.rr_param[0] == 'S':
+            if len(opts.rr_param) == 2:
+                band1 = opts.rr_param[1]
+                pnam = 'Redness Ratio ({})'.format(bands[band1])
+            elif len(opts.rr_param) == 3:
+                band1 = opts.rr_param[1]
+                band2 = opts.rr_param[2]
+                pnam = 'Redness Ratio ({} + {})'.format(bands[band1],bands[band2])
+            else:
+                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
+        else:
+            raise ValueError('Error, opts.rr_param={}'.format(opts.rr_param))
+        ax2.set_ylabel(pnam)
         ax2.yaxis.set_label_coords(3.5,0.5)
 
         #for i_point in range(len(number_point)):
