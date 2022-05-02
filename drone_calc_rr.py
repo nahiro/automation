@@ -137,7 +137,7 @@ if green.shape != data_shape:
 if opts.param[0] == 'L':
     if len(opts.param) == 2:
         band1 = opts.param[1]
-        pnam = 'Local {}'.format(bands[band1])
+        pnam = 'Redness Ratio (Local {})'.format(bands[band1])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         if not band1 in value_out:
@@ -148,7 +148,7 @@ if opts.param[0] == 'L':
     elif len(opts.param) == 3:
         band1 = opts.param[1]
         band2 = opts.param[2]
-        pnam = 'Local {} + {}'.format(bands[band1],bands[band2])
+        pnam = 'Redness Ratio (Local {} + {})'.format(bands[band1],bands[band2])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         if not band1 in value_out:
@@ -169,7 +169,7 @@ if opts.param[0] == 'L':
 elif opts.param[0] == 'G':
     if len(opts.param) == 2:
         band1 = opts.param[1]
-        pnam = 'Global {}'.format(bands[band1])
+        pnam = 'Redness Ratio (Global {})'.format(bands[band1])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         norm1 = value_pix[band1]
@@ -179,7 +179,7 @@ elif opts.param[0] == 'G':
     elif len(opts.param) == 3:
         band1 = opts.param[1]
         band2 = opts.param[2]
-        pnam = 'Global {} + {}'.format(bands[band1],bands[band2])
+        pnam = 'Redness Ratio (Global {} + {})'.format(bands[band1],bands[band2])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         norm1 = value_pix[band1]
@@ -196,7 +196,7 @@ elif opts.param[0] == 'G':
 elif opts.param[0] == 'S':
     if len(opts.param) == 2:
         band1 = opts.param[1]
-        pnam = '{}'.format(bands[band1])
+        pnam = 'Redness Ratio ({})'.format(bands[band1])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         norm = value_pix[band1]
@@ -205,7 +205,7 @@ elif opts.param[0] == 'S':
     elif len(opts.param) == 3:
         band1 = opts.param[1]
         band2 = opts.param[2]
-        pnam = '{} + {}'.format(bands[band1],bands[band2])
+        pnam = 'Redness Ratio ({} + {})'.format(bands[band1],bands[band2])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         norm1 = value_pix[band1]
@@ -222,7 +222,7 @@ elif opts.param[0] == 'S':
 elif opts.param[0] == 'N':
     if len(opts.param) == 2:
         band1 = opts.param[1]
-        pnam = 'S/N ratio ({})'.format(bands[band1])
+        pnam = 'S/N Ratio ({})'.format(bands[band1])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         if not band1 in value_out:
@@ -235,7 +235,7 @@ elif opts.param[0] == 'N':
 elif opts.param[0] == 'B':
     if len(opts.param) == 2:
         band1 = opts.param[1]
-        pnam = 'S/B ratio ({})'.format(bands[band1])
+        pnam = 'S/B Ratio ({})'.format(bands[band1])
         if not band1 in value_pix:
             value_pix[band1] = calc_vpix(src_data,band1)
         if not band1 in value_out:

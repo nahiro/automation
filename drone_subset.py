@@ -41,6 +41,7 @@ parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for de
 parser.add_option('-S','--fact',default=FACT,type='float',help='Scale factor of output figure for debug (%default)')
 parser.add_option('-G','--gamma',default=GAMMA,type='float',help='Gamma factor of output figure for debug (%default)')
 parser.add_option('-i','--interp_point',default=False,action='store_true',help='Interpolate mode (%default)')
+parser.add_option('-N','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.ymgn is None:
@@ -294,6 +295,8 @@ for plot in plots:
             rgb = np.power(np.dstack((r,g,b)),1.0/opts.gamma)
         else:
             rgb = np.dstack((r,g,b))
+        if opts.remove_nan:
+            rgb[~flags,:] = 1.0
         fig.clear()
         if tmp_ny > tmp_nx:
             wx = tmp_nx/tmp_ny
@@ -305,21 +308,34 @@ for plot in plots:
         ax1.set_yticks([])
         #ax1.plot(tmp_xp[::100,::100],tmp_yp[::100,::100],'k.')
         ax1.imshow(rgb,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),interpolation='none')
-        if poly_buffer.area <= 0.0:
-            pass
-        elif poly_buffer.type == 'MultiPolygon':
-            for p_search in path_search:
-                patch = patches.PathPatch(p_search,facecolor='none',lw=2,ls='--')
+        if not opts.remove_nan:
+            if poly_buffer.area <= 0.0:
+                pass
+            elif poly_buffer.type == 'MultiPolygon':
+                for p_search in path_search:
+                    patch = patches.PathPatch(p_search,facecolor='none',lw=2,ls='--')
+                    ax1.add_patch(patch)
+            else:
+                patch = patches.PathPatch(path_search,facecolor='none',lw=2,ls='--')
                 ax1.add_patch(patch)
-        else:
-            patch = patches.PathPatch(path_search,facecolor='none',lw=2,ls='--')
-            ax1.add_patch(patch)
         ax1.plot(xg,yg,'ko')
         ax1.plot(xf,yf,'k:')
         for ntmp,xtmp,ytmp in zip(ng,xg,yg):
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
-        ax1.set_xlim(tmp_xmin,tmp_xmax)
-        ax1.set_ylim(tmp_ymin,tmp_ymax)
+        if opts.remove_nan:
+            xp = tmp_xp[flags]
+            yp = tmp_yp[flags]
+            fig_xmin = xp.min()
+            fig_xmax = xp.max()
+            fig_ymin = yp.min()
+            fig_ymax = yp.max()
+        else:
+            fig_xmin = tmp_xmin
+            fig_xmax = tmp_xmax
+            fig_ymin = tmp_ymin
+            fig_ymax = tmp_ymax
+        ax1.set_xlim(fig_xmin,fig_xmax)
+        ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
