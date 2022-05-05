@@ -51,7 +51,6 @@ STHR = 2.0
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
-parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%default)')
 parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
@@ -80,12 +79,17 @@ if not opts.rr_param in RR_PARAMS:
     raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(opts.rr_param))
 if not opts.sn_param in SN_PARAMS:
     raise ValueError('Error, unknown signal to noise parameter >>> {}'.format(opts.sn_param))
+if opts.ext_fnam is None:
+    bnam,enam = os.path.splitext(opts.gps_fnam)
+    opts.ext_fnam = bnam+'_extract'+enam
 
+comments = ''
 header = None
 number_bunch = []
 plot_bunch = []
 x_bunch = []
 y_bunch = []
+blb_bunch = []
 with open(opts.gps_fnam,'r') as fp:
     #BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB
     #  1,  1, 751739.0086, 9243034.0783,  1
@@ -93,6 +97,7 @@ with open(opts.gps_fnam,'r') as fp:
         if len(line) < 1:
             continue
         elif line[0] == '#':
+            comments += line
             continue
         elif re.search('[a-zA-Z]',line):
             if header is None:
@@ -101,21 +106,24 @@ with open(opts.gps_fnam,'r') as fp:
             else:
                 raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
         item = line.split(sep=',')
-        if len(item) < 4:
+        if len(item) < 5:
             continue
         number_bunch.append(int(item[0]))
         plot_bunch.append(int(item[1]))
         x_bunch.append(float(item[2]))
         y_bunch.append(float(item[3]))
+        blb_bunch.append(int(item[4]))
 number_bunch = np.array(number_bunch)
 indx_bunch = np.arange(len(number_bunch))
 plot_bunch = np.array(plot_bunch)
 x_bunch = np.array(x_bunch)
 y_bunch = np.array(y_bunch)
+blb_bunch = np.array(blb_bunch)
 
 plots = np.unique(plot_bunch)
 size_plot = {}
 number_plot = {}
+blb_plot = {}
 inside_plot = {}
 removed_plot = {}
 for plot in plots:
@@ -125,6 +133,7 @@ for plot in plots:
     if size_plot[plot] < opts.bunch_nmin:
         raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.gps_fnam))
     number_plot[plot] = number_bunch[indx]
+    blb_plot[plot] = blb_bunch[indx]
     xg = x_bunch[indx]
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
@@ -149,6 +158,11 @@ if opts.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(opts.fignam)
+with open(opts.ext_fnam,'w') as fp:
+    if len(comments) > 0:
+        fp.write(comments)
+    if header is not None:
+        fp.write(header)
 bnam,enam = os.path.splitext(opts.src_geotiff)
 for plot in plots:
     # Read redness ratio image
@@ -386,6 +400,9 @@ for plot in plots:
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             cnd_dist = (dist < opts.point_dmax)
+    with open(opts.ext_fnam,'a') as fp:
+        for i in range(size_plot[plot]):
+            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],blb_plot[plot][i]))
     rr_copy = rr.copy()
     cnd = cnd_sn & cnd_dist
     rr_copy[~cnd] = np.nan
