@@ -152,18 +152,25 @@ if opts.debug:
 bnam,enam = os.path.splitext(opts.src_geotiff)
 for plot in plots:
     # Read redness ratio image
-    onam = bnam+'_plot{}_{}'.format(plot,opts.rr_param)+enam
+    onam = bnam+'_plot{}_rr'.format(plot)+enam
     ds = gdal.Open(onam)
     rr_nx = ds.RasterXSize
     rr_ny = ds.RasterYSize
     rr_nb = ds.RasterCount
-    if rr_nb != 1:
-        raise ValueError('Error, rr_nb={} >>> {}'.format(rr_nb,onam))
     rr_shape = (rr_ny,rr_nx)
     rr_trans = ds.GetGeoTransform()
     if rr_trans[2] != 0.0 or rr_trans[4] != 0.0:
         raise ValueError('Error, rr_trans={}'.format(rr_trans))
-    rr = ds.ReadAsArray().reshape(rr_ny,rr_nx)
+    rr = None
+    sn = None
+    rr_band = []
+    for iband in range(rr_nb):
+        band = ds.GetRasterBand(iband+1)
+        rr_band.append(band.GetDescription())
+        if rr_band[iband] == opts.rr_param:
+            rr = band.ReadAsArray().reshape(rr_ny,rr_nx)
+        elif rr_band[iband] == opts.sn_param:
+            sn = band.ReadAsArray().reshape(rr_ny,rr_nx)
     rr_xmin = rr_trans[0]
     rr_xstp = rr_trans[1]
     rr_ymax = rr_trans[3]
@@ -176,18 +183,10 @@ for plot in plots:
     rr_indy,rr_indx = np.indices(rr_shape)
     rr_xp = rr_trans[0]+(rr_indx+0.5)*rr_trans[1]+(rr_indy+0.5)*rr_trans[2]
     rr_yp = rr_trans[3]+(rr_indx+0.5)*rr_trans[4]+(rr_indy+0.5)*rr_trans[5]
-    # Read signal ratio image
-    onam = bnam+'_plot{}_{}'.format(plot,opts.sn_param)+enam
-    ds = gdal.Open(onam)
-    sn_nx = ds.RasterXSize
-    sn_ny = ds.RasterYSize
-    sn_nb = ds.RasterCount
-    if sn_nb != 1:
-        raise ValueError('Error, sn_nb={} >>> {}'.format(sn_nb,onam))
-    sn_shape = (sn_ny,sn_nx)
-    if sn_shape != rr_shape:
-        raise ValueError('Error, sn_shape={}, rr_shape={} >>> {}'.format(sn_shape,rr_shape,onam))
-    sn = ds.ReadAsArray().reshape(sn_ny,sn_nx)
+    if rr is None:
+        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.rr_param,rr_band,onam))
+    if sn is None:
+        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.sn_param,rr_band,onam))
     cnd_sn = (sn > opts.sthr)
     # Fit line
     xg_bunch = x_bunch[inside_plot[plot]]
