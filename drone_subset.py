@@ -138,51 +138,10 @@ if opts.debug:
     pdf = PdfPages(opts.fignam)
 bnam,enam = os.path.splitext(opts.dst_geotiff)
 for plot in plots:
+    onam = bnam+'_plot{}'.format(plot)+enam
     ng = number_bunch[inside_plot[plot]]
     xg = x_bunch[inside_plot[plot]]
     yg = y_bunch[inside_plot[plot]]
-    # Create subset image
-    out_xmin = xg.min()-opts.xmgn
-    out_ymin = yg.min()-opts.ymgn
-    out_xmax = xg.max()+opts.xmgn
-    out_ymax = yg.max()+opts.ymgn
-    xoff = int((out_xmin-src_xmin)/np.abs(src_xstp)+0.5)
-    yoff = int((src_ymax-out_ymax)/np.abs(src_ystp)+0.5)
-    xsize = int((out_xmax-out_xmin)/np.abs(src_xstp)+0.5)
-    ysize = int((out_ymax-out_ymin)/np.abs(src_ystp)+0.5)
-    if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
-        raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
-    onam = bnam+'_plot{}'.format(plot)+enam
-    dst_nx = xsize
-    dst_ny = ysize
-    dst_nb = src_nb
-    dst_prj = src_prj
-    dst_trans = [0.0]*len(src_trans)
-    dst_trans[0] = src_xgrd[xoff]-0.5*src_xstp
-    dst_trans[1] = src_xstp
-    dst_trans[3] = src_ygrd[yoff]-0.5*src_ystp
-    dst_trans[5] = src_ystp
-    dst_meta = src_meta
-    dst_data = src_data[:,yoff:yoff+ysize,xoff:xoff+xsize]
-    dst_band = src_band
-    dst_dtype = src_dtype
-    dst_nodata = src_nodata
-    drv = gdal.GetDriverByName('GTiff')
-    ds = drv.Create(onam,dst_nx,dst_ny,dst_nb,dst_dtype)
-    ds.SetProjection(dst_prj)
-    ds.SetGeoTransform(dst_trans)
-    ds.SetMetadata(dst_meta)
-    for iband in range(dst_nb):
-        band = ds.GetRasterBand(iband+1)
-        band.WriteArray(dst_data[iband])
-        band.SetDescription(dst_band[iband])
-    band.SetNoDataValue(dst_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
-    ds.FlushCache()
-    ds = None # close dataset
-
-
-
-"""
     # Fit line
     xc = xg.copy()
     yc = yg.copy()
@@ -199,7 +158,7 @@ for plot in plots:
             xc = xc[cnd]
             yc = yc[cnd]
             coef = np.polyfit(xc,yc,1)
-    xf = src_xgrd.copy()
+    xf = np.array([xg.min()-opts.xmgn,xg.max()+opts.xmgn])
     yf = np.polyval(coef,xf)
     # Origin
     xo = xf[0]
@@ -232,6 +191,43 @@ for plot in plots:
         ng = ng[indx]
         xg = xg[indx]
         yg = yg[indx]
+    # Create subset image
+    out_xmin = xg.min()-opts.xmgn
+    out_ymin = yg.min()-opts.ymgn
+    out_xmax = xg.max()+opts.xmgn
+    out_ymax = yg.max()+opts.ymgn
+    xoff = int((out_xmin-src_xmin)/np.abs(src_xstp)+0.5)
+    yoff = int((src_ymax-out_ymax)/np.abs(src_ystp)+0.5)
+    xsize = int((out_xmax-out_xmin)/np.abs(src_xstp)+0.5)
+    ysize = int((out_ymax-out_ymin)/np.abs(src_ystp)+0.5)
+    if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
+        raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
+    dst_nx = xsize
+    dst_ny = ysize
+    dst_nb = src_nb
+    dst_prj = src_prj
+    dst_xmin = src_xgrd[xoff]-0.5*src_xstp
+    dst_xstp = src_xstp
+    dst_xmax = dst_xmin+dst_nx*dst_xstp
+    dst_ymax = src_ygrd[yoff]-0.5*src_ystp
+    dst_ystp = src_ystp
+    dst_ymin = dst_ymax+dst_ny*dst_ystp
+    dst_trans = [0.0]*len(src_trans)
+    dst_trans[0] = dst_xmin
+    dst_trans[1] = dst_xstp
+    dst_trans[3] = dst_ymax
+    dst_trans[5] = dst_ystp
+    dst_meta = src_meta
+    dst_data = src_data[:,yoff:yoff+ysize,xoff:xoff+xsize]
+    dst_band = src_band
+    dst_dtype = src_dtype
+    if src_nodata is None:
+        dst_nodata = np.nan
+    else:
+        dst_nodata = src_nodata
+    dst_shape = (dst_ny,dst_nx)
+    dst_xp = src_xp[yoff:yoff+ysize,xoff:xoff+xsize]
+    dst_yp = src_yp[yoff:yoff+ysize,xoff:xoff+xsize]
     # Inner product
     prod = (xg-xo)*xd+(yg-yo)*yd
     indx = np.argsort(prod)
@@ -253,29 +249,14 @@ for plot in plots:
             p_search = Path(np.array(p.exterior.coords.xy).swapaxes(0,1))
             path_search.append(p_search)
             if len(flags) < 1:
-                flags = p_search.contains_points(np.hstack((tmp_xp.reshape(-1,1),tmp_yp.reshape(-1,1))),radius=0.0).reshape(tmp_shape)
+                flags = p_search.contains_points(np.hstack((dst_xp.reshape(-1,1),dst_yp.reshape(-1,1))),radius=0.0).reshape(dst_shape)
             else:
-                flags |= p_search.contains_points(np.hstack((tmp_xp.reshape(-1,1),tmp_yp.reshape(-1,1))),radius=0.0).reshape(tmp_shape)
+                flags |= p_search.contains_points(np.hstack((dst_xp.reshape(-1,1),dst_yp.reshape(-1,1))),radius=0.0).reshape(dst_shape)
     else:
         path_search = Path(np.array(poly_buffer.buffer(0.0).exterior.coords.xy).swapaxes(0,1))
-        flags = path_search.contains_points(np.hstack((tmp_xp.reshape(-1,1),tmp_yp.reshape(-1,1))),radius=0.0).reshape(tmp_shape)
-    # Write GeoTIFF
-    dst_nx = tmp_nx
-    dst_ny = tmp_ny
-    dst_nb = tmp_nb
-    dst_prj = src_prj
-    dst_trans = tmp_trans
-    dst_meta = src_meta
-    dst_dtype = src_dtype
-    if src_nodata is None:
-        dst_nodata = np.nan
-    else:
-        dst_nodata = src_nodata
-    dst_data = tmp_data.copy()
+        flags = path_search.contains_points(np.hstack((dst_xp.reshape(-1,1),dst_yp.reshape(-1,1))),radius=0.0).reshape(dst_shape)
     dst_data[:,~flags] = dst_nodata
-    dst_band = []
-    for iband in range(dst_nb):
-        dst_band.append(src_band[iband])
+    # Write GeoTIFF
     drv = gdal.GetDriverByName('GTiff')
     ds = drv.Create(onam,dst_nx,dst_ny,dst_nb,dst_dtype)
     ds.SetProjection(dst_prj)
@@ -290,9 +271,9 @@ for plot in plots:
     ds = None # close dataset
     # For debug
     if opts.debug:
-        b = tmp_data[0].astype(np.float32)
-        g = tmp_data[1].astype(np.float32)
-        r = tmp_data[2].astype(np.float32)
+        b = dst_data[0].astype(np.float32)
+        g = dst_data[1].astype(np.float32)
+        r = dst_data[2].astype(np.float32)
         fact = opts.fact
         b = (b*fact/32768.0).clip(0,1)
         g = (g*fact/32768.0).clip(0,1)
@@ -304,16 +285,16 @@ for plot in plots:
         if opts.remove_nan:
             rgb[~flags,:] = 1.0
         fig.clear()
-        if tmp_ny > tmp_nx:
-            wx = tmp_nx/tmp_ny
+        if dst_ny > dst_nx:
+            wx = dst_nx/dst_ny
             ax1 = fig.add_axes((0.5-0.5*wx,0,wx,1))
         else:
-            wy = tmp_ny/tmp_nx
+            wy = dst_ny/dst_nx
             ax1 = fig.add_axes((0,0.5-0.5*wy,1,wy))
         ax1.set_xticks([])
         ax1.set_yticks([])
-        #ax1.plot(tmp_xp[::100,::100],tmp_yp[::100,::100],'k.')
-        ax1.imshow(rgb,extent=(tmp_xmin,tmp_xmax,tmp_ymin,tmp_ymax),interpolation='none')
+        #ax1.plot(dst_xp[::100,::100],dst_yp[::100,::100],'k.')
+        ax1.imshow(rgb,extent=(dst_xmin,dst_xmax,dst_ymin,dst_ymax),interpolation='none')
         if not opts.remove_nan:
             if poly_buffer.area <= 0.0:
                 pass
@@ -329,24 +310,22 @@ for plot in plots:
         for ntmp,xtmp,ytmp in zip(ng,xg,yg):
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if opts.remove_nan:
-            xp = tmp_xp[flags]
-            yp = tmp_yp[flags]
+            xp = dst_xp[flags]
+            yp = dst_yp[flags]
             fig_xmin = xp.min()
             fig_xmax = xp.max()
             fig_ymin = yp.min()
             fig_ymax = yp.max()
         else:
-            fig_xmin = tmp_xmin
-            fig_xmax = tmp_xmax
-            fig_ymin = tmp_ymin
-            fig_ymax = tmp_ymax
+            fig_xmin = dst_xmin
+            fig_xmax = dst_xmax
+            fig_ymin = dst_ymin
+            fig_ymax = dst_ymax
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
         plt.draw()
         plt.pause(0.1)
-
     #break
 if opts.debug:
     pdf.close()
-"""
