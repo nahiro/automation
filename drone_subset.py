@@ -113,17 +113,24 @@ src_trans = ds.GetGeoTransform()
 if src_trans[2] != 0.0 or src_trans[4] != 0.0:
     raise ValueError('Error, src_trans={}'.format(src_trans))
 src_meta = ds.GetMetadata()
+src_data = ds.ReadAsArray().reshape(src_nb,src_ny,src_nx)
 src_band = []
 for iband in range(src_nb):
     band = ds.GetRasterBand(iband+1)
     src_band.append(band.GetDescription())
 src_dtype = band.DataType
 src_nodata = band.GetNoDataValue()
+ds = None
 src_xmin = src_trans[0]
 src_xstp = src_trans[1]
 src_ymax = src_trans[3]
 src_ystp = src_trans[5]
-ds = None
+src_xgrd = src_xmin+(np.arange(src_nx)+0.5)*src_xstp
+src_ygrd = src_ymax+(np.arange(src_ny)+0.5)*src_ystp
+src_shape = (src_ny,src_nx)
+src_indy,src_indx = np.indices(src_shape)
+src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
+src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
 
 if opts.debug:
     plt.interactive(True)
@@ -145,38 +152,37 @@ for plot in plots:
     ysize = int((out_ymax-out_ymin)/np.abs(src_ystp)+0.5)
     if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
         raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
-    tnam = bnam+'_{}_temp'.format(plot)+enam
     onam = bnam+'_plot{}'.format(plot)+enam
-    command = 'gdal_translate'
-    command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
-    command += ' {}'.format(opts.src_geotiff)
-    command += ' {}'.format(tnam)
-    #print(command)
-    call(command,shell=True)
-    # Read subset image
-    ds = gdal.Open(tnam)
-    tmp_nx = ds.RasterXSize
-    tmp_ny = ds.RasterYSize
-    tmp_nb = ds.RasterCount
-    tmp_trans = ds.GetGeoTransform()
-    if tmp_trans[2] != 0.0 or tmp_trans[4] != 0.0:
-        raise ValueError('Error, tmp_trans={}'.format(tmp_trans))
-    tmp_data = ds.ReadAsArray().reshape(tmp_nb,tmp_ny,tmp_nx)
-    tmp_xmin = tmp_trans[0]
-    tmp_xstp = tmp_trans[1]
-    tmp_ymax = tmp_trans[3]
-    tmp_ystp = tmp_trans[5]
-    tmp_xmax = tmp_xmin+tmp_nx*tmp_xstp
-    tmp_ymin = tmp_ymax+tmp_ny*tmp_ystp
-    tmp_xgrd = tmp_xmin+(np.arange(tmp_nx)+0.5)*tmp_xstp
-    tmp_ygrd = tmp_ymax+(np.arange(tmp_ny)+0.5)*tmp_ystp
-    ds = None
-    if os.path.exists(tnam):
-        os.remove(tnam)
-    tmp_shape = (tmp_ny,tmp_nx)
-    tmp_indy,tmp_indx = np.indices(tmp_shape)
-    tmp_xp = tmp_trans[0]+(tmp_indx+0.5)*tmp_trans[1]+(tmp_indy+0.5)*tmp_trans[2]
-    tmp_yp = tmp_trans[3]+(tmp_indx+0.5)*tmp_trans[4]+(tmp_indy+0.5)*tmp_trans[5]
+    dst_nx = xsize
+    dst_ny = ysize
+    dst_nb = src_nb
+    dst_prj = src_prj
+    dst_trans = [0.0]*len(src_trans)
+    dst_trans[0] = src_xgrd[xoff]-0.5*src_xstp
+    dst_trans[1] = src_xstp
+    dst_trans[3] = src_ygrd[yoff]-0.5*src_ystp
+    dst_trans[5] = src_ystp
+    dst_meta = src_meta
+    dst_data = src_data[:,yoff:yoff+ysize,xoff:xoff+xsize]
+    dst_band = src_band
+    dst_dtype = src_dtype
+    dst_nodata = src_nodata
+    drv = gdal.GetDriverByName('GTiff')
+    ds = drv.Create(onam,dst_nx,dst_ny,dst_nb,dst_dtype)
+    ds.SetProjection(dst_prj)
+    ds.SetGeoTransform(dst_trans)
+    ds.SetMetadata(dst_meta)
+    for iband in range(dst_nb):
+        band = ds.GetRasterBand(iband+1)
+        band.WriteArray(dst_data[iband])
+        band.SetDescription(dst_band[iband])
+    band.SetNoDataValue(dst_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
+    ds.FlushCache()
+    ds = None # close dataset
+
+
+
+"""
     # Fit line
     xc = xg.copy()
     yc = yg.copy()
@@ -193,7 +199,7 @@ for plot in plots:
             xc = xc[cnd]
             yc = yc[cnd]
             coef = np.polyfit(xc,yc,1)
-    xf = tmp_xgrd.copy()
+    xf = src_xgrd.copy()
     yf = np.polyval(coef,xf)
     # Origin
     xo = xf[0]
@@ -343,3 +349,4 @@ for plot in plots:
     #break
 if opts.debug:
     pdf.close()
+"""
