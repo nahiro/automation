@@ -109,6 +109,14 @@ with open(opts.ext_fnam,'w') as fp:
     if len(comments) > 0:
         fp.write(comments)
     if header is not None:
-        fp.write(header)
+        fp.write(header.rstrip())
+        for iband in range(src_nb):
+            fp,write(', {:>13s}'.format(src_band[iband]))
+        fp.write('\n')
     for i in range(len(number_bunch)):
-        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+        r = np.sqrt(np.square(src_xp-x_bunch[i])+np.square(src_yp-y_bunch[i]))
+        cnd = (r > opts.inner_radius) & (r < opts.outer_radius)
+        for iband in range(src_nb):
+            fp.write(', {:13.6e}'.format(np.nanmean(src_data[iband][cnd])))
+        fp.write('\n')
