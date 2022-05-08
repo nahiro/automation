@@ -118,9 +118,13 @@ if len(opts.src_geotiff) == 1:
         for i in range(len(number_bunch)):
             fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
             r = np.sqrt(np.square(src_xp-x_bunch[i])+np.square(src_yp-y_bunch[i]))
-            cnd = (r > opts.inner_radius) & (r < opts.outer_radius)
+            cnd1 = (r > opts.inner_radius) & (r < opts.outer_radius)
             for iband in range(src_nb):
-                fp.write(', {:13.6e}'.format(np.nanmean(src_data[iband][cnd])))
+                cnd2 = cnd1 & (~np.isnan(src_data[iband]))
+                dcnd = src_data[iband][cnd2]
+                if dcnd.size < 1:
+                    raise ValueError('Error, no data for Plot#{}, Bunch#{} ({}) >>> {}'.format(plot_bunch[i],number_bunch[i],src_band[iband],fnam))
+                fp.write(', {:13.6e}'.format(dcnd.mean()))
             fp.write('\n')
 elif len(opts.src_geotiff) == len(plots):
     with open(opts.ext_fnam,'w') as fp:
@@ -173,9 +177,13 @@ elif len(opts.src_geotiff) == len(plots):
             for i in indx_member:
                 fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}'.format(ng[i],plot,xg[i],yg[i],blb[i]))
                 r = np.sqrt(np.square(src_xp-xg[i])+np.square(src_yp-yg[i]))
-                cnd = (r > opts.inner_radius) & (r < opts.outer_radius)
+                cnd1 = (r > opts.inner_radius) & (r < opts.outer_radius)
                 for iband in range(src_nb):
-                    fp.write(', {:13.6e}'.format(np.nanmean(src_data[iband][cnd])))
+                    cnd2 = cnd1 & (~np.isnan(src_data[iband]))
+                    dcnd = src_data[iband][cnd2]
+                    if dcnd.size < 1:
+                        raise ValueError('Error, no data for Plot#{}, Bunch#{} ({}) >>> {}'.format(plot,ng[i],src_band[iband],fnam))
+                    fp.write(', {:13.6e}'.format(dcnd.mean()))
                 fp.write('\n')
 else:
     raise ValueError('Error, len(opts.src_geotiff)={}'.format(len(opts.src_geotiff)))
