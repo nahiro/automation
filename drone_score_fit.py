@@ -18,6 +18,8 @@ Y_PARAM = 'DamagedByBLB'
 VMAX = 5.0
 NMAX = 3
 CRITERIA = 'RMSE'
+N_CROSS = 10
+R_CROSS = 0.1
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -29,6 +31,8 @@ parser.add_option('-y','--y_param',default=Y_PARAM,help='Objective variable (%de
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
+parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
+parser.add_option('-r','--r_cross',default=R_CROSS,type='float',help='Split ratio for cross validation (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
@@ -83,26 +87,29 @@ for n in range(1,min(opts.nmax,nx)+1):
     for c in combinations(x_param,n):
         x_list = list(c)
         X = sm.add_constant(X_all[x_list]) # adding a constant
+        x_all = list(X.columns)
         model = sm.OLS(Y,X).fit()
-        model_xs.append(list(X.columns))
+        model_xs.append(x_all)
         model_rmses.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
         model_r2s.append(model.rsquared_adj)
         model_aics.append(model.aic)
         model_bics.append(model.bic)
         model_fs.append(model.f_pvalue)
         coef_values.append(model.params)
-        coef_errors.append(model.params) # temporary
+        values = {}
+        errors = {}
+        for param in x_all:
+            values[param] = []
+        for i in range(opts.n_cross):
+            X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.1)
+            model = sm.OLS(Y_train,X_train).fit()
+            for param in x_all:
+                values[param].append(model.params[param])
+        for param in x_all:
+            errors[param] = np.std(values[param])
+        coef_errors.append(errors)
         coef_ps.append(model.pvalues)
         coef_ts.append(model.tvalues)
-
-        """
-        for i in range(10):
-            X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size=0.1)
-            model = sm.OLS(y_train,X_train).fit()
-            predictions = model.predict(X_train) 
-            #print_model = model.summary()
-            #print(print_model)
-        """
 if opts.criteria == 'RMSE':
     model_indx = np.argsort(model_rmses)
 elif opts.criteria == 'R2':
@@ -124,4 +131,6 @@ with open(opts.out_fnam,'w') as fp:
         fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmses[indx],model_r2s[indx],model_aics[indx],model_bics[indx],model_fs[indx],len(model_xs[indx])))
         for param in model_xs[indx]:
             fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
+        for n in range(len(model_xs[indx]),min(opts.nmax,nx)+1):
+            fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
         fp.write('\n')
