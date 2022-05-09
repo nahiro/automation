@@ -84,14 +84,14 @@ for n in range(1,min(opts.nmax,nx)+1):
         x_list = list(c)
         X = sm.add_constant(X_all[x_list]) # adding a constant
         model = sm.OLS(Y,X).fit()
-        model_xs.append(x_list)
+        model_xs.append(list(X.columns))
         model_rmses.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
         model_r2s.append(model.rsquared_adj)
         model_aics.append(model.aic)
         model_bics.append(model.bic)
         model_fs.append(model.f_pvalue)
         coef_values.append(model.params)
-        coef_errors.append(np.nan)
+        coef_errors.append(model.params) # temporary
         coef_ps.append(model.pvalues)
         coef_ts.append(model.tvalues)
 
@@ -114,9 +114,14 @@ elif opts.criteria == 'BIC':
 else:
     raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
 with open(opts.out_fnam,'w') as fp:
-    for criteria in CRITERIAS:
-        fp.write('{:>13s},'.format(criteria))
+    for v in CRITERIAS:
+        fp.write('{:>13s},'.format(v))
+    fp.write('{:>13s},{:>2s}'.format('P','N'))
+    for n in range(min(opts.nmax,nx)+1):
+        fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
     for indx in model_indx:
-        fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},'.format(model_rmses[indx],model_r2s[indx],model_aics[indx],model_bics[indx],model_fs[indx]))
+        fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmses[indx],model_r2s[indx],model_aics[indx],model_bics[indx],model_fs[indx],len(model_xs[indx])))
+        for param in model_xs[indx]:
+            fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
         fp.write('\n')
