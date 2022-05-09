@@ -2,7 +2,6 @@
 import os
 import gdal
 import numpy as np
-from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable

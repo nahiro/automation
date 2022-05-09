@@ -6,15 +6,10 @@ import re
 import gdal
 import numpy as np
 from itertools import combinations
-from scipy.signal import convolve2d
-from subprocess import call
-from shapely.geometry import Point,Polygon
 from skimage.measure import label,regionprops
-from matplotlib.path import Path
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import matplotlib.patches as mpatches
+import matplotlib.patches as patches
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
@@ -471,9 +466,9 @@ for plot in plots:
         ax2.yaxis.set_label_coords(3.5,0.5)
 
         #for i_point in range(len(number_point)):
-        #    rect = mpatches.Rectangle((xmin_point[i_point],ymin_point[i_point]),
-        #                               xmax_point[i_point]-xmin_point[i_point],
-        #                               ymax_point[i_point]-ymin_point[i_point],fill=False,edgecolor='red',linewidth=2)
+        #    rect = patches.Rectangle((xmin_point[i_point],ymin_point[i_point]),
+        #                              xmax_point[i_point]-xmin_point[i_point],
+        #                              ymax_point[i_point]-ymin_point[i_point],fill=False,edgecolor='red',linewidth=2)
             #ax1.add_patch(rect)
 
         ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')

@@ -8,8 +8,8 @@ import numpy as np
 from subprocess import call
 from shapely.geometry import Point,Polygon
 from matplotlib.path import Path
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 

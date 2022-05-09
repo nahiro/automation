@@ -1,22 +1,9 @@
 #!/usr/bin/env python
 import os
 import sys
-import shutil
 import re
 import gdal
 import numpy as np
-from itertools import combinations
-from scipy.signal import convolve2d
-from subprocess import call
-from shapely.geometry import Point,Polygon
-from skimage.measure import label,regionprops
-from matplotlib.path import Path
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.patches as mpatches
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
