@@ -2,14 +2,15 @@
 import numpy as np
 import pandas as pd
 from itertools import combinations
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
+from sklearn.metrics import r2_score
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
-CRITERIAS = ['RMSE','R2','AIC','BIC']
+CRITERIAS = ['R2_Score','R2','RMSE','AIC','BIC']
 
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
@@ -18,9 +19,8 @@ X_PRIORITY = ['NDVI','GNDVI','RGI','Nn','Ne','Nr','Ng','Nb','Sn','Se','Sr','Sg',
 Y_PARAM = 'DamagedByBLB'
 VMAX = 5.0
 NMAX = 2
-CRITERIA = 'RMSE'
+CRITERIA = 'R2_Score'
 N_CROSS = 10
-R_CROSS = 0.1
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -33,7 +33,6 @@ parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inf
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
 parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
-parser.add_option('-r','--r_cross',default=R_CROSS,type='float',help='Split ratio for cross validation (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
@@ -79,8 +78,9 @@ X_all = X[x_param]
 
 # Make formulas
 model_xs = []
-model_rmses = []
+model_r2_scores = []
 model_r2s = []
+model_rmses = []
 model_aics = []
 model_bics = []
 model_fs = []
@@ -95,32 +95,40 @@ for n in range(1,min(opts.nmax,nx)+1):
         x_all = list(X.columns)
         model = sm.OLS(Y,X).fit()
         model_xs.append(x_all)
-        model_rmses.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
         model_r2s.append(model.rsquared_adj)
+        model_rmses.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
         model_aics.append(model.aic)
         model_bics.append(model.bic)
         model_fs.append(model.f_pvalue)
         coef_values.append(model.params)
+        scores = []
         values = {}
         errors = {}
         for param in x_all:
             values[param] = []
-        for i in range(opts.n_cross):
-            X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.1)
+        kf = KFold(n_splits=opts.n_cross,random_state=None,shuffle=False)
+        for train_index,test_index in kf.split(X):
+            X_train,X_test = X.iloc[train_index],X.iloc[test_index]
+            Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
             model = sm.OLS(Y_train,X_train).fit()
+            predictions = model.predict(X_test)
+            scores.append(r2_score(Y_test,predictions))
             for param in x_all:
                 values[param].append(model.params[param])
         for param in x_all:
             errors[param] = np.std(values[param])
         coef_errors.append(errors)
+        model_r2_scores.append(np.mean(scores))
         coef_ps.append(model.pvalues)
         coef_ts.append(model.tvalues)
 
 # Sort formulas
-if opts.criteria == 'RMSE':
-    model_indx = np.argsort(model_rmses)
+if opts.criteria == 'R2_Score':
+    model_indx = np.argsort(model_r2_scores)[::-1]
 elif opts.criteria == 'R2':
     model_indx = np.argsort(model_r2s)[::-1]
+elif opts.criteria == 'RMSE':
+    model_indx = np.argsort(model_rmses)
 elif opts.criteria == 'AIC':
     model_indx = np.argsort(model_aics)
 elif opts.criteria == 'BIC':
@@ -137,7 +145,7 @@ with open(opts.out_fnam,'w') as fp:
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
     for indx in model_indx:
-        fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmses[indx],model_r2s[indx],model_aics[indx],model_bics[indx],model_fs[indx],len(model_xs[indx])))
+        fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_r2_scores[indx],model_r2s[indx],model_rmses[indx],model_aics[indx],model_bics[indx],model_fs[indx],len(model_xs[indx])))
         for param in model_xs[indx]:
             fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
         for n in range(len(model_xs[indx]),min(opts.nmax,nx)+1):
