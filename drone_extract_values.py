@@ -104,6 +104,7 @@ if len(opts.src_geotiff) == 1:
     src_ystp = src_trans[5]
     src_ymin = src_ymax+src_ny*src_ystp
     ds = None
+    src_shape = (src_ny,src_nx)
     src_indy,src_indx = np.indices(src_shape)
     src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
     src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
@@ -165,6 +166,7 @@ elif len(opts.src_geotiff) == len(plots):
             src_ystp = src_trans[5]
             src_ymin = src_ymax+src_ny*src_ystp
             ds = None
+            src_shape = (src_ny,src_nx)
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
