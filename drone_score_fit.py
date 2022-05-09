@@ -9,18 +9,25 @@ PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI'
 
 # Default values
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
+X_PRIORITY = ['NDVI','GNDVI','RGI','Nn','Ne','Nr','Ng','Nb','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = 'DamagedByBLB'
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
+parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=Y_PARAM,help='Objective variable (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
 if opts.x_param is None:
     opts.x_param = X_PARAM
+if opts.x_priority is None:
+    opts.x_priority = X_PRIORITY
+for param in opts.x_param:
+    if not param in opts.x_priority:
+        raise ValueError('Error, priority of {} is not given.'.format(param))
 
 X = {}
 Y = {}
