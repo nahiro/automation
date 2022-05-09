@@ -11,6 +11,7 @@ PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
 X_PRIORITY = ['NDVI','GNDVI','RGI','Nn','Ne','Nr','Ng','Nb','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = 'DamagedByBLB'
+VMAX = 5.0
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -18,6 +19,7 @@ parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input fil
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
 parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=Y_PARAM,help='Objective variable (%default)')
+parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
@@ -28,6 +30,8 @@ if opts.x_priority is None:
 for param in opts.x_param:
     if not param in opts.x_priority:
         raise ValueError('Error, priority of {} is not given.'.format(param))
+indx_param = [opts.x_priority.index(param) for param in opts.x_param]
+x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
 
 X = {}
 Y = {}
