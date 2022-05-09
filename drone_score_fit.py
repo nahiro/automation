@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn import linear_model
+from itertools import combinations
 from sklearn.model_selection import train_test_split
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -33,9 +33,9 @@ if opts.x_priority is None:
 for param in opts.x_param:
     if not param in opts.x_priority:
         raise ValueError('Error, priority of {} is not given.'.format(param))
-nx = len(opts.x_param)
 indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
+nx = len(x_param)
 
 X = {}
 Y = {}
@@ -52,49 +52,26 @@ for fnam in opts.inp_fnam:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         X[param].extend(list(df[param]))
-X1 = pd.DataFrame(X)
-Y1 = pd.DataFrame(Y)
-
-#for indx in reversed(range(1,nx)):
-#    vif = variance_inflation_factor(X[x_param].values,indx)
-#    if vif > opts.vmax:
-#        del x_param[indx]
-        
-
-
-#X = X1[['Nb','Ng','Nr','Nn','NDVI','GNDVI']]
-X = X1[['Nn','Nr','Ng','Nb']]
-#X = X1[['Nn','Nr','Ng']]
-#X = X1[['Nn','Nr']]
-#X = X1[['Nr']]
-Y = X1['Ne']
- 
-# with sklearn
-regr = linear_model.LinearRegression()
-regr.fit(X,Y)
-
-print('Intercept: \n',regr.intercept_)
-print('Coefficients: \n',regr.coef_)
-
-# prediction with sklearn
-#New_Interest_Rate = 2.75
-#New_Unemployment_Rate = 5.3
-#print ('Predicted Stock Index Price: \n',regr.predict([[New_Interest_Rate ,New_Unemployment_Rate]]))
-
-# with statsmodels
-X_org = X.copy()
-X = sm.add_constant(X) # adding a constant
+X = pd.DataFrame(X)
+Y = pd.DataFrame(Y)
+for indx in reversed(range(1,nx)):
+    vif = variance_inflation_factor(X[x_param].values,indx)
+    if vif > opts.vmax:
+        del x_param[indx]
+nx = len(x_param)
+X = sm.add_constant(X[x_param]) # adding a constant
  
 model = sm.OLS(Y,X).fit()
-predictions = model.predict(X) 
- 
-print_model = model.summary()
-print(print_model)
+#predictions = model.predict(X) 
+rmse = np.sqrt(model.mse_resid)
+#print_model = model.summary()
+#print(print_model)
 
+"""
 for i in range(10):
     X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size=0.1)
     model = sm.OLS(y_train,X_train).fit()
     predictions = model.predict(X_train) 
-     
-    print_model = model.summary()
+    #print_model = model.summary()
     #print(print_model)
+"""
