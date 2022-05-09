@@ -1,15 +1,46 @@
+import numpy as np
 import pandas as pd
-from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 import statsmodels.api as sm
+from optparse import OptionParser,IndentedHelpFormatter
 
-Stock_Market = {'Year': [2017,2017,2017,2017,2017,2017,2017,2017,2017,2017,2017,2017,2016,2016,2016,2016,2016,2016,2016,2016,2016,2016,2016,2016],
-                'Month': [12, 11,10,9,8,7,6,5,4,3,2,1,12,11,10,9,8,7,6,5,4,3,2,1],
-                'Interest_Rate': [2.75,2.5,2.5,2.5,2.5,2.5,2.5,2.25,2.25,2.25,2,2,2,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75,1.75],
-                'Unemployment_Rate': [5.3,5.3,5.3,5.3,5.4,5.6,5.5,5.5,5.5,5.6,5.7,5.9,6,5.9,5.8,6.1,6.2,6.1,6.1,6.1,5.9,6.2,6.2,6.1],
-                'Stock_Index_Price': [1464,1394,1357,1293,1256,1254,1234,1195,1159,1167,1130,1075,1047,965,943,958,971,949,884,866,876,822,704,719]        
-                }
+# Constants
+PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
 
+# Default values
+X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
+Y_PARAM = 'DamagedByBLB'
+
+# Read options
+parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
+parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
+parser.add_option('-y','--y_param',default=Y_PARAM,help='Objective variable (%default)')
+(opts,args) = parser.parse_args()
+if opts.inp_fnam is None:
+    raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
+if opts.x_param is None:
+    opts.x_param = X_PARAM
+
+X = {}
+Y = {}
+for param in opts.x_param:
+    X[param] = []
+Y[opts.y_param] = []
+for fnam in opts.inp_fnam:
+    df = pd.read_csv(fnam,comment='#')
+    df.columns = df.columns.str.strip()
+    if not opts.y_param in df.columns:
+        raise ValueError('Error in finding column for {} >>> {}'.format(opts.y_param,fnam))
+    Y[opts.y_param].extend(list(df[opts.y_param]))
+    for param in opts.x_param:
+        if not param in df.columns:
+            raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
+        X[param].extend(list(df[param]))
+X = pd.DataFrame(X)
+Y = pd.DataFrame(Y)
+
+"""
 df = pd.DataFrame(Stock_Market,columns=['Year','Month','Interest_Rate','Unemployment_Rate','Stock_Index_Price'])
 
 X = df[['Interest_Rate','Unemployment_Rate']] # here we have 2 variables for multiple regression. If you just want to use one variable for simple linear regression, then use X = df['Interest_Rate'] for example.Alternatively, you may add additional variables within the brackets
@@ -44,3 +75,4 @@ for i in range(10):
      
     print_model = model.summary()
     print(print_model)
+"""
