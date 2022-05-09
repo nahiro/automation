@@ -16,7 +16,7 @@ X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
 X_PRIORITY = ['NDVI','GNDVI','RGI','Nn','Ne','Nr','Ng','Nb','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = 'DamagedByBLB'
 VMAX = 5.0
-NMAX = 3
+NMAX = 2
 CRITERIA = 'RMSE'
 N_CROSS = 10
 R_CROSS = 0.1
@@ -49,6 +49,7 @@ indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
 nx = len(x_param)
 
+# Read data
 X = {}
 Y = {}
 for param in opts.x_param:
@@ -66,13 +67,16 @@ for fnam in opts.inp_fnam:
         X[param].extend(list(df[param]))
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
+
+# Eliminate multicollinearity
 for indx in reversed(range(1,nx)):
     vif = variance_inflation_factor(X[x_param].values,indx)
     if vif > opts.vmax:
         del x_param[indx]
 nx = len(x_param)
-
 X_all = X[x_param]
+
+# Make formulas
 model_xs = []
 model_rmses = []
 model_r2s = []
@@ -110,6 +114,8 @@ for n in range(1,min(opts.nmax,nx)+1):
         coef_errors.append(errors)
         coef_ps.append(model.pvalues)
         coef_ts.append(model.tvalues)
+
+# Sort formulas
 if opts.criteria == 'RMSE':
     model_indx = np.argsort(model_rmses)
 elif opts.criteria == 'R2':
@@ -120,6 +126,8 @@ elif opts.criteria == 'BIC':
     model_indx = np.argsort(model_bics)
 else:
     raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
+
+# Output results
 with open(opts.out_fnam,'w') as fp:
     for v in CRITERIAS:
         fp.write('{:>13s},'.format(v))
