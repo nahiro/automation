@@ -10,7 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
-PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
+PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
 bands = {}
 bands['b'] = 'Blue'
 bands['g'] = 'Green'
@@ -25,7 +25,7 @@ band_index['e'] = 3
 band_index['n'] = 4
 
 # Default values
-PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
+PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -124,6 +124,11 @@ for param in opts.param:
         rededge = value_pix['e']
         pnams.append(param)
         dst_data.append(green*rededge)
+    elif param == 'NRGI':
+        green = value_pix['g']
+        rededge = value_pix['e']
+        pnams.append(param)
+        dst_data.append(green*norm*rededge*norm)
     elif param[0] == 'S':
         if len(param) == 2:
             band = param[1]
