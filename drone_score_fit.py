@@ -9,13 +9,13 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
-PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
+PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
 CRITERIAS = ['R2_Score','R2','RMSE','AIC','BIC']
 
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
-X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI']
-X_PRIORITY = ['NDVI','GNDVI','RGI','Nn','Ne','Nr','Ng','Nb','Sn','Se','Sr','Sg','Sb']
+X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
+X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = 'DamagedByBLB'
 VMAX = 5.0
 NMAX = 2
