@@ -16,7 +16,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
 RR_PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn']
-SN_PARAMS = ['Nr','Br']
+SR_PARAMS = ['Nr','Br']
 bands = {}
 bands['b'] = 'Blue'
 bands['g'] = 'Green'
@@ -38,7 +38,7 @@ BUNCH_RMAX = 10.0 # m
 BUNCH_EMAX = 2.0  # sigma
 BUNCH_NMIN = 5
 RR_PARAM = 'Lrg'
-SN_PARAM = 'Nr'
+SR_PARAM = 'Nr'
 RTHR = 1.0
 RSTP = 0.01
 STHR = 2.0
@@ -59,7 +59,7 @@ parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum b
 parser.add_option('--bunch_emax',default=BUNCH_EMAX,type='float',help='Maximum distance of a bunch from the fit line in sigma (%default)')
 parser.add_option('--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
 parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
-parser.add_option('-P','--sn_param',default=SN_PARAM,help='Signal ratio parameter (%default)')
+parser.add_option('-P','--sr_param',default=SR_PARAM,help='Signal ratio parameter (%default)')
 parser.add_option('-t','--rthr',default=RTHR,type='float',help='Max threshold of redness ratio (%default)')
 parser.add_option('-r','--rstp',default=RSTP,type='float',help='Threshold step of redness ratio (%default)')
 parser.add_option('-T','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
@@ -72,8 +72,8 @@ parser.add_option('-d','--debug',default=False,action='store_true',help='Debug m
 (opts,args) = parser.parse_args()
 if not opts.rr_param in RR_PARAMS:
     raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(opts.rr_param))
-if not opts.sn_param in SN_PARAMS:
-    raise ValueError('Error, unknown signal to noise parameter >>> {}'.format(opts.sn_param))
+if not opts.sr_param in SR_PARAMS:
+    raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(opts.sr_param))
 if opts.ext_fnam is None:
     bnam,enam = os.path.splitext(opts.gps_fnam)
     opts.ext_fnam = bnam+'_extract'+enam
@@ -171,15 +171,15 @@ for plot in plots:
     if rr_trans[2] != 0.0 or rr_trans[4] != 0.0:
         raise ValueError('Error, rr_trans={}'.format(rr_trans))
     rr = None
-    sn = None
+    sr = None
     rr_band = []
     for iband in range(rr_nb):
         band = ds.GetRasterBand(iband+1)
         rr_band.append(band.GetDescription())
         if rr_band[iband] == opts.rr_param:
             rr = band.ReadAsArray().reshape(rr_ny,rr_nx)
-        elif rr_band[iband] == opts.sn_param:
-            sn = band.ReadAsArray().reshape(rr_ny,rr_nx)
+        elif rr_band[iband] == opts.sr_param:
+            sr = band.ReadAsArray().reshape(rr_ny,rr_nx)
     rr_xmin = rr_trans[0]
     rr_xstp = rr_trans[1]
     rr_ymax = rr_trans[3]
@@ -194,9 +194,9 @@ for plot in plots:
     rr_yp = rr_trans[3]+(rr_indx+0.5)*rr_trans[4]+(rr_indy+0.5)*rr_trans[5]
     if rr is None:
         raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.rr_param,rr_band,onam))
-    if sn is None:
-        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.sn_param,rr_band,onam))
-    cnd_sn = (sn > opts.sthr)
+    if sr is None:
+        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.sr_param,rr_band,onam))
+    cnd_sr = (sr > opts.sthr)
     # Fit line
     xg_bunch = x_bunch[inside_plot[plot]]
     yg_bunch = y_bunch[inside_plot[plot]]
@@ -237,9 +237,9 @@ for plot in plots:
     rthr = opts.rthr
     while True:
         if cnd_dist is None:
-            cnd_all = cnd_sn & (rr > rthr)
+            cnd_all = cnd_sr & (rr > rthr)
         else:
-            cnd_all = cnd_sn & cnd_dist & (rr > rthr)
+            cnd_all = cnd_sr & cnd_dist & (rr > rthr)
         rthr -= opts.rstp
         if cnd_all.sum() < 1:
             continue
@@ -399,7 +399,7 @@ for plot in plots:
         for i in range(size_plot[plot]):
             fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],blb_plot[plot][i]))
     rr_copy = rr.copy()
-    cnd = cnd_sn & cnd_dist
+    cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
 
     if opts.debug:
