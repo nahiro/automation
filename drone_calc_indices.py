@@ -26,12 +26,14 @@ band_index['n'] = 4
 
 # Default values
 PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
+NORM_BAND = ['b','g','r','e','n']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
+parser.add_option('-N','--norm_band',default=None,action='append',help='Wavelength band for normalization ({})'.format(NORM_BAND))
 parser.add_option('--data_min',default=None,type='float',help='Minimum data value (%default)')
 parser.add_option('--data_max',default=None,type='float',help='Maximum data value (%default)')
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
@@ -44,6 +46,8 @@ parser.add_option('-b','--batch',default=False,action='store_true',help='Batch m
 (opts,args) = parser.parse_args()
 if opts.param is None:
     opts.param = PARAM
+if opts.norm_band is None:
+    opts.norm_band = NORM_BAND
 if opts.ax1_zmin is not None:
     while len(opts.ax1_zmin) < len(opts.param):
         opts.ax1_zmin.append(opts.ax1_zmin[-1])
@@ -56,6 +60,9 @@ if opts.ax1_zstp is not None:
 for param in opts.param:
     if not param in PARAMS:
         raise ValueError('Error, unknown parameter >>> {}'.format(param))
+for band in opts.norm_band:
+    if not band in bands.keys():
+        raise ValueError('Error, unknown band >>> {}'.format(band))
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
@@ -104,8 +111,9 @@ norm = 0.0
 value_pix = {}
 for band in bands.keys():
     value_pix[band] = calc_vpix(src_data,band)
-    norm += value_pix[band]
-norm = 1.0/norm
+    if band in opts.norm_band:
+        norm += value_pix[band]
+norm = len(opts.norm_band)/norm
 dst_data = []
 pnams = []
 for param in opts.param:
