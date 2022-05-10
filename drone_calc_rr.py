@@ -241,9 +241,9 @@ for param in opts.param:
                 value_pix[band1] = calc_vpix(src_data,band1)
             if not band1 in value_out:
                 value_out[band1] = calc_vout(value_pix[band1])
-            sn = calc_sn(value_pix[band1],value_out[band1])
-            if sn.shape != data_shape:
-                raise ValueError('Error, sn.shape={}, data_shape={} >>> {}'.format(sn.shape,data_shape,fnam))
+            sr = calc_sn(value_pix[band1],value_out[band1])
+            if sr.shape != data_shape:
+                raise ValueError('Error, sr.shape={}, data_shape={} >>> {}'.format(sr.shape,data_shape,fnam))
         else:
             raise ValueError('Error, len(param)={} >>> {}'.format(len(param),param))
     elif param[0] == 'B':
@@ -254,15 +254,15 @@ for param in opts.param:
                 value_pix[band1] = calc_vpix(src_data,band1)
             if not band1 in value_out:
                 value_out[band1] = calc_vout(value_pix[band1])
-            sn = calc_sb(value_pix[band1],value_out[band1])
-            if sn.shape != data_shape:
-                raise ValueError('Error, sn.shape={}, data_shape={} >>> {}'.format(sn.shape,data_shape,fnam))
+            sr = calc_sb(value_pix[band1],value_out[band1])
+            if sr.shape != data_shape:
+                raise ValueError('Error, sr.shape={}, data_shape={} >>> {}'.format(sr.shape,data_shape,fnam))
         else:
             raise ValueError('Error, len(param)={} >>> {}'.format(len(param),param))
     else:
         raise ValueError('Error, param={}'.format(param))
     if param[0] == 'N' or param[0] == 'B':
-        rr.append(sn)
+        rr.append(sr)
     else:
         rr.append((red-green)/norm)
 rr = np.array(rr)
