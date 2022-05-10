@@ -80,6 +80,8 @@ def calc_vpix(data,band):
     vpix = data[band_index[band]].copy()
     if opts.data_min is not None:
         vpix[vpix < opts.data_min] = np.nan
+    if opts.data_max is not None:
+        vpix[vpix > opts.data_max] = np.nan
     return vpix
 
 def calc_vout(vpix):
@@ -113,12 +115,6 @@ if src_trans[2] != 0.0 or src_trans[4] != 0.0:
     raise ValueError('Error, src_trans={} >>> {}'.format(src_trans,opts.src_geotiff))
 src_meta = ds.GetMetadata()
 src_data = ds.ReadAsArray().astype(np.float64).reshape(src_nb,src_ny,src_nx)
-if opts.data_min is not None:
-    cnd = src_data < opts.data_min
-    src_data[cnd] = np.nan
-if opts.data_max is not None:
-    cnd = src_data > opts.data_max
-    src_data[cnd] = np.nan
 src_band = []
 for iband in range(src_nb):
     band = ds.GetRasterBand(iband+1)
