@@ -85,8 +85,6 @@ proc_orthomosaic.list_labels['cam_flags'] = ['Align','Optimize']
 proc_orthomosaic.list_labels['cam_params'] = ['f','k1','k2','k3','k4','cx,cy','p1','p2','b1','b2']
 proc_orthomosaic.list_labels['depth_map'] = [('Quality :',['High','Medium','Low']),(' Filter :',['None','Mild','Moderate','Aggressive'])]
 proc_orthomosaic.list_labels['output_type'] = ['UInt16','Int16','Float32']
-for pnam in proc_orthomosaic.pnams:
-    proc_orthomosaic.values[pnam] = proc_orthomosaic.defaults[pnam]
 proc_orthomosaic.input_types = {}
 proc_orthomosaic.input_types['inpdirs'] = 'ask_folders'
 proc_orthomosaic.input_types['outdir'] = 'ask_folder'
@@ -103,3 +101,5 @@ proc_orthomosaic.input_types['epsg'] = 'box'
 proc_orthomosaic.input_types['pixel_size'] = 'box'
 proc_orthomosaic.input_types['scale_factor'] = 'box'
 proc_orthomosaic.input_types['output_type'] = 'string_select'
+for pnam in proc_orthomosaic.pnams:
+    proc_orthomosaic.values[pnam] = proc_orthomosaic.defaults[pnam]

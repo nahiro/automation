@@ -33,11 +33,11 @@ proc_indices.list_labels['out_params'] = ['b','g','r','e','n','Nb','Ng','Nr','Ne
 proc_indices.list_labels['norm_bands'] = ['b','g','r','e','n']
 proc_indices.list_labels['rgi_red_band'] = ['b','g','r','e','n']
 proc_indices.list_labels['data_range'] = ['Min :',' Max :']
-for pnam in proc_indices.pnams:
-    proc_indices.values[pnam] = proc_indices.defaults[pnam]
 proc_indices.input_types['inp_fnam'] = 'ask_file'
 proc_indices.input_types['out_params'] = 'boolean_list'
 proc_indices.input_types['norm_bands'] = 'boolean_list'
 proc_indices.input_types['rgi_red_band'] = 'string_select'
 proc_indices.input_types['data_range'] = 'double_list'
+for pnam in proc_indices.pnams:
+    proc_indices.values[pnam] = proc_indices.defaults[pnam]
 proc_indices.middle_left_frame_width = 900

@@ -339,6 +339,10 @@ class Process:
                 self.center_var[pnam] = tk.BooleanVar()
             elif self.param_types[pnam] == 'string_select':
                 self.center_var[pnam] = tk.StringVar()
+            elif self.param_types[pnam] == 'int_select':
+                self.center_var[pnam] = tk.IntVar()
+            elif self.param_types[pnam] == 'double_select':
+                self.center_var[pnam] = tk.DoubleVar()
             elif self.param_types[pnam] == 'string_list':
                 self.center_var[pnam] = []
                 for j in range(self.list_sizes[pnam]):

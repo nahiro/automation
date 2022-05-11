@@ -128,8 +128,6 @@ proc_geocor.list_labels['scan_steps'] = ['','','','','']
 proc_geocor.list_labels['higher_flags'] = ['1st','2nd','3rd']
 proc_geocor.list_labels['boundary_cmins'] = ['','']
 proc_geocor.list_labels['boundary_emaxs'] = ['','','']
-for pnam in proc_geocor.pnams:
-    proc_geocor.values[pnam] = proc_geocor.defaults[pnam]
 proc_geocor.input_types['gis_fnam'] = 'ask_file'
 proc_geocor.input_types['ref_fnam'] = 'ask_file'
 proc_geocor.input_types['ref_bands'] = 'int_list'
@@ -151,4 +149,6 @@ proc_geocor.input_types['boundary_nmin'] = 'box'
 proc_geocor.input_types['boundary_cmins'] = 'double_list'
 proc_geocor.input_types['boundary_rmax'] = 'box'
 proc_geocor.input_types['boundary_emaxs'] = 'double_list'
+for pnam in proc_geocor.pnams:
+    proc_geocor.values[pnam] = proc_geocor.defaults[pnam]
 proc_geocor.middle_left_frame_width = 450
