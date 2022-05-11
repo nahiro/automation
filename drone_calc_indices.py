@@ -27,6 +27,7 @@ band_index['n'] = 4
 # Default values
 PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 NORM_BAND = ['b','g','r','e','n']
+RGI_RED_BAND = 'e'
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -34,6 +35,7 @@ parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
 parser.add_option('-N','--norm_band',default=None,action='append',help='Wavelength band for normalization ({})'.format(NORM_BAND))
+parser.add_option('-r','--rgi_red_band',default=RGI_RED_BAND,help='Wavelength band for RGI (%default)')
 parser.add_option('--data_min',default=None,type='float',help='Minimum data value (%default)')
 parser.add_option('--data_max',default=None,type='float',help='Maximum data value (%default)')
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
@@ -62,7 +64,9 @@ for param in opts.param:
         raise ValueError('Error, unknown parameter >>> {}'.format(param))
 for band in opts.norm_band:
     if not band in bands.keys():
-        raise ValueError('Error, unknown band >>> {}'.format(band))
+        raise ValueError('Error, unknown band for normalization >>> {}'.format(band))
+if not rgi_red_band in bands.keys():
+    raise ValueError('Error, unknown band for rgi >>> {}'.format(rgi_red_band))
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
@@ -129,14 +133,14 @@ for param in opts.param:
         dst_data.append((nir-green)/(nir+green))
     elif param == 'RGI':
         green = value_pix['g']
-        rededge = value_pix['e']
+        red = value_pix[opts.rgi_red_band]
         pnams.append(param)
-        dst_data.append(green*rededge)
+        dst_data.append(green*red)
     elif param == 'NRGI':
         green = value_pix['g']
-        rededge = value_pix['e']
+        red = value_pix[opts.rgi_red_band]
         pnams.append(param)
-        dst_data.append(green*norm*rededge*norm)
+        dst_data.append(green*norm*red*norm)
     elif param[0] == 'S':
         if len(param) == 2:
             band = param[1]
