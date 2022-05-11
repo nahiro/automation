@@ -65,8 +65,8 @@ for param in opts.param:
 for band in opts.norm_band:
     if not band in bands.keys():
         raise ValueError('Error, unknown band for normalization >>> {}'.format(band))
-if not rgi_red_band in bands.keys():
-    raise ValueError('Error, unknown band for rgi >>> {}'.format(rgi_red_band))
+if not opts.rgi_red_band in bands.keys():
+    raise ValueError('Error, unknown band for rgi >>> {}'.format(opts.rgi_red_band))
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
