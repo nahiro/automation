@@ -19,6 +19,7 @@ proc_geocor.pnams.append('max_shifts')
 proc_geocor.pnams.append('margins')
 proc_geocor.pnams.append('scan_steps')
 proc_geocor.pnams.append('higher_flags')
+proc_geocor.pnams.append('geocor_order')
 proc_geocor.pnams.append('boundary_width')
 proc_geocor.pnams.append('boundary_nmin')
 proc_geocor.pnams.append('boundary_cmins')
@@ -40,6 +41,7 @@ proc_geocor.params['max_shifts'] = 'Max Shift'
 proc_geocor.params['margins'] = 'Image Margin'
 proc_geocor.params['scan_steps'] = 'Scan Step'
 proc_geocor.params['higher_flags'] = 'Higher Order Flag'
+proc_geocor.params['geocor_order'] = 'Selected Order'
 proc_geocor.params['boundary_width'] = 'Boundary Width'
 proc_geocor.params['boundary_nmin'] = 'Min Boundary Ratio'
 proc_geocor.params['boundary_cmins'] = 'Min Contrast'
@@ -61,6 +63,7 @@ proc_geocor.param_types['max_shifts'] = 'int_list'
 proc_geocor.param_types['margins'] = 'int_list'
 proc_geocor.param_types['scan_steps'] = 'int_list'
 proc_geocor.param_types['higher_flags'] = 'boolean_list'
+proc_geocor.param_types['geocor_order'] = 'string_select'
 proc_geocor.param_types['boundary_width'] = 'double'
 proc_geocor.param_types['boundary_nmin'] = 'double'
 proc_geocor.param_types['boundary_cmins'] = 'double_list'
@@ -98,6 +101,7 @@ proc_geocor.defaults['max_shifts'] = [40,25,12,8,8]
 proc_geocor.defaults['margins'] = [60,40,18,12,12]
 proc_geocor.defaults['scan_steps'] = [2,2,1,1,1]
 proc_geocor.defaults['higher_flags'] = [True,True,True]
+proc_geocor.defaults['geocor_order'] = '2nd'
 proc_geocor.defaults['boundary_width'] = 0.6
 proc_geocor.defaults['boundary_nmin'] = 0.1
 proc_geocor.defaults['boundary_cmins'] = [0.01,1.3]
@@ -113,6 +117,7 @@ proc_geocor.list_sizes['max_shifts'] = 5
 proc_geocor.list_sizes['margins'] = 5
 proc_geocor.list_sizes['scan_steps'] = 5
 proc_geocor.list_sizes['higher_flags'] = 3
+proc_geocor.list_sizes['geocor_order'] = 4
 proc_geocor.list_sizes['boundary_cmins'] = 2
 proc_geocor.list_sizes['boundary_emaxs'] = 3
 proc_geocor.list_labels['ref_bands'] = ['','']
@@ -126,6 +131,7 @@ proc_geocor.list_labels['max_shifts'] = ['','','','','']
 proc_geocor.list_labels['margins'] = ['','','','','']
 proc_geocor.list_labels['scan_steps'] = ['','','','','']
 proc_geocor.list_labels['higher_flags'] = ['1st','2nd','3rd']
+proc_geocor.list_labels['geocor_order'] = ['0th','1st','2nd','3rd']
 proc_geocor.list_labels['boundary_cmins'] = ['','']
 proc_geocor.list_labels['boundary_emaxs'] = ['','','']
 proc_geocor.input_types['gis_fnam'] = 'ask_file'
@@ -144,6 +150,7 @@ proc_geocor.input_types['max_shifts'] = 'int_list'
 proc_geocor.input_types['margins'] = 'int_list'
 proc_geocor.input_types['scan_steps'] = 'int_list'
 proc_geocor.input_types['higher_flags'] = 'boolean_list'
+proc_geocor.input_types['geocor_order'] = 'string_select'
 proc_geocor.input_types['boundary_width'] = 'box'
 proc_geocor.input_types['boundary_nmin'] = 'box'
 proc_geocor.input_types['boundary_cmins'] = 'double_list'
