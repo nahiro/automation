@@ -1,4 +1,5 @@
 from sys import platform
+from babel.dates import format_date
 try:
     import tkinter as tk
     from tkinter import ttk
@@ -24,15 +25,21 @@ class CustomCalendar(Calendar):
         if date_pattern == 'short':
             return get_date_format('short',locale).pattern
         pattern = date_pattern.lower()
+        ymmd = r'^y+[^a-zA-Z]*m{1,3}_m{1,3}[^a-z]*d{1,2}[^mdy]*$'
         ymd = r'^y+[^a-zA-Z]*m{1,3}[^a-z]*d{1,2}[^mdy]*$'
         mdy = r'^m{1,2}[^a-zA-Z]*d{1,2}[^a-z]*y+[^mdy]*$'
         dmy = r'^d{1,2}[^a-zA-Z]*m{1,2}[^a-z]*y+[^mdy]*$'
-        res = ((re.search(ymd,pattern) is not None)
+        res = ((re.search(ymmd,pattern) is not None)
+               or (re.search(ymd,pattern) is not None)
                or (re.search(mdy,pattern) is not None)
                or (re.search(dmy,pattern) is not None))
         if res:
             return pattern.replace('m','M')
         raise ValueError('{} is not a valid date pattern'.format(date_pattern))
+
+    def format_date(self,date=None):
+        """Convert date (datetime.date) to a string in the locale."""
+        return format_date(date,self._properties['date_pattern'],self._properties['locale']).replace('_','')
 
     def parse_date(self,date):
         """Parse string date in the locale format and return the corresponding datetime.date."""
@@ -41,8 +48,27 @@ class CustomCalendar(Calendar):
             ny = date_format.count('y')
             nm = date_format.count('m')
             nd = date_format.count('d')
-            if nm == 3:
-                ymd = r'^y+([^a-zA-Z]*)m{1,3}([^a-z]*)d{1,2}([^mdy]*)$'
+            if nm == 5:
+                ymd = r'^y+([^a-zA-Z]*)mm_mmm([^a-z]*)d{1,2}([^mdy]*)$'
+                m = re.search(ymd,date_format)
+                if not m:
+                    raise ValueError('{} is not a valid date format'.format(date_format))
+                sep1 = m.group(1)
+                sep2 = m.group(2)
+                sep3 = m.group(3)
+                ymd = '^('+'\d'*ny+')'+sep1+'\d\d_('+'[a-zA-Z]'*3+')'+sep2+'('+'\d'*nd+')'+sep3+'$'
+                m = re.search(ymd,date)
+                if not m:
+                    raise ValueError('{} is not a valid date'.format(date))
+                year = m.group(1)
+                if len(year) == 2:
+                    year = 2000 + int(year)
+                else:
+                    year = int(year)
+                month = self.strptime(m.group(2),'%b').month
+                day = int(m.group(3))
+            elif nm == 3:
+                ymd = r'^y+([^a-zA-Z]*)mmm([^a-z]*)d{1,2}([^mdy]*)$'
                 m = re.search(ymd,date_format)
                 if not m:
                     raise ValueError('{} is not a valid date format'.format(date_format))
