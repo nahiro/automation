@@ -1,6 +1,8 @@
+import os
 import sys
 import tkinter as tk
 from tkinter import ttk
+import tkfilebrowser
 from custom_calendar import CustomDateEntry
 from proc_orthomosaic import proc_orthomosaic
 from proc_geocor import proc_geocor
@@ -41,15 +43,30 @@ defaults['apply'] = True
 blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
 '8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
 
-top_frame_height = 50
+inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
+if not os.path.isdir(inidir):
+    inidir = os.path.join(os.environ.get('USERPROFILE'),'Documents')
+browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
+
+window_width = 500
+top_frame_height = 60
 left_frame_width = 30
 right_frame_width = 100
 left_cnv_height = 21
 right_cnv_height = 21
+center_btn_width = 20
 
 def set_title():
     pnam = 'set'
     #top_lbl[pnam].pack(pady=(0,3),side=tk.LEFT)
+    return
+
+def ask_folder(dnam=None):
+    if dnam is None:
+        dnam = inidir
+    path = tkfilebrowser.askopendirname(initialdir=dnam)
+    if len(path) > 0:
+        top_var.set(path)
     return
 
 def run_all():
@@ -93,7 +110,7 @@ def exit():
 
 root = tk.Tk()
 root.title('BLB Damage Estimation')
-root.geometry('330x{}'.format(50+40+30*len(pnams)))
+root.geometry('{}x{}'.format(window_width,50+40+30*len(pnams)))
 top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
 middle_frame = tk.Frame(root,width=10,height=20,background=None)
 bottom_frame = tk.Frame(root,width=10,height=40,background=None)
@@ -126,7 +143,7 @@ top_right_frame.pack_propagate(False)
 top_center_top_frame = tk.Frame(top_center_frame,width=30,height=10,background=None)
 top_center_bottom_frame = tk.Frame(top_center_frame,width=30,height=10,background=None)
 top_center_top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP,expand=True)
-top_center_bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+top_center_bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP,expand=True)
 
 top_right_top_frame = tk.Frame(top_right_frame,width=30,height=10,background=None)
 top_right_bottom_frame = tk.Frame(top_right_frame,width=30,height=10,background=None)
@@ -136,17 +153,32 @@ top_right_top_frame.pack_propagate(False)
 
 top_lbl = {}
 top_btn = {}
-for pnam in ['block','date']:
-    top_lbl[pnam] = tk.Label(top_center_top_frame,text=pnam.capitalize())
-    top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.LEFT,expand=True)
-top_cmb = ttk.Combobox(top_center_bottom_frame,width=10,values=['Cihea-'+block for block in blocks])
+pnam = 'block'
+top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
+top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
+top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Cihea-'+block for block in blocks])
 top_cmb.current(0)
-top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(0,4),fill=tk.X,side=tk.LEFT,expand=True)
-top_cde = CustomDateEntry(top_center_bottom_frame,width=10,date_pattern='yyyy-mmm-dd')
-top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(0,4),fill=tk.X,side=tk.LEFT,expand=True)
+top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
+top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern='yyyy-mmm-dd')
+top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
+pnam = 'set'
+top_btn[pnam] = tk.Button(top_right_top_frame,text=pnam.capitalize(),width=4,command=set_title)
+top_btn[pnam].pack(padx=(1,0),pady=(2,0),side=tk.LEFT)
+top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
+pnam = 'topdir'
+top_lbl[pnam] = tk.Label(top_center_bottom_frame,text='Top Folder')
+top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(3,3),anchor=tk.W,side=tk.LEFT)
+top_var = tk.StringVar()
+top_var.set(os.path.join(inidir,'Current'))
+top_box = tk.Entry(top_center_bottom_frame,textvariable=top_var)
+top_box.pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+browse_img = tk.PhotoImage(file=browse_image)
+top_btn[pnam] = tk.Button(top_center_bottom_frame,image=browse_img,width=center_btn_width,bg='white',bd=1,command=ask_folder)
+top_btn[pnam].image = browse_img
+top_btn[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
 pnam = 'set'
 top_btn[pnam] = tk.Button(top_right_bottom_frame,text=pnam.capitalize(),width=4,command=set_title)
-top_btn[pnam].pack(padx=(1,0),pady=(0,3),side=tk.LEFT)
+top_btn[pnam].pack(padx=(1,0),pady=(0,2.2),side=tk.LEFT)
 top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
 
 bottom_lbl = {}
