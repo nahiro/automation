@@ -156,7 +156,7 @@ top_btn = {}
 pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
-top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Cihea-'+block for block in blocks])
+top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Block-'+block for block in blocks])
 top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern='yyyy-mm_mmm-dd')
