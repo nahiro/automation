@@ -159,7 +159,7 @@ top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
 top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Block-'+block for block in blocks])
 top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
-top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern='yyyy-mm_mmm-dd')
+top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern='yyyy-mm&mmm-dd')
 top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 pnam = 'set'
 top_btn[pnam] = tk.Button(top_right_top_frame,text=pnam.capitalize(),width=4,command=set_title)

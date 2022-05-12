@@ -25,7 +25,7 @@ class CustomCalendar(Calendar):
         if date_pattern == 'short':
             return get_date_format('short',locale).pattern
         pattern = date_pattern.lower()
-        ymmd = r'^y+[^a-zA-Z]*m{1,3}_m{1,3}[^a-z]*d{1,2}[^mdy]*$'
+        ymmd = r'^y+[^a-zA-Z]*m{1,3}&m{1,3}[^a-z]*d{1,2}[^mdy]*$'
         ymd = r'^y+[^a-zA-Z]*m{1,3}[^a-z]*d{1,2}[^mdy]*$'
         mdy = r'^m{1,2}[^a-zA-Z]*d{1,2}[^a-z]*y+[^mdy]*$'
         dmy = r'^d{1,2}[^a-zA-Z]*m{1,2}[^a-z]*y+[^mdy]*$'
@@ -39,7 +39,7 @@ class CustomCalendar(Calendar):
 
     def format_date(self,date=None):
         """Convert date (datetime.date) to a string in the locale."""
-        return format_date(date,self._properties['date_pattern'],self._properties['locale']).replace('_','')
+        return format_date(date,self._properties['date_pattern'],self._properties['locale']).replace('&','')
 
     def parse_date(self,date):
         """Parse string date in the locale format and return the corresponding datetime.date."""
@@ -49,14 +49,14 @@ class CustomCalendar(Calendar):
             nm = date_format.count('m')
             nd = date_format.count('d')
             if nm == 5:
-                ymd = r'^y+([^a-zA-Z]*)mm_mmm([^a-z]*)d{1,2}([^mdy]*)$'
+                ymd = r'^y+([^a-zA-Z]*)mm&mmm([^a-z]*)d{1,2}([^mdy]*)$'
                 m = re.search(ymd,date_format)
                 if not m:
                     raise ValueError('{} is not a valid date format'.format(date_format))
                 sep1 = m.group(1)
                 sep2 = m.group(2)
                 sep3 = m.group(3)
-                ymd = '^('+'\d'*ny+')'+sep1+'\d\d_('+'[a-zA-Z]'*3+')'+sep2+'('+'\d'*nd+')'+sep3+'$'
+                ymd = '^('+'\d'*ny+')'+sep1+'\d\d&('+'[a-zA-Z]'*3+')'+sep2+'('+'\d'*nd+')'+sep3+'$'
                 m = re.search(ymd,date)
                 if not m:
                     raise ValueError('{} is not a valid date'.format(date))
