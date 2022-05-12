@@ -21,6 +21,7 @@ class Process:
         self.list_labels = {}
         self.values = {}
         self.input_types = {}
+        self.flag_fill = {}
 
         self.top_frame_height = 5
         self.bottom_frame_height = 40
@@ -404,15 +405,19 @@ class Process:
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'boolean':
                 self.center_inp[pnam] = tk.Checkbutton(self.center_cnv[pnam],background=bgs[i%2],variable=self.center_var[pnam])
-                self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
-                #self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                if pnam in self.flag_fill and self.flag_fill[pnam]:
+                    self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                else:
+                    self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'boolean_list':
                 self.center_inp[pnam] = []
                 self.center_lbl[pnam] = []
                 for j in range(self.list_sizes[pnam]):
                     self.center_inp[pnam].append(tk.Checkbutton(self.center_cnv[pnam],background=bgs[i%2],variable=self.center_var[pnam][j],text=self.list_labels[pnam][j]))
-                    self.center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
-                    #self.center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                    if pnam in self.flag_fill and self.flag_fill[pnam]:
+                        self.center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                    else:
+                        self.center_inp[pnam][j].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif '_select_list' in self.input_types[pnam]:
                 self.center_inp[pnam] = []
                 self.center_lbl[pnam] = []
