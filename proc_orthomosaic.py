@@ -13,6 +13,7 @@ proc_orthomosaic.pnams.append('align_level')
 proc_orthomosaic.pnams.append('preselect')
 proc_orthomosaic.pnams.append('point_limit')
 proc_orthomosaic.pnams.append('cam_flags')
+proc_orthomosaic.pnams.append('optimize_flag')
 proc_orthomosaic.pnams.append('cam_params')
 proc_orthomosaic.pnams.append('depth_map')
 proc_orthomosaic.pnams.append('epsg')
@@ -28,6 +29,7 @@ proc_orthomosaic.params['align_level'] = 'Alignment Accuracy'
 proc_orthomosaic.params['preselect'] = 'Preselection'
 proc_orthomosaic.params['point_limit'] = 'Point Limit'
 proc_orthomosaic.params['cam_flags'] = 'Adaptive Fitting'
+proc_orthomosaic.params['optimize_flag'] = 'Optimize Camera'
 proc_orthomosaic.params['cam_params'] = 'Optimize Parameters'
 proc_orthomosaic.params['depth_map'] = 'Depth Map'
 proc_orthomosaic.params['epsg'] = 'EPSG'
@@ -43,6 +45,7 @@ proc_orthomosaic.param_types['align_level'] = 'string_select'
 proc_orthomosaic.param_types['preselect'] = 'boolean_list'
 proc_orthomosaic.param_types['point_limit'] = 'int_list'
 proc_orthomosaic.param_types['cam_flags'] = 'boolean_list'
+proc_orthomosaic.param_types['optimize_flag'] = 'boolean'
 proc_orthomosaic.param_types['cam_params'] = 'boolean_list'
 proc_orthomosaic.param_types['depth_map'] = 'string_select_list'
 proc_orthomosaic.param_types['epsg'] = 'int'
@@ -63,6 +66,7 @@ proc_orthomosaic.defaults['align_level'] = 'High'
 proc_orthomosaic.defaults['preselect'] = [True,True]
 proc_orthomosaic.defaults['point_limit'] = [40000,4000]
 proc_orthomosaic.defaults['cam_flags'] = [True,True]
+proc_orthomosaic.defaults['optimize_flag'] = True
 proc_orthomosaic.defaults['cam_params'] = [True,True,True,True,False,True,True,True,False,False]
 proc_orthomosaic.defaults['depth_map'] = ['Medium','Aggressive']
 proc_orthomosaic.defaults['epsg'] = 32748
@@ -95,6 +99,7 @@ proc_orthomosaic.input_types['align_level'] = 'string_select'
 proc_orthomosaic.input_types['preselect'] = 'boolean_list'
 proc_orthomosaic.input_types['point_limit'] = 'int_list'
 proc_orthomosaic.input_types['cam_flags'] = 'boolean_list'
+proc_orthomosaic.input_types['optimize_flag'] = 'boolean'
 proc_orthomosaic.input_types['cam_params'] = 'boolean_list'
 proc_orthomosaic.input_types['depth_map'] = 'string_select_list'
 proc_orthomosaic.input_types['epsg'] = 'box'

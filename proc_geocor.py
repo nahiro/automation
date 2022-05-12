@@ -13,6 +13,7 @@ proc_geocor.pnams.append('trg_bands')
 proc_geocor.pnams.append('trg_ndvi')
 proc_geocor.pnams.append('trg_binning')
 proc_geocor.pnams.append('trg_range')
+proc_geocor.pnams.append('init_shifts')
 proc_geocor.pnams.append('part_sizes')
 proc_geocor.pnams.append('gcp_intervals')
 proc_geocor.pnams.append('max_shifts')
@@ -28,21 +29,22 @@ proc_geocor.pnams.append('boundary_emaxs')
 proc_geocor.params['gis_fnam'] = 'Polygon File'
 proc_geocor.params['ref_fnam'] = 'Reference Image'
 proc_geocor.params['ref_bands'] = 'Reference Band'
-proc_geocor.params['ref_pixel'] = 'Reference Resample Size'
+proc_geocor.params['ref_pixel'] = 'Reference Resample Size (m)'
 proc_geocor.params['ref_range'] = 'Reference DN Range'
 proc_geocor.params['trg_fnam'] = 'Target Image'
 proc_geocor.params['trg_bands'] = 'Target Band'
 proc_geocor.params['trg_ndvi'] = 'Target NDVI Flag'
-proc_geocor.params['trg_binning'] = 'Target Binning Size'
+proc_geocor.params['trg_binning'] = 'Target Binning Size (pixel)'
 proc_geocor.params['trg_range'] = 'Target DN Range'
-proc_geocor.params['part_sizes'] = 'Partial Image Size'
-proc_geocor.params['gcp_intervals'] = 'GCP Interval'
-proc_geocor.params['max_shifts'] = 'Max Shift'
-proc_geocor.params['margins'] = 'Image Margin'
-proc_geocor.params['scan_steps'] = 'Scan Step'
+proc_geocor.params['init_shifts'] = 'Initial Shift (pixel)'
+proc_geocor.params['part_sizes'] = 'Partial Image Size (pixel)'
+proc_geocor.params['gcp_intervals'] = 'GCP Interval (pixel)'
+proc_geocor.params['max_shifts'] = 'Max Shift (pixel)'
+proc_geocor.params['margins'] = 'Image Margin (pixel)'
+proc_geocor.params['scan_steps'] = 'Scan Step (pixel)'
 proc_geocor.params['higher_flags'] = 'Higher Order Flag'
 proc_geocor.params['geocor_order'] = 'Selected Order'
-proc_geocor.params['boundary_width'] = 'Boundary Width'
+proc_geocor.params['boundary_width'] = 'Boundary Width (m)'
 proc_geocor.params['boundary_nmin'] = 'Min Boundary Ratio'
 proc_geocor.params['boundary_cmins'] = 'Min Contrast'
 proc_geocor.params['boundary_rmax'] = 'Max Contrast Spread'
@@ -57,6 +59,7 @@ proc_geocor.param_types['trg_bands'] = 'int_list'
 proc_geocor.param_types['trg_ndvi'] = 'boolean'
 proc_geocor.param_types['trg_binning'] = 'int'
 proc_geocor.param_types['trg_range'] = 'double_list'
+proc_geocor.param_types['init_shifts'] = 'int_list'
 proc_geocor.param_types['part_sizes'] = 'int_list'
 proc_geocor.param_types['gcp_intervals'] = 'int_list'
 proc_geocor.param_types['max_shifts'] = 'int_list'
@@ -75,6 +78,7 @@ proc_geocor.param_range['ref_range'] = (-1.0e50,1.0e50)
 proc_geocor.param_range['trg_bands'] = (-10000,10000)
 proc_geocor.param_range['trg_binning'] = (1,64)
 proc_geocor.param_range['trg_range'] = (-1.0e50,1.0e50)
+proc_geocor.param_range['init_shifts'] = (-1000000,1000000)
 proc_geocor.param_range['part_sizes'] = (2,1000000)
 proc_geocor.param_range['gcp_intervals'] = (1,1000000)
 proc_geocor.param_range['max_shifts'] = (1,1000000)
@@ -95,6 +99,7 @@ proc_geocor.defaults['trg_bands'] = [2,4]
 proc_geocor.defaults['trg_ndvi'] = True
 proc_geocor.defaults['trg_binning'] = 8
 proc_geocor.defaults['trg_range'] = [-10000.0,32767.0]
+proc_geocor.defaults['init_shifts'] = [0,0]
 proc_geocor.defaults['part_sizes'] = [250,250,120,120,80]
 proc_geocor.defaults['gcp_intervals'] = [125,125,60,60,40]
 proc_geocor.defaults['max_shifts'] = [40,25,12,8,8]
@@ -111,6 +116,7 @@ proc_geocor.list_sizes['ref_bands'] = 2
 proc_geocor.list_sizes['ref_range'] = 2
 proc_geocor.list_sizes['trg_bands'] = 2
 proc_geocor.list_sizes['trg_range'] = 2
+proc_geocor.list_sizes['init_shifts'] = 2
 proc_geocor.list_sizes['part_sizes'] = 5
 proc_geocor.list_sizes['gcp_intervals'] = 5
 proc_geocor.list_sizes['max_shifts'] = 5
@@ -124,6 +130,7 @@ proc_geocor.list_labels['ref_bands'] = ['','']
 proc_geocor.list_labels['ref_range'] = ['Min :',' Max :']
 proc_geocor.list_labels['trg_bands'] = ['','']
 proc_geocor.list_labels['trg_range'] = ['Min :',' Max :']
+proc_geocor.list_labels['init_shifts'] = ['Easting :',' Northing :']
 #proc_geocor.list_labels['part_sizes'] = ['1','2','3','4','5']
 proc_geocor.list_labels['part_sizes'] = ['','','','','']
 proc_geocor.list_labels['gcp_intervals'] = ['','','','','']
@@ -144,6 +151,7 @@ proc_geocor.input_types['trg_bands'] = 'int_list'
 proc_geocor.input_types['trg_ndvi'] = 'boolean'
 proc_geocor.input_types['trg_binning'] = 'box'
 proc_geocor.input_types['trg_range'] = 'double_list'
+proc_geocor.input_types['init_shifts'] = 'int_list'
 proc_geocor.input_types['part_sizes'] = 'int_list'
 proc_geocor.input_types['gcp_intervals'] = 'int_list'
 proc_geocor.input_types['max_shifts'] = 'int_list'
