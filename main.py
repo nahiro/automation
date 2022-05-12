@@ -9,7 +9,6 @@ from proc_identify import proc_identify
 from proc_extract import proc_extract
 from proc_formula import proc_formula
 from proc_apply import proc_apply
-from proc_output import proc_output
 
 pnams = []
 pnams.append('orthomosaic')
@@ -19,7 +18,6 @@ pnams.append('identify')
 pnams.append('extract')
 pnams.append('formula')
 pnams.append('apply')
-pnams.append('output')
 modules = {}
 modules['orthomosaic'] = proc_orthomosaic
 modules['geocor'] = proc_geocor
@@ -28,7 +26,6 @@ modules['identify'] = proc_identify
 modules['extract'] = proc_extract
 modules['formula'] = proc_formula
 modules['apply'] = proc_apply
-modules['output'] = proc_output
 titles = {}
 for pnam in pnams:
     titles[pnam] = modules[pnam].proc_title
@@ -40,7 +37,6 @@ defaults['identify'] = False
 defaults['extract'] = False
 defaults['formula'] = False
 defaults['apply'] = True
-defaults['output'] = True
 
 blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
 '8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
