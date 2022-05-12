@@ -2,7 +2,7 @@ from proc_class import Process
 
 proc_apply = Process()
 proc_apply.proc_name = 'apply'
-proc_apply.proc_title = 'Apply Formula'
+proc_apply.proc_title = 'Estimate Damage'
 proc_apply.pnams.append('inp_fnam')
 proc_apply.pnams.append('score_fnam')
 proc_apply.pnams.append('score_number')
