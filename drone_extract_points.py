@@ -86,7 +86,7 @@ x_bunch = []
 y_bunch = []
 blb_bunch = []
 with open(opts.gps_fnam,'r') as fp:
-    #BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB
+    #BunchNumber, PlotPaddy, Easting, Northing, BLB
     #  1,  1, 751739.0086, 9243034.0783,  1
     for line in fp:
         if len(line) < 1:
@@ -97,17 +97,22 @@ with open(opts.gps_fnam,'r') as fp:
         elif re.search('[a-zA-Z]',line):
             if header is None:
                 header = line # skip header
+                item = [s.strip() for s in header.split(',')]
+                if len(item) < 5:
+                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
+                if item[0] != 'BunchNumber' or item[1] != 'PlotPaddy' or item[2] != 'Easting' or item[3] != 'Northing':
+                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
                 continue
             else:
                 raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
-        item = line.split(sep=',')
-        if len(item) < 5:
+        m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
+        if not m:
             continue
-        number_bunch.append(int(item[0]))
-        plot_bunch.append(int(item[1]))
-        x_bunch.append(float(item[2]))
-        y_bunch.append(float(item[3]))
-        blb_bunch.append(int(item[4]))
+        number_bunch.append(int(m.group(1)))
+        plot_bunch.append(int(m.group(2)))
+        x_bunch.append(float(m.group(3)))
+        y_bunch.append(float(m.group(4)))
+        blb_bunch.append(m.group(5))
 number_bunch = np.array(number_bunch)
 indx_bunch = np.arange(len(number_bunch))
 plot_bunch = np.array(plot_bunch)
@@ -397,7 +402,7 @@ for plot in plots:
             cnd_dist = (dist < opts.point_dmax)
     with open(opts.ext_fnam,'a') as fp:
         for i in range(size_plot[plot]):
-            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],blb_plot[plot][i]))
+            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],blb_plot[plot][i]))
     rr_copy = rr.copy()
     cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
