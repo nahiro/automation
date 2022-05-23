@@ -21,6 +21,7 @@ parser.add_option('-s','--istp',default=None,type='int',help='Step x index (%def
 parser.add_option('-y','--jmin',default=None,type='int',help='Start y index (%default)')
 parser.add_option('-Y','--jmax',default=None,type='int',help='Stop y index (%default)')
 parser.add_option('-S','--jstp',default=None,type='int',help='Step y index (%default)')
+parser.add_option('-r','--rmax',default=None,type='float',help='Maximum exclusion ratio (%default)')
 (opts,args) = parser.parse_args()
 
 ds = gdal.Open(opts.src_geotiff)
@@ -58,6 +59,7 @@ if opts.jmax is None:
 dst_nx = (opts.imax-opts.imin)//opts.istp
 dst_ny = (opts.jmax-opts.jmin)//opts.jstp
 dst_nb = src_nb
+dst_shape = (dst_ny,dst_nx)
 dst_prj = src_prj
 dst_trans = [0.0]*len(src_trans)
 dst_trans[0] = src_xgrd[opts.imin]-0.5*src_xstp
@@ -67,6 +69,9 @@ dst_trans[5] = src_ystp*opts.jstp
 dst_meta = src_meta
 dst_data = []
 dst_band = []
+if opts.rmax is not None and src_nodata is not None:
+    dst_nsum = []
+    dst_norm = 1.0/(opts.istp*opts.jstp)
 for iband in range(dst_nb):
     tmp_data = src_data[iband,opts.jmin:opts.jmin+opts.jstp*dst_ny,opts.imin:opts.imin+opts.istp*dst_nx].reshape(dst_ny,opts.jstp,dst_nx,opts.istp)
     if src_nodata is None:
@@ -77,8 +82,12 @@ for iband in range(dst_nb):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 dst_data.append(np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1))
+            if opts.rmax is not None:
+                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
         else:
             dst_data.append(tmp_data.mean(axis=-1).mean(axis=1))
+            if opts.rmax is not None:
+                dst_nsum.append(np.full(dst_shape,0.0))
     else:
         cnd = (tmp_data == src_nodata)
         if cnd.sum() > 0:
@@ -86,13 +95,20 @@ for iband in range(dst_nb):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 avg_data = np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1)
+            if opts.rmax is not None:
+                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
             cnd = np.isnan(avg_data)
             avg_data[cnd] = src_nodata
             dst_data.append(avg_data)
         else:
             dst_data.append(tmp_data.mean(axis=-1).mean(axis=1))
+            if opts.rmax is not None:
+                dst_nsum.append(np.full(dst_shape,0.0))
     dst_band.append(src_band[iband])
 dst_data = np.array(dst_data).astype(np.float32)
+if opts.rmax is not None and src_nodata is not None:
+    dst_nsum = np.array(dst_nsum)
+    dst_data[dst_nsum > opts.rmax] = np.nan
 dst_nodata = src_nodata
 
 drv = gdal.GetDriverByName('GTiff')
