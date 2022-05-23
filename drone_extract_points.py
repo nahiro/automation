@@ -84,10 +84,10 @@ number_bunch = []
 plot_bunch = []
 x_bunch = []
 y_bunch = []
-blb_bunch = []
+rest_bunch = []
 with open(opts.gps_fnam,'r') as fp:
-    #BunchNumber, PlotPaddy, Easting, Northing, BLB
-    #  1,  1, 751739.0086, 9243034.0783,  1
+    #BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
+    #  1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
         if len(line) < 1:
             continue
@@ -112,18 +112,18 @@ with open(opts.gps_fnam,'r') as fp:
         plot_bunch.append(int(m.group(2)))
         x_bunch.append(float(m.group(3)))
         y_bunch.append(float(m.group(4)))
-        blb_bunch.append(m.group(5))
+        rest_bunch.append(m.group(5))
 number_bunch = np.array(number_bunch)
 indx_bunch = np.arange(len(number_bunch))
 plot_bunch = np.array(plot_bunch)
 x_bunch = np.array(x_bunch)
 y_bunch = np.array(y_bunch)
-blb_bunch = np.array(blb_bunch)
+rest_bunch = np.array(rest_bunch)
 
 plots = np.unique(plot_bunch)
 size_plot = {}
 number_plot = {}
-blb_plot = {}
+rest_plot = {}
 inside_plot = {}
 removed_plot = {}
 for plot in plots:
@@ -133,7 +133,7 @@ for plot in plots:
     if size_plot[plot] < opts.bunch_nmin:
         raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.gps_fnam))
     number_plot[plot] = number_bunch[indx]
-    blb_plot[plot] = blb_bunch[indx]
+    rest_plot[plot] = rest_bunch[indx]
     xg = x_bunch[indx]
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
@@ -402,7 +402,7 @@ for plot in plots:
             cnd_dist = (dist < opts.point_dmax)
     with open(opts.ext_fnam,'a') as fp:
         for i in range(size_plot[plot]):
-            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],blb_plot[plot][i]))
+            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
     cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
