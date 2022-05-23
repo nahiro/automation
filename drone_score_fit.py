@@ -10,13 +10,14 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
+OBJECTS = ['BLB','Blast','StemBorer','Rat','Hopper','Drought']
 CRITERIAS = ['R2_Score','R2','RMSE','AIC','BIC']
 
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
-Y_PARAM = 'DamagedByBLB'
+Y_PARAM = ['BLB']
 VMAX = 5.0
 NMAX = 2
 CRITERIA = 'R2_Score'
@@ -28,7 +29,7 @@ parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input fil
 parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%default)')
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
 parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
-parser.add_option('-y','--y_param',default=Y_PARAM,help='Objective variable (%default)')
+parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
@@ -40,8 +41,16 @@ if not opts.criteria in CRITERIAS:
     raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
 if opts.x_param is None:
     opts.x_param = X_PARAM
+if opts.y_param is None:
+    opts.y_param = Y_PARAM
 if opts.x_priority is None:
     opts.x_priority = X_PRIORITY
+for param in opts.x_priority:
+    if not param in PARAMS:
+        raise ValueError('Error, unknown explanatory variable >>> {}'.format(param))
+for param in opts.y_param:
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable >>> {}'.format(param))
 for param in opts.x_param:
     if not param in opts.x_priority:
         raise ValueError('Error, priority of {} is not given.'.format(param))
@@ -54,17 +63,19 @@ X = {}
 Y = {}
 for param in opts.x_param:
     X[param] = []
-Y[opts.y_param] = []
+for param in opts.y_param:
+    Y[param] = []
 for fnam in opts.inp_fnam:
     df = pd.read_csv(fnam,comment='#')
     df.columns = df.columns.str.strip()
-    if not opts.y_param in df.columns:
-        raise ValueError('Error in finding column for {} >>> {}'.format(opts.y_param,fnam))
-    Y[opts.y_param].extend(list(df[opts.y_param]))
     for param in opts.x_param:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         X[param].extend(list(df[param]))
+    for param in opts.y_param:
+        if not param in df.columns:
+            raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
+        Y[param].extend(list(df[param]))
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
 
