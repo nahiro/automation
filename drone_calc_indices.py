@@ -33,6 +33,7 @@ RGI_RED_BAND = 'e'
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
+parser.add_option('-M','--mask_geotiff',default=None,help='Mask GeoTIFF name (%default)')
 parser.add_option('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
 parser.add_option('-N','--norm_band',default=None,action='append',help='Wavelength band for normalization ({})'.format(NORM_BAND))
 parser.add_option('-r','--rgi_red_band',default=RGI_RED_BAND,help='Wavelength band for RGI (%default)')
@@ -89,6 +90,7 @@ src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
 if src_nb != len(bands):
     raise ValueError('Error, src_nb={}, len(bands)={} >>> {}'.format(src_nb,len(bands),opts.src_geotiff))
+src_shape = (src_ny,src_nx)
 src_prj = ds.GetProjection()
 src_trans = ds.GetGeoTransform()
 if src_trans[2] != 0.0 or src_trans[4] != 0.0:
@@ -109,8 +111,22 @@ src_ystp = src_trans[5]
 src_ymin = src_ymax+src_ny*src_ystp
 ds = None
 
+# Read Mask GeoTIFF
+if opts.mask_geotiff is not None:
+    ds = gdal.Open(opts.mask_geotiff)
+    mask_nx = ds.RasterXSize
+    mask_ny = ds.RasterYSize
+    mask_nb = ds.RasterCount
+    if mask_nb != 1:
+        raise ValueError('Error, mask_nb={} >>> {}'.format(mask_nb,opts.mask_geotiff))
+    mask_shape = (mask_ny,mask_nx)
+    if mask_shape != src_shape:
+        raise ValueError('Error, mask_shape={}, src_shape={} >>> {}'.format(mask_shape,src_shape,opts.mask_geotiff))
+    mask_data = ds.ReadAsArray().reshape(mask_ny,mask_nx)
+    ds = None
+    src_data[:,mask_data < 0.5] = np.nan
+
 fnam = opts.src_geotiff
-data_shape = (src_ny,src_nx)
 norm = 0.0
 value_pix = {}
 for band in bands.keys():
@@ -220,7 +236,7 @@ if opts.debug:
         ax2.set_ylabel(pnams[i])
         ax2.yaxis.set_label_coords(3.5,0.5)
         if opts.remove_nan:
-            src_indy,src_indx = np.indices(data_shape)
+            src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
             cnd = ~np.isnan(dst_data[i])
