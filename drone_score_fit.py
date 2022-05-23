@@ -10,7 +10,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
-OBJECTS = ['BLB','Blast','StemBorer','Rat','Hopper','Drought']
+OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 CRITERIAS = ['R2_Score','R2','RMSE','AIC','BIC']
 
 # Default values
@@ -57,6 +57,25 @@ for param in opts.x_param:
 indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
 nx = len(x_param)
+
+def llf(y_pred,y_true):
+    n = len(y_pred)
+    m = len(y_true)
+    if m != n:
+        raise ValueError('Error, len(y_pred)={}, len(y_true)={}'.format(n,m))
+    error = y_true-y_pred
+    v = np.var(error)
+    return -n/2.0*np.log(2.0*np.pi*v)-np.dot(error.T,error)/(2.0*v)
+
+def aic(y_pred,y_true,npar):
+    return -2.0*llf(y_pred,y_true)+2.0*npar
+
+def bic(y_pred,y_true,npar):
+    n = len(y_pred)
+    m = len(y_true)
+    if m != n:
+        raise ValueError('Error, len(y_pred)={}, len(y_true)={}'.format(n,m))
+    return -2.0*llf(y_pred,y_true)+np.log(n)*npar
 
 # Read data
 X = {}
