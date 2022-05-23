@@ -165,7 +165,18 @@ for j in range(1,col_number_2):
             break
 if col_plot_1 is None:
     raise ValueError('Error, failed in finding col_plot_1.')
-
+col_tiller_bunch = None
+for j in range(col_number_2+1,nx):
+    v1 = df.iloc[row_number_str-2,j]
+    v2 = df.iloc[row_number_str-1,j]
+    if isinstance(v1,str) and isinstance(v2,str):
+        v1 = v1.strip()
+        v2 = v2.strip()
+        if 'number' in v1.lower() and v2 == 'tillers':
+            col_tiller_bunch = j
+            break
+if col_tiller_bunch is None:
+    raise ValueError('Error, failed in finding col_tiller_bunch.')
 col_blb_bunch = None
 for j in range(col_number_2+1,nx):
     v1 = df.iloc[row_number_str-2,j]
@@ -258,6 +269,7 @@ number_bunch = []
 plot_bunch = []
 lon_bunch = []
 lat_bunch = []
+tiller_bunch = []
 blb_bunch = []
 blast_bunch = []
 borer_bunch = []
@@ -278,6 +290,7 @@ for i in range(row_number_str,row_number_end):
     lon,lat = read_gps(df.iloc[i,col_gps_bunch])
     lon_bunch.append(lon)
     lat_bunch.append(lat)
+    tiller_bunch.append(df.iloc[i,col_tiller_bunch])
     blb = df.iloc[i,col_blb_bunch]
     if np.isnan(blb):
         blb = 0
@@ -398,15 +411,15 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
 with open(opts.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
     fp.write('# Village: {}\n'.format(village))
+    fp.write('# Variety: {}\n'.format(variety))
     fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
     for plot in plots:
         fp.write('# Plot{}: {:%Y-%m-%d}'.format(plot,dtim_plot[plot]))
         for i in range(len(x_plot[plot])):
             fp.write(' {:12.4f} {:13.4f}'.format(x_plot[plot][i],y_plot[plot][i]))
         fp.write('\n')
-    fp.write('# Variety: {}\n'.format(variety))
     fp.write('#------------------------\n')
-    fp.write('BunchNumber, PlotPaddy, Easting, Northing, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    fp.write('BunchNumber, PlotPaddy, Easting, Northing, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
     for i in range(len(plot_bunch)):
-        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
-                 number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
+        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
+                 number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],tiller_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
