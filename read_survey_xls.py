@@ -179,6 +179,56 @@ for j in range(col_number_2+1,nx):
 if col_blb_bunch is None:
     raise ValueError('Error, failed in finding col_blb_bunch.')
 
+col_blast_bunch = None
+for j in range(col_number_2+1,nx):
+    v1 = df.iloc[row_number_str-2,j]
+    v2 = df.iloc[row_number_str-1,j]
+    if isinstance(v1,float) and isinstance(v2,str):
+        v2 = v2.strip()
+        if np.isnan(v1) and v2 == 'Blast':
+            col_blast_bunch = j
+            break
+if col_blast_bunch is None:
+    raise ValueError('Error, failed in finding col_blast_bunch.')
+
+col_borer_bunch = None
+for j in range(col_number_2+1,nx):
+    v1 = df.iloc[row_number_str-2,j]
+    v2 = df.iloc[row_number_str-1,j]
+    if isinstance(v1,str) and isinstance(v2,str):
+        v1 = v1.strip()
+        v2 = v2.strip()
+        if 'damage' in v1.lower() and v2 == 'Stem Borer':
+            col_borer_bunch = j
+            break
+if col_borer_bunch is None:
+    raise ValueError('Error, failed in finding col_borer_bunch.')
+
+col_rat_bunch = None
+for j in range(col_number_2+1,nx):
+    v1 = df.iloc[row_number_str-2,j]
+    v2 = df.iloc[row_number_str-1,j]
+    if isinstance(v1,float) and isinstance(v2,str):
+        v2 = v2.strip()
+        if np.isnan(v1) and v2 == 'Rats':
+            col_rat_bunch = j
+            break
+if col_rat_bunch is None:
+    raise ValueError('Error, failed in finding col_rat_bunch.')
+
+col_hopper_bunch = None
+for j in range(col_number_2+1,nx):
+    v1 = df.iloc[row_number_str-2,j]
+    v2 = df.iloc[row_number_str-1,j]
+    if isinstance(v1,str) and isinstance(v2,str):
+        v1 = v1.strip()
+        v2 = v2.strip()
+        if 'brown' in v1.lower() and v2 == 'Hopper':
+            col_hopper_bunch = j
+            break
+if col_hopper_bunch is None:
+    raise ValueError('Error, failed in finding col_hopper_bunch.')
+
 col_plot_2 = None
 for j in range(col_number_2+1,nx):
     v1 = df.iloc[row_number_str-2,j]
@@ -209,6 +259,10 @@ plot_bunch = []
 lon_bunch = []
 lat_bunch = []
 blb_bunch = []
+blast_bunch = []
+borer_bunch = []
+rat_bunch = []
+hopper_bunch = []
 lon_plot = {}
 lat_plot = {}
 plot = None
@@ -228,6 +282,22 @@ for i in range(row_number_str,row_number_end):
     if np.isnan(blb):
         blb = 0
     blb_bunch.append(blb)
+    blast = df.iloc[i,col_blast_bunch]
+    if np.isnan(blast):
+        blast = 0
+    blast_bunch.append(blast)
+    borer = df.iloc[i,col_borer_bunch]
+    if np.isnan(borer):
+        borer = 0
+    borer_bunch.append(borer)
+    rat = df.iloc[i,col_rat_bunch]
+    if np.isnan(rat):
+        rat = 0
+    rat_bunch.append(rat)
+    hopper = df.iloc[i,col_hopper_bunch]
+    if np.isnan(hopper):
+        hopper = 0
+    hopper_bunch.append(hopper)
     if not plot in lon_plot:
         lon_plot[plot] = []
         lat_plot[plot] = []
@@ -311,9 +381,9 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     if os.path.exists(tmp_fnam):
         os.remove(tmp_fnam)
     with open(opts.out_fnam,'w') as fp:
-        fp.write('BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB\n')
+        fp.write('Easting, Northing\n')
         for i in range(len(plot_bunch)):
-            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+            fp.write('{:12.4f}, {:13.4f}\n'.format(x_bunch[i],y_bunch[i]))
     call(command,shell=True)
     df = pd.read_csv(tmp_fnam)
     x = list(df['X'])
@@ -327,6 +397,7 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
 
 with open(opts.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
+    fp.write('# Village: {}\n'.format(village))
     fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
     for plot in plots:
         fp.write('# Plot{}: {:%Y-%m-%d}'.format(plot,dtim_plot[plot]))
@@ -334,8 +405,8 @@ with open(opts.out_fnam,'w') as fp:
             fp.write(' {:12.4f} {:13.4f}'.format(x_plot[plot][i],y_plot[plot][i]))
         fp.write('\n')
     fp.write('# Variety: {}\n'.format(variety))
-    fp.write('# Village: {}\n'.format(village))
     fp.write('#------------------------\n')
-    fp.write('BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB\n')
+    fp.write('BunchNumber, PlotPaddy, Easting, Northing, BLB, Blast, Borer, Rat, Hopper, Drought\n')
     for i in range(len(plot_bunch)):
-        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}\n'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i]))
+        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
+                 number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
