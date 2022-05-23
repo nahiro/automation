@@ -5,6 +5,7 @@ import shutil
 import re
 import gdal
 import numpy as np
+import pandas as pd
 from subprocess import call
 from shapely.geometry import Point,Polygon
 from matplotlib.path import Path
@@ -47,37 +48,13 @@ parser.add_option('-d','--debug',default=False,action='store_true',help='Debug m
 if opts.ymgn is None:
     opts.ymgn = opts.xmgn
 
-header = None
-number_bunch = []
-plot_bunch = []
-x_bunch = []
-y_bunch = []
-with open(opts.gps_fnam,'r') as fp:
-    #BunchNumber, PlotPaddy, Easting, Northing, DamagedByBLB
-    #  1,  1, 751739.0086, 9243034.0783,  1
-    for line in fp:
-        if len(line) < 1:
-            continue
-        elif line[0] == '#':
-            continue
-        elif re.search('[a-zA-Z]',line):
-            if header is None:
-                header = line # skip header
-                continue
-            else:
-                raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
-        item = line.split(sep=',')
-        if len(item) < 4:
-            continue
-        number_bunch.append(int(item[0]))
-        plot_bunch.append(int(item[1]))
-        x_bunch.append(float(item[2]))
-        y_bunch.append(float(item[3]))
-number_bunch = np.array(number_bunch)
+df = pd.read_csv(opts.gps_fnam,comment='#')
+df.columns = df.columns.str.strip()
+number_bunch = df['BunchNumber'].values
 indx_bunch = np.arange(len(number_bunch))
-plot_bunch = np.array(plot_bunch)
-x_bunch = np.array(x_bunch)
-y_bunch = np.array(y_bunch)
+plot_bunch = df['PlotPaddy'].values
+x_bunch = df['Easting'].values
+y_bunch = df['Northing'].values
 
 plots = np.unique(plot_bunch)
 inside_plot = {}
