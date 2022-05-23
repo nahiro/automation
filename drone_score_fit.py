@@ -98,10 +98,21 @@ def bic(y_true,y_pred,npar):
 # Read data
 X = {}
 Y = {}
+P = {}
+p_param = []
+if opts.amin is not None or opts.amax is not None:
+    p_param.append('Age')
+for param in OBJECTS:
+    if param in y_threshold.keys() and not param in opts.y_param:
+        if not 'Tiller' in p_param:
+            p_param.append('Tiller')
+        p_param.append(param)
 for param in opts.x_param:
     X[param] = []
 for param in opts.y_param:
     Y[param] = []
+for param in p_param:
+    P[param] = []
 for fnam in opts.inp_fnam:
     df = pd.read_csv(fnam,comment='#')
     df.columns = df.columns.str.strip()
@@ -113,8 +124,23 @@ for fnam in opts.inp_fnam:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         Y[param].extend(list(df[param]))
+    for param in p_param:
+        if not param in df.columns:
+            raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
+        P[param].extend(list(df[param]))
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
+P = pd.DataFrame(P)
+
+# Select data
+cnd = np.full((len(X),),False)
+if opts.amin is not None:
+    cnd |= (P['Age'] < opts.amin)
+if opts.amax is not None:
+    cnd |= (P['Age'] > opts.amax)
+if cnd.sum() > 0:
+    X = X.iloc[~cnd]
+    Y = Y.iloc[~cnd]
 
 # Eliminate multicollinearity
 for indx in reversed(range(1,nx)):
@@ -134,7 +160,7 @@ with open(opts.out_fnam,'w') as fp:
     for n in range(min(opts.nmax,nx)+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
-for y_param in list(Y.columns):
+for y_param in list(Y_all.columns):
     Y = Y_all[y_param]
     model_xs = []
     model_rmse_test = []
