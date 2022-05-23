@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import re
 import numpy as np
 import pandas as pd
 from itertools import combinations
@@ -23,6 +24,7 @@ VMAX = 5.0
 NMAX = 2
 CRITERIA = 'RMSE_test'
 N_CROSS = 10
+Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -31,10 +33,13 @@ parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%de
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
 parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
+parser.add_option('--y_threshold',default=None,action='append',help='Threshold for training data ({})'.format(Y_THRESHOLD))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
 parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
+parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
+parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
@@ -58,6 +63,18 @@ for param in opts.x_param:
 indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
 nx = len(x_param)
+if opts.y_threshold is None:
+    opts.y_threshold = Y_THRESHOLD
+y_threshold = {}
+for s in opts.y_threshold:
+    m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
+    if not m:
+        raise ValueError('Error, invalid threshold >>> {}'.format(s))
+    param = m.group(1)
+    value = float(m.group(2))
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
+    y_threshold[param] = value
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -160,7 +177,7 @@ for y_param in list(Y.columns):
                 Y_pred = model.predict(X_test)
                 rmses.append(mean_squared_error(Y_test,Y_pred,squared=False))
                 r2s.append(r2_score(Y_test,Y_pred))
-                aics.append(-2.0*llf(Y_test,Y_pred))
+                aics.append(aic(Y_test,Y_pred,0))
                 for param in x_all:
                     values[param].append(model.params[param])
             for param in x_all:
