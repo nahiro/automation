@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+import os
 import numpy as np
 import pandas as pd
 from itertools import combinations
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score,mean_squared_error
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from optparse import OptionParser,IndentedHelpFormatter
@@ -11,7 +12,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
 OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
-CRITERIAS = ['R2_Score','R2','RMSE','AIC','BIC']
+CRITERIAS = ['RMSE_test','R2_test','AIC_test','RMSE_train','R2_train','AIC_train','BIC_train']
 
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
@@ -20,7 +21,7 @@ X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr
 Y_PARAM = ['BLB']
 VMAX = 5.0
 NMAX = 2
-CRITERIA = 'R2_Score'
+CRITERIA = 'RMSE_test'
 N_CROSS = 10
 
 # Read options
@@ -58,7 +59,7 @@ indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
 nx = len(x_param)
 
-def llf(y_pred,y_true):
+def llf(y_true,y_pred):
     n = len(y_pred)
     m = len(y_true)
     if m != n:
@@ -67,15 +68,15 @@ def llf(y_pred,y_true):
     v = np.var(error)
     return -n/2.0*np.log(2.0*np.pi*v)-np.dot(error.T,error)/(2.0*v)
 
-def aic(y_pred,y_true,npar):
-    return -2.0*llf(y_pred,y_true)+2.0*npar
+def aic(y_true,y_pred,npar):
+    return -2.0*llf(y_true,y_pred)+2.0*npar
 
-def bic(y_pred,y_true,npar):
+def bic(y_true,y_pred,npar):
     n = len(y_pred)
     m = len(y_true)
     if m != n:
         raise ValueError('Error, len(y_pred)={}, len(y_true)={}'.format(n,m))
-    return -2.0*llf(y_pred,y_true)+np.log(n)*npar
+    return -2.0*llf(y_true,y_pred)+np.log(n)*npar
 
 # Read data
 X = {}
@@ -105,79 +106,100 @@ for indx in reversed(range(1,nx)):
         del x_param[indx]
 nx = len(x_param)
 X_all = X[x_param]
+Y_all = Y.copy()
 
 # Make formulas
-model_xs = []
-model_r2_scores = []
-model_r2s = []
-model_rmses = []
-model_aics = []
-model_bics = []
-model_fs = []
-coef_values = []
-coef_errors = []
-coef_ps = []
-coef_ts = []
-for n in range(1,min(opts.nmax,nx)+1):
-    for c in combinations(x_param,n):
-        x_list = list(c)
-        X = sm.add_constant(X_all[x_list]) # adding a constant
-        x_all = list(X.columns)
-        model = sm.OLS(Y,X).fit()
-        model_xs.append(x_all)
-        model_r2s.append(model.rsquared_adj)
-        model_rmses.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
-        model_aics.append(model.aic)
-        model_bics.append(model.bic)
-        model_fs.append(model.f_pvalue)
-        coef_values.append(model.params)
-        scores = []
-        values = {}
-        errors = {}
-        for param in x_all:
-            values[param] = []
-        kf = KFold(n_splits=opts.n_cross,random_state=None,shuffle=False)
-        for train_index,test_index in kf.split(X):
-            X_train,X_test = X.iloc[train_index],X.iloc[test_index]
-            Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
-            model = sm.OLS(Y_train,X_train).fit()
-            predictions = model.predict(X_test)
-            scores.append(r2_score(Y_test,predictions))
-            for param in x_all:
-                values[param].append(model.params[param])
-        for param in x_all:
-            errors[param] = np.std(values[param])
-        coef_errors.append(errors)
-        model_r2_scores.append(np.mean(scores))
-        coef_ps.append(model.pvalues)
-        coef_ts.append(model.tvalues)
-
-# Sort formulas
-if opts.criteria == 'R2_Score':
-    model_indx = np.argsort(model_r2_scores)[::-1]
-elif opts.criteria == 'R2':
-    model_indx = np.argsort(model_r2s)[::-1]
-elif opts.criteria == 'RMSE':
-    model_indx = np.argsort(model_rmses)
-elif opts.criteria == 'AIC':
-    model_indx = np.argsort(model_aics)
-elif opts.criteria == 'BIC':
-    model_indx = np.argsort(model_bics)
-else:
-    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
-
-# Output results
 with open(opts.out_fnam,'w') as fp:
+    fp.write('{:>13s},'.format('Y'))
     for v in CRITERIAS:
         fp.write('{:>13s},'.format(v))
     fp.write('{:>13s},{:>2s}'.format('P','N'))
     for n in range(min(opts.nmax,nx)+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
-    for indx in model_indx:
-        fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_r2_scores[indx],model_r2s[indx],model_rmses[indx],model_aics[indx],model_bics[indx],model_fs[indx],len(model_xs[indx])))
-        for param in model_xs[indx]:
-            fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
-        for n in range(len(model_xs[indx]),min(opts.nmax,nx)+1):
-            fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
-        fp.write('\n')
+for y_param in list(Y.columns):
+    Y = Y_all[y_param]
+    model_xs = []
+    model_rmse_test = []
+    model_r2_test = []
+    model_aic_test = []
+    model_rmse_train = []
+    model_r2_train = []
+    model_aic_train = []
+    model_bic_train = []
+    model_fs = []
+    coef_values = []
+    coef_errors = []
+    coef_ps = []
+    coef_ts = []
+    for n in range(1,min(opts.nmax,nx)+1):
+        for c in combinations(x_param,n):
+            x_list = list(c)
+            X = sm.add_constant(X_all[x_list]) # adding a constant
+            x_all = list(X.columns)
+            model = sm.OLS(Y,X).fit()
+            model_xs.append(x_all)
+            model_rmse_train.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
+            model_r2_train.append(model.rsquared_adj)
+            model_aic_train.append(model.aic)
+            model_bic_train.append(model.bic)
+            model_fs.append(model.f_pvalue)
+            coef_values.append(model.params)
+            rmses = []
+            r2s = []
+            aics = []
+            values = {}
+            errors = {}
+            for param in x_all:
+                values[param] = []
+            kf = KFold(n_splits=opts.n_cross,random_state=None,shuffle=False)
+            for train_index,test_index in kf.split(X):
+                X_train,X_test = X.iloc[train_index],X.iloc[test_index]
+                Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
+                model = sm.OLS(Y_train,X_train).fit()
+                Y_pred = model.predict(X_test)
+                rmses.append(mean_squared_error(Y_test,Y_pred,squared=False))
+                r2s.append(r2_score(Y_test,Y_pred))
+                aics.append(-2.0*llf(Y_test,Y_pred))
+                for param in x_all:
+                    values[param].append(model.params[param])
+            for param in x_all:
+                errors[param] = np.std(values[param])
+            coef_errors.append(errors)
+            model_rmse_test.append(np.mean(rmses))
+            model_r2_test.append(np.mean(r2s))
+            model_aic_test.append(np.mean(aics))
+            coef_ps.append(model.pvalues)
+            coef_ts.append(model.tvalues)
+
+    # Sort formulas
+    if opts.criteria == 'RMSE_test':
+        model_indx = np.argsort(model_rmse_test)[::-1]
+    elif opts.criteria == 'R2_test':
+        model_indx = np.argsort(model_r2_test)[::-1]
+    elif opts.criteria == 'AIC_test':
+        model_indx = np.argsort(model_aic_test)
+    elif opts.criteria == 'RMSE_train':
+        model_indx = np.argsort(model_rmse_train)
+    elif opts.criteria == 'R2_train':
+        model_indx = np.argsort(model_r2_train)[::-1]
+    elif opts.criteria == 'AIC_train':
+        model_indx = np.argsort(model_aic_train)
+    elif opts.criteria == 'BIC_train':
+        model_indx = np.argsort(model_bic_train)
+    else:
+        raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
+
+    # Output results
+    with open(opts.out_fnam,'a') as fp:
+        fp.write('{:>13s},'.format(y_param))
+        for indx in model_indx:
+            fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
+                                                                                                            model_rmse_train[indx],model_r2_train[indx],
+                                                                                                            model_aic_train[indx],model_bic_train[indx],
+                                                                                                            model_fs[indx],len(model_xs[indx])))
+            for param in model_xs[indx]:
+                fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
+            for n in range(len(model_xs[indx]),min(opts.nmax,nx)+1):
+                fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
+            fp.write('\n')
