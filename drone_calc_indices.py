@@ -110,6 +110,8 @@ src_ymax = src_trans[3]
 src_ystp = src_trans[5]
 src_ymin = src_ymax+src_ny*src_ystp
 ds = None
+if src_nodata is not None and not np.isnan(src_nodata):
+    src_data[src_data == src_nodata] = np.nan
 
 # Read Mask GeoTIFF
 if opts.mask_geotiff is not None:
