@@ -5,6 +5,7 @@ import re
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from matplotlib.dates import date2num
 import gdal
 import pyproj
 from subprocess import call
@@ -455,7 +456,8 @@ with open(opts.out_fnam,'w') as fp:
             fp.write(' {:12.4f} {:13.4f}'.format(x_plot[plot][i],y_plot[plot][i]))
         fp.write('\n')
     fp.write('#------------------------\n')
-    fp.write('BunchNumber, PlotPaddy, Easting, Northing, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    fp.write('BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
     for i in range(len(plot_bunch)):
-        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
-                 number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],tiller_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
+        fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f}, {:8.0f}, {:5.0f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
+                 number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],date2num(dtim),date2num(dtim)-date2num(dtim_plot[plot_bunch[i]]),
+                 tiller_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
