@@ -39,6 +39,35 @@ def read_gps(s):
         lon *= -1
     return lon,lat
 
+def read_month(s):
+    s_low = s.lower()
+    if s_low[:2] == 'ja':
+        return 1
+    elif s_low[:1] == 'f':
+        return 2
+    elif s_low[:3] == 'mar' or s_low[:1] == 'b':
+        return 3
+    elif s_low[:2] == 'ap':
+        return 4
+    elif s_low[:3] == 'may' or s_low[:2] == 'me':
+        return 5
+    elif s_low[:3] == 'jun':
+        return 6
+    elif s_low[:3] == 'jul':
+        return 7
+    elif s_low[:2] == 'au' or s_low[:2] == 'ag':
+        return 8
+    elif s_low[:1] == 's':
+        return 9
+    elif s_low[:1] == 'o':
+        return 10
+    elif s_low[:1] == 'n':
+        return 11
+    elif s_low[:1] == 'd':
+        return 12
+    else:
+        raise ValueError('Error, cannot read month >>> {}'.format(s))
+
 if int(pyproj.__version__[0]) > 1:
     def transform_wgs84_to_utm(longitude,latitude):
         return pyproj.Transformer.from_crs(4326,opts.epsg,always_xy=True).transform(longitude,latitude)
@@ -337,10 +366,17 @@ dtim_plot = {}
 for plot in plots:
     # Plot 1. 04.01.2022 Plot 2. 04.01.2022 Plot 3. 04.01.2022
     m = re.search('Plot\s*{}[\D]+([\d\.]+)\s*'.format(plot),trans_date)
-    if not m:
-        raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
-    date_plot[plot] = m.group(1)
-    dtim_plot[plot] = datetime.strptime(date_plot[plot],'%d.%m.%Y')
+    if m:
+        date_plot[plot] = m.group(1)
+        dtim_plot[plot] = datetime.strptime(date_plot[plot],'%d.%m.%Y')
+        continue
+    # 26 Desember 2021
+    m = re.search('(\d+)\s*(\D+)\s*(\d+)',trans_date)
+    if m:
+        date_plot[plot] = trans_date
+        dtim_plot[plot] = datetime(int(m.group(3)),read_month(m.group(2)),int(m.group(1)))
+        continue
+    raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
 
 if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     bnam,enam = os.path.splitext(opts.out_fnam)
