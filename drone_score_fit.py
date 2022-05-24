@@ -36,7 +36,7 @@ parser.add_option('-x','--x_param',default=None,action='append',help='Candidate 
 parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
-parser.add_option('--y_max',default=None,action='append',help='Max objective valiable for evaluating y_threshold ({})'.format(Y_MAX))
+parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
@@ -57,10 +57,10 @@ if opts.x_priority is None:
     opts.x_priority = X_PRIORITY
 for param in opts.x_priority:
     if not param in PARAMS:
-        raise ValueError('Error, unknown explanatory variable >>> {}'.format(param))
+        raise ValueError('Error, unknown explanatory variable for x_priority >>> {}'.format(param))
 for param in opts.y_param:
     if not param in OBJECTS:
-        raise ValueError('Error, unknown objective variable >>> {}'.format(param))
+        raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
 for param in opts.x_param:
     if not param in opts.x_priority:
         raise ValueError('Error, priority of {} is not given.'.format(param))
@@ -77,7 +77,7 @@ for s in opts.y_threshold:
     param = m.group(1)
     value = float(m.group(2))
     if not param in OBJECTS:
-        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
+        raise ValueError('Error, unknown objective variable for y_threshold ({}) >>> {}'.format(param,s))
     if not param in opts.y_param:
         y_threshold[param] = value
 if opts.y_max is None:
@@ -90,9 +90,8 @@ for s in opts.y_max:
     param = m.group(1)
     value = float(m.group(2))
     if not param in OBJECTS:
-        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
-    if not param in opts.y_param:
-        y_max[param] = value
+        raise ValueError('Error, unknown objective variable for y_max ({}) >>> {}'.format(param,s))
+    y_max[param] = value
 if opts.y_factor is None:
     opts.y_factor = Y_FACTOR
 y_factor = {}
@@ -106,9 +105,9 @@ for s in opts.y_factor:
     param = m.group(2)
     value = float(m.group(3))
     if not y_param in OBJECTS:
-        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(y_param,s))
+        raise ValueError('Error, unknown objective variable for y_factor ({}) >>> {}'.format(y_param,s))
     if not param in OBJECTS:
-        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
+        raise ValueError('Error, unknown objective variable for y_factor ({}) >>> {}'.format(param,s))
     if y_param in opts.y_param:
         if not np.isnan(value) and (param != y_param):
             y_factor[y_param][param] = value
@@ -144,6 +143,10 @@ for param in OBJECTS:
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
         p_param.append(param)
+for y_param in opts.y_param:
+    for param in y_factor[y_param].keys():
+        if not param in p_param:
+            p_param.append(param)
 for param in opts.x_param:
     X[param] = []
 for param in opts.y_param:
@@ -168,6 +171,18 @@ for fnam in opts.inp_fnam:
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
 P = pd.DataFrame(P)
+
+# Convert objective variables to equivalent values
+for y_param in opts.y_param:
+    if y_param in y_max.keys():
+        norm = y_max[y_param]
+    else:
+        norm = P['Tiller']
+    for param in y_factor[y_param].keys():
+        if param in y_max.keys():
+            Y[y_param] += P[param]/y_max[param]*norm*y_factor[y_param][param]
+        else:
+            Y[y_param] += P[param]/P['Tiller']*norm*y_factor[y_param][param]
 
 # Select data
 cnd = np.full((len(X),),False)
