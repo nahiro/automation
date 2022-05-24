@@ -16,6 +16,7 @@ OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 
 # Default values
 Y_PARAM = ['BLB']
+Y_NUMBER = [0]
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -23,6 +24,7 @@ parser.add_option('-i','--inp_fnam',default=None,help='Input file name (%default
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
+parser.add_option('--y_number',default=None,action='append',help='Formula number ({})'.format(Y_NUMBER))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
@@ -32,6 +34,13 @@ parser.add_option('-b','--batch',default=False,action='store_true',help='Batch m
 (opts,args) = parser.parse_args()
 if opts.y_param is None:
     opts.y_param = Y_PARAM
+if opts.y_number is None:
+    opts.y_number = Y_NUMBER
+while len(opts.y_number) < len(opts.y_param):
+    opts.y_number.append(opts.y_number[-1])
+y_number = {}
+for i,param in enumerate(opts.y_param):
+    y_number[param] = opts.y_number[i]
 if opts.ax1_zmin is not None:
     while len(opts.ax1_zmin) < len(opts.y_param):
         opts.ax1_zmin.append(opts.ax1_zmin[-1])
@@ -93,10 +102,28 @@ dst_nx = src_nx
 dst_ny = src_ny
 dst_nb = len(opts.y_param)
 dst_data = np.full((dst_nb,dst_ny,dst_nx),0.0)
-for param in opts.y_param:
-    #if not param in df.columns:
-    #    raise ValueError('Error in finding column for {} >>> {}'.format(param,opts.inp_fnam))
-    pass
+for i,y_param in enumerate(opts.y_param):
+    #if not y_param in df.columns:
+    #    raise ValueError('Error in finding column for {} >>> {}'.format(y_param,opts.inp_fnam))
+    cnd = (df['Y'] == y_param)
+    if cnd.sum() < y_number[y_param]:
+        raise ValueError('Error in finding formula for {} >>> {}'.format(y_param,opts.inp_fnam))
+    formula = df[cnd].iloc[y_number[y_param]-1]
+    for n in range(nmax):
+        p = 'P{}_param'.format(n)
+        param = formula[p]
+        param_low = param.lower()
+        p = 'P{}_value'.format(n)
+        coef = formula[p]
+        if param_low == 'none':
+            continue
+        elif param_low == 'const':
+            dst_data[i] += coef
+        else:
+            if not param in src_band:
+                raise ValueError('Error in finding {} in {}'.format(param,opts.src_geotiff))
+            iband = src_band.index(param)
+            dst_data[i] += coef*src_data[iband]
 
 # Write Destination GeoTIFF
 dst_prj = src_prj
