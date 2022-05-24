@@ -2,6 +2,7 @@
 import os
 import gdal
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -18,6 +19,7 @@ Y_PARAM = ['BLB']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser.add_option('-i','--inp_fnam',default=None,help='Input file name (%default)')
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
@@ -48,6 +50,16 @@ if opts.dst_geotiff is None or opts.fignam is None:
         opts.dst_geotiff = bnam+'_estimate'+enam
     if opts.fignam is None:
         opts.fignam = bnam+'_estimate.pdf'
+
+df = pd.read_csv(opts.inp_fnam,comment='#')
+df.columns = df.columns.str.strip()
+df['Y'] = df['Y'].str.strip()
+nmax = df['N'].max()
+for n in range(nmax):
+    p = 'P{}_param'.format(n)
+    if not p in df.columns:
+        raise ValueError('Error in finding column for {} >>> {}'.format(p,opts.inp_fnam))
+    df[p] = df[p].str.strip()
 
 # Read Source GeoTIFF
 ds = gdal.Open(opts.src_geotiff)
@@ -81,6 +93,10 @@ dst_nx = src_nx
 dst_ny = src_ny
 dst_nb = len(opts.y_param)
 dst_data = np.full((dst_nb,dst_ny,dst_nx),0.0)
+for param in opts.y_param:
+    #if not param in df.columns:
+    #    raise ValueError('Error in finding column for {} >>> {}'.format(param,opts.inp_fnam))
+    pass
 
 # Write Destination GeoTIFF
 dst_prj = src_prj
