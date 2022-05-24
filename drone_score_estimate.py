@@ -9,13 +9,18 @@ import zlib # to prevent segmentation fault when saving pdf
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
+# Constants
+PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
+OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
+
 # Default values
+Y_PARAM = ['BLB']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
-parser.add_option('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
+parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
@@ -23,36 +28,32 @@ parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',he
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
-if opts.param is None:
-    opts.param = PARAM
-if opts.norm_band is None:
-    opts.norm_band = NORM_BAND
+if opts.y_param is None:
+    opts.y_param = Y_PARAM
 if opts.ax1_zmin is not None:
-    while len(opts.ax1_zmin) < len(opts.param):
+    while len(opts.ax1_zmin) < len(opts.y_param):
         opts.ax1_zmin.append(opts.ax1_zmin[-1])
 if opts.ax1_zmax is not None:
-    while len(opts.ax1_zmax) < len(opts.param):
+    while len(opts.ax1_zmax) < len(opts.y_param):
         opts.ax1_zmax.append(opts.ax1_zmax[-1])
 if opts.ax1_zstp is not None:
-    while len(opts.ax1_zstp) < len(opts.param):
+    while len(opts.ax1_zstp) < len(opts.y_param):
         opts.ax1_zstp.append(opts.ax1_zstp[-1])
-for param in opts.param:
-    if not param in PARAMS:
-        raise ValueError('Error, unknown parameter >>> {}'.format(param))
+for param in opts.y_param:
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
-        opts.dst_geotiff = bnam+'_indices'+enam
+        opts.dst_geotiff = bnam+'_estimate'+enam
     if opts.fignam is None:
-        opts.fignam = bnam+'_indices.pdf'
+        opts.fignam = bnam+'_estimate.pdf'
 
 # Read Source GeoTIFF
 ds = gdal.Open(opts.src_geotiff)
 src_nx = ds.RasterXSize
 src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
-if src_nb != len(bands):
-    raise ValueError('Error, src_nb={}, len(bands)={} >>> {}'.format(src_nb,len(bands),opts.src_geotiff))
 src_shape = (src_ny,src_nx)
 src_prj = ds.GetProjection()
 src_trans = ds.GetGeoTransform()
@@ -76,18 +77,18 @@ ds = None
 if src_nodata is not None and not np.isnan(src_nodata):
     src_data[src_data == src_nodata] = np.nan
 
-dst_data = np.array(dst_data)
-
-# Write Destination GeoTIFF
 dst_nx = src_nx
 dst_ny = src_ny
-dst_nb = len(opts.param)
+dst_nb = len(opts.y_param)
+dst_data = np.full((dst_nb,dst_ny,dst_nx),0.0)
+
+# Write Destination GeoTIFF
 dst_prj = src_prj
 dst_trans = src_trans
 dst_meta = src_meta
 dst_dtype = gdal.GDT_Float32
 dst_nodata = np.nan
-dst_band = opts.param
+dst_band = opts.y_param
 drv = gdal.GetDriverByName('GTiff')
 ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
@@ -108,7 +109,7 @@ if opts.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(opts.fignam)
-    for i,param in enumerate(opts.param):
+    for i,param in enumerate(opts.y_param):
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
