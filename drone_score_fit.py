@@ -74,7 +74,8 @@ for s in opts.y_threshold:
     value = float(m.group(2))
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
-    y_threshold[param] = value
+    if not param in opts.y_param:
+        y_threshold[param] = value
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -103,7 +104,7 @@ p_param = []
 if opts.amin is not None or opts.amax is not None:
     p_param.append('Age')
 for param in OBJECTS:
-    if param in y_threshold.keys() and not param in opts.y_param:
+    if param in y_threshold.keys():
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
         p_param.append(param)
