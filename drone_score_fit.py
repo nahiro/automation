@@ -25,6 +25,7 @@ NMAX = 2
 CRITERIA = 'RMSE_test'
 N_CROSS = 10
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
+Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -33,7 +34,8 @@ parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%de
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
 parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
-parser.add_option('--y_threshold',default=None,action='append',help='Threshold for training data ({})'.format(Y_THRESHOLD))
+parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
+parser.add_option('--y_max',default=None,action='append',help='Max objective valiable for evaluating y_threshold ({})'.format(Y_MAX))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
@@ -76,6 +78,19 @@ for s in opts.y_threshold:
         raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
     if not param in opts.y_param:
         y_threshold[param] = value
+if opts.y_max is None:
+    opts.y_max = Y_MAX
+y_max = {}
+for s in opts.y_max:
+    m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
+    if not m:
+        raise ValueError('Error, invalid max >>> {}'.format(s))
+    param = m.group(1)
+    value = float(m.group(2))
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
+    if not param in opts.y_param:
+        y_max[param] = value
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -136,9 +151,14 @@ P = pd.DataFrame(P)
 # Select data
 cnd = np.full((len(X),),False)
 if opts.amin is not None:
-    cnd |= (P['Age'] < opts.amin)
+    cnd |= (P['Age'] < opts.amin).values
 if opts.amax is not None:
-    cnd |= (P['Age'] > opts.amax)
+    cnd |= (P['Age'] > opts.amax).values
+for param in y_threshold.keys():
+    if param in y_max.keys():
+        cnd |= (P[param]/y_max[param] > y_threshold[param]).values
+    else:
+        cnd |= (P[param]/P['Tiller'] > y_threshold[param]).values
 if cnd.sum() > 0:
     X = X.iloc[~cnd]
     Y = Y.iloc[~cnd]
