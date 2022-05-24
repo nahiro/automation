@@ -26,6 +26,7 @@ CRITERIA = 'RMSE_test'
 N_CROSS = 10
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
 Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
+Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hopper:Hopper:1.0','Drought:Drought:1.0']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -36,6 +37,7 @@ parser.add_option('--x_priority',default=None,action='append',help='Priority of 
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
 parser.add_option('--y_max',default=None,action='append',help='Max objective valiable for evaluating y_threshold ({})'.format(Y_MAX))
+parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
@@ -91,6 +93,25 @@ for s in opts.y_max:
         raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
     if not param in opts.y_param:
         y_max[param] = value
+if opts.y_factor is None:
+    opts.y_factor = Y_FACTOR
+y_factor = {}
+for y_param in opts.y_param:
+    y_factor[y_param] = {}
+for s in opts.y_factor:
+    m = re.search('\s*(\S+)\s*:\s*(\S+)\s*:\s*(\S+)\s*',s)
+    if not m:
+        raise ValueError('Error, invalid factor >>> {}'.format(s))
+    y_param = m.group(1)
+    param = m.group(2)
+    value = float(m.group(3))
+    if not y_param in OBJECTS:
+        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(y_param,s))
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable ({}) >>> {}'.format(param,s))
+    if y_param in opts.y_param:
+        if not np.isnan(value) and (param != y_param):
+            y_factor[y_param][param] = value
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -181,7 +202,7 @@ with open(opts.out_fnam,'w') as fp:
     for n in range(min(opts.nmax,nx)+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
-for y_param in list(Y_all.columns):
+for y_param in opts.y_param:
     Y = Y_all[y_param]
     model_xs = []
     model_rmse_test = []
