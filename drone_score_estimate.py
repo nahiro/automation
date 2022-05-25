@@ -131,6 +131,7 @@ if src_nodata is not None and not np.isnan(src_nodata):
 dst_nx = src_nx
 dst_ny = src_ny
 dst_nb = len(opts.y_param)
+dst_shape = (dst_ny,dst_nx)
 dst_data = np.full((dst_nb,dst_ny,dst_nx),0.0)
 dst_band = opts.y_param
 for y_param in opts.y_param:
@@ -161,12 +162,34 @@ for y_param in opts.y_param:
         iband = dst_band.index(y_param)
         dst_data[iband] *= smax[y_param]
 
+# Digitize score
+if opts.digitize:
+    data = np.full(dst_data.shape,-1).astype(np.int16)
+    for y_param in opts.y_param:
+        iband = dst_band.index(y_param)
+        cnd1 = np.full(dst_shape,True)
+        for score in range(smax[y_param],0,-sint[y_param]):
+            s_next = score-sint[y_param]
+            if s_next < 0:
+                s_next = 0
+            s = 0.5*(score+s_next)
+            cnd2 = dst_data[iband] > s
+            data[iband,(cnd1 & cnd2)] = score
+            cnd1[cnd2] = False
+        data[iband,cnd1] = 0
+        data[iband,np.isnan(dst_data[iband])] = -1
+    dst_data = data
+
 # Write Destination GeoTIFF
 dst_prj = src_prj
 dst_trans = src_trans
 dst_meta = src_meta
-dst_dtype = gdal.GDT_Float32
-dst_nodata = np.nan
+if opts.digitize:
+    dst_dtype = gdal.GDT_Int16
+    dst_nodata = -1
+else:
+    dst_dtype = gdal.GDT_Float32
+    dst_nodata = np.nan
 drv = gdal.GetDriverByName('GTiff')
 ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
@@ -185,16 +208,18 @@ if opts.debug:
     if not opts.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
-    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
+    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.80)
     pdf = PdfPages(opts.fignam)
     for param in opts.y_param:
         iband = dst_band.index(param)
         if smax[param] == 1:
             data = dst_data[iband]*100.0
-            title = '{} (%)'.format(param)
+            title = '{} Intensity (%)'.format(param)
         else:
-            data = dst_data[iband]
+            data = dst_data[iband].astype(np.float32)
             title = '{} Score'.format(param)
+        if opts.digitize:
+            data[dst_data[iband] == -1] = np.nan
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
@@ -223,7 +248,7 @@ if opts.debug:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
         ax2.set_ylabel(title)
-        ax2.yaxis.set_label_coords(3.5,0.5)
+        ax2.yaxis.set_label_coords(4.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
