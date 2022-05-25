@@ -127,6 +127,7 @@ ds = None
 if src_nodata is not None and not np.isnan(src_nodata):
     src_data[src_data == src_nodata] = np.nan
 
+# Calculate damage intensity
 dst_nx = src_nx
 dst_ny = src_ny
 dst_nb = len(opts.y_param)
@@ -153,6 +154,12 @@ for y_param in opts.y_param:
                 raise ValueError('Error in finding {} in {}'.format(param,opts.src_geotiff))
             src_iband = src_band.index(param)
             dst_data[dst_iband] += coef*src_data[src_iband]
+
+# Convert damage intensity to score
+for y_param in opts.y_param:
+    if smax[y_param] != 1:
+        iband = dst_band.index(y_param)
+        dst_data[iband] *= smax[y_param]
 
 # Write Destination GeoTIFF
 dst_prj = src_prj
@@ -182,40 +189,46 @@ if opts.debug:
     pdf = PdfPages(opts.fignam)
     for param in opts.y_param:
         iband = dst_band.index(param)
+        if smax[param] == 1:
+            data = dst_data[iband]*100.0
+            title = '{} (%)'.format(param)
+        else:
+            data = dst_data[iband]
+            title = '{} Score'.format(param)
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
         if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmin is not None:
-            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if opts.ax1_zstp is not None:
             if opts.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(dst_data[iband])/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
+                zmin = min((np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
             else:
-                zmin = (np.floor(np.nanmin(dst_data[iband])/ax1_zstp[param])-1.0)*ax1_zstp[param]
+                zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
             if opts.ax1_zmax is not None:
-                zmax = max(np.nanmax(dst_data[iband]),ax1_zmax[param]+0.1*ax1_zstp[param])
+                zmax = max(np.nanmax(data),ax1_zmax[param]+0.1*ax1_zstp[param])
             else:
-                zmax = np.nanmax(dst_data[iband])+0.1*ax1_zstp[param]
+                zmax = np.nanmax(data)+0.1*ax1_zstp[param]
             ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        ax2.set_ylabel(param)
+        ax2.set_ylabel(title)
         ax2.yaxis.set_label_coords(3.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
-            cnd = ~np.isnan(dst_data[iband])
+            cnd = ~np.isnan(data)
             xp = src_xp[cnd]
             yp = src_yp[cnd]
             fig_xmin = xp.min()
