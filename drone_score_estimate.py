@@ -29,6 +29,7 @@ parser.add_option('-F','--fignam',default=None,help='Output figure name for debu
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
+parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
@@ -180,7 +181,7 @@ if opts.debug:
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        ax2.set_ylabel(pnams[i])
+        ax2.set_ylabel(opts.y_param[i])
         ax2.yaxis.set_label_coords(3.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)

@@ -23,7 +23,7 @@ Y_PARAM = ['BLB']
 VMAX = 5.0
 NMAX = 2
 CRITERIA = 'RMSE_test'
-N_CROSS = 10
+N_CROSS = 5
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
 Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
 Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hopper:Hopper:1.0','Drought:Drought:1.0']
@@ -172,17 +172,20 @@ X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
 P = pd.DataFrame(P)
 
-# Convert objective variables to equivalent values
+# Convert objective variable to damage intensity
 for y_param in opts.y_param:
     if y_param in y_max.keys():
-        norm = y_max[y_param]
+        Y[y_param] = Y[y_param]/y_max[y_param]
     else:
-        norm = P['Tiller']
+        Y[y_param] = Y[y_param]/P['Tiller']
+
+# Add equivalent values to objective variables
+for y_param in opts.y_param:
     for param in y_factor[y_param].keys():
         if param in y_max.keys():
-            Y[y_param] += P[param]/y_max[param]*norm*y_factor[y_param][param]
+            Y[y_param] += P[param]/y_max[param]*y_factor[y_param][param]
         else:
-            Y[y_param] += P[param]/P['Tiller']*norm*y_factor[y_param][param]
+            Y[y_param] += P[param]/P['Tiller']*y_factor[y_param][param]
 
 # Select data
 cnd = np.full((len(X),),False)
