@@ -15,6 +15,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
+parser.add_option('-M','--mask_geotiff',default=None,help='Mask GeoTIFF name (%default)')
 parser.add_option('-x','--imin',default=None,type='int',help='Start x index (%default)')
 parser.add_option('-X','--imax',default=None,type='int',help='Stop x index (%default)')
 parser.add_option('-s','--istp',default=None,type='int',help='Step x index (%default)')
@@ -28,6 +29,7 @@ ds = gdal.Open(opts.src_geotiff)
 src_nx = ds.RasterXSize
 src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
+src_shape = (src_ny,src_nx)
 src_prj = ds.GetProjection()
 src_trans = ds.GetGeoTransform()
 if src_trans[2] != 0.0 or src_trans[4] != 0.0:
@@ -46,6 +48,21 @@ src_ystp = src_trans[5]
 src_xgrd = src_xmin+(np.arange(src_nx)+0.5)*src_xstp
 src_ygrd = src_ymax+(np.arange(src_ny)+0.5)*src_ystp
 ds = None
+
+# Read Mask GeoTIFF
+if opts.mask_geotiff is not None:
+    ds = gdal.Open(opts.mask_geotiff)
+    mask_nx = ds.RasterXSize
+    mask_ny = ds.RasterYSize
+    mask_nb = ds.RasterCount
+    if mask_nb != 1:
+        raise ValueError('Error, mask_nb={} >>> {}'.format(mask_nb,opts.mask_geotiff))
+    mask_shape = (mask_ny,mask_nx)
+    if mask_shape != src_shape:
+        raise ValueError('Error, mask_shape={}, src_shape={} >>> {}'.format(mask_shape,src_shape,opts.mask_geotiff))
+    mask_data = ds.ReadAsArray().reshape(mask_ny,mask_nx)
+    ds = None
+    src_data[:,mask_data < 0.5] = np.nan
 
 if opts.imin is None:
     opts.imin = 0
