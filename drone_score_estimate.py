@@ -17,6 +17,8 @@ OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 # Default values
 Y_PARAM = ['BLB']
 Y_NUMBER = [0]
+SMAX = [9]
+SINT = [2]
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -25,16 +27,22 @@ parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('--y_number',default=None,action='append',help='Formula number ({})'.format(Y_NUMBER))
+parser.add_option('-M','--smax',default=None,type='int',action='append',help='Max score ({})'.format(SMAX))
+parser.add_option('-S','--sint',default=None,type='int',action='append',help='Sampling interval for digitizing score ({})'.format(SINT))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
 parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
+parser.add_option('-D','--digitize',default=False,action='store_true',help='Digitize score (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.y_param is None:
     opts.y_param = Y_PARAM
+for param in opts.y_param:
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
 if opts.y_number is None:
     opts.y_number = Y_NUMBER
 while len(opts.y_number) < len(opts.y_param):
@@ -42,18 +50,38 @@ while len(opts.y_number) < len(opts.y_param):
 y_number = {}
 for i,param in enumerate(opts.y_param):
     y_number[param] = opts.y_number[i]
+if opts.smax is None:
+    opts.smax = SMAX
+while len(opts.smax) < len(opts.y_param):
+    opts.smax.append(opts.smax[-1])
+smax = {}
+for i,param in enumerate(opts.y_param):
+    smax[param] = opts.smax[i]
+if opts.sint is None:
+    opts.sint = SINT
+while len(opts.sint) < len(opts.y_param):
+    opts.sint.append(opts.sint[-1])
+sint = {}
+for i,param in enumerate(opts.y_param):
+    sint[param] = opts.sint[i]
 if opts.ax1_zmin is not None:
     while len(opts.ax1_zmin) < len(opts.y_param):
         opts.ax1_zmin.append(opts.ax1_zmin[-1])
+    ax1_zmin = {}
+    for i,param in enumerate(opts.y_param):
+        ax1_zmin[param] = opts.ax1_zmin[i]
 if opts.ax1_zmax is not None:
     while len(opts.ax1_zmax) < len(opts.y_param):
         opts.ax1_zmax.append(opts.ax1_zmax[-1])
+    ax1_zmax = {}
+    for i,param in enumerate(opts.y_param):
+        ax1_zmax[param] = opts.ax1_zmax[i]
 if opts.ax1_zstp is not None:
     while len(opts.ax1_zstp) < len(opts.y_param):
         opts.ax1_zstp.append(opts.ax1_zstp[-1])
-for param in opts.y_param:
-    if not param in OBJECTS:
-        raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
+    ax1_zstp = {}
+    for i,param in enumerate(opts.y_param):
+        ax1_zstp[param] = opts.ax1_zstp[i]
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
@@ -103,9 +131,9 @@ dst_nx = src_nx
 dst_ny = src_ny
 dst_nb = len(opts.y_param)
 dst_data = np.full((dst_nb,dst_ny,dst_nx),0.0)
-for i,y_param in enumerate(opts.y_param):
-    #if not y_param in df.columns:
-    #    raise ValueError('Error in finding column for {} >>> {}'.format(y_param,opts.inp_fnam))
+dst_band = opts.y_param
+for y_param in opts.y_param:
+    dst_iband = dst_band.index(y_param)
     cnd = (df['Y'] == y_param)
     if cnd.sum() < y_number[y_param]:
         raise ValueError('Error in finding formula for {} >>> {}'.format(y_param,opts.inp_fnam))
@@ -119,12 +147,12 @@ for i,y_param in enumerate(opts.y_param):
         if param_low == 'none':
             continue
         elif param_low == 'const':
-            dst_data[i] += coef
+            dst_data[dst_iband] += coef
         else:
             if not param in src_band:
                 raise ValueError('Error in finding {} in {}'.format(param,opts.src_geotiff))
-            iband = src_band.index(param)
-            dst_data[i] += coef*src_data[iband]
+            src_iband = src_band.index(param)
+            dst_data[dst_iband] += coef*src_data[src_iband]
 
 # Write Destination GeoTIFF
 dst_prj = src_prj
@@ -132,7 +160,6 @@ dst_trans = src_trans
 dst_meta = src_meta
 dst_dtype = gdal.GDT_Float32
 dst_nodata = np.nan
-dst_band = opts.y_param
 drv = gdal.GetDriverByName('GTiff')
 ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
@@ -153,41 +180,42 @@ if opts.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(opts.fignam)
-    for i,param in enumerate(opts.y_param):
+    for param in opts.y_param:
+        iband = dst_band.index(param)
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
         if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmin is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(dst_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if opts.ax1_zstp is not None:
             if opts.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(dst_data[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i],opts.ax1_zmin[i])
+                zmin = min((np.floor(np.nanmin(dst_data[iband])/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
             else:
-                zmin = (np.floor(np.nanmin(dst_data[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i]
+                zmin = (np.floor(np.nanmin(dst_data[iband])/ax1_zstp[param])-1.0)*ax1_zstp[param]
             if opts.ax1_zmax is not None:
-                zmax = max(np.nanmax(dst_data[i]),opts.ax1_zmax[i]+0.1*opts.ax1_zstp[i])
+                zmax = max(np.nanmax(dst_data[iband]),ax1_zmax[param]+0.1*ax1_zstp[param])
             else:
-                zmax = np.nanmax(dst_data[i])+0.1*opts.ax1_zstp[i]
-            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp[i])).ax
+                zmax = np.nanmax(dst_data[iband])+0.1*ax1_zstp[param]
+            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        ax2.set_ylabel(opts.y_param[i])
+        ax2.set_ylabel(param)
         ax2.yaxis.set_label_coords(3.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
-            cnd = ~np.isnan(dst_data[i])
+            cnd = ~np.isnan(dst_data[iband])
             xp = src_xp[cnd]
             yp = src_yp[cnd]
             fig_xmin = xp.min()
