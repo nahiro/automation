@@ -10,17 +10,23 @@ from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
+OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 
 # Default values
+Y_PARAM = ['BLB']
+SMAX = [9]
+RMAX = 0.01
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser.add_option('-i','--shp_fnam',default=None,help='Input Shapefile name (%default)')
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-M','--mask_geotiff',default=None,help='Mask GeoTIFF name (%default)')
 parser.add_option('-O','--out_csv',default=None,help='Output CSV name (%default)')
 parser.add_option('-o','--out_shp',default=None,help='Output Shapefile name (%default)')
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('-S','--smax',default=None,type='int',action='append',help='Max score ({})'.format(SMAX))
+parser.add_option('-r','--rmax',default=RMAX,type='float',help='Maximum exclusion ratio (%default)')
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
@@ -72,8 +78,6 @@ ds = gdal.Open(opts.src_geotiff)
 src_nx = ds.RasterXSize
 src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
-if src_nb != len(bands):
-    raise ValueError('Error, src_nb={}, len(bands)={} >>> {}'.format(src_nb,len(bands),opts.src_geotiff))
 src_shape = (src_ny,src_nx)
 src_prj = ds.GetProjection()
 src_trans = ds.GetGeoTransform()
@@ -109,19 +113,13 @@ if mask_shape != src_shape:
     raise ValueError('Error, mask_shape={}, src_shape={} >>> {}'.format(mask_shape,src_shape,opts.mask_geotiff))
 mask_data = ds.ReadAsArray().reshape(mask_ny,mask_nx)
 ds = None
-src_data[:,mask_data < 0.5] = np.nan
 
-fnam = opts.src_geotiff
-norm = 0.0
-value_pix = {}
-for band in bands.keys():
-    value_pix[band] = calc_vpix(src_data,band)
-    if band in opts.norm_band:
-        norm += value_pix[band]
-norm = len(opts.norm_band)/norm
+# 
+
 dst_data = []
 dst_data = np.array(dst_data)
 
+"""
 # For debug
 if opts.debug:
     if not opts.batch:
@@ -181,3 +179,4 @@ if opts.debug:
         if not opts.batch:
             plt.draw()
     pdf.close()
+"""
