@@ -34,7 +34,6 @@ parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,widt
 parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
 parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%default)')
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
-parser.add_option('--x_priority',default=None,action='append',help='Priority of explanatory variable ({})'.format(X_PRIORITY))
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
 parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
@@ -55,19 +54,12 @@ if opts.x_param is None:
     opts.x_param = X_PARAM
 if opts.y_param is None:
     opts.y_param = Y_PARAM
-if opts.x_priority is None:
-    opts.x_priority = X_PRIORITY
-for param in opts.x_priority:
-    if not param in PARAMS:
-        raise ValueError('Error, unknown explanatory variable for x_priority >>> {}'.format(param))
 for param in opts.y_param:
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
 for param in opts.x_param:
-    if not param in opts.x_priority:
-        raise ValueError('Error, priority of {} is not given.'.format(param))
-indx_param = [opts.x_priority.index(param) for param in opts.x_param]
-x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
+    if not param in PARAMS:
+        raise ValueError('Error, unknown explanatory variable for x_param >>> {}'.format(param))
 if opts.y_threshold is None:
     opts.y_threshold = Y_THRESHOLD
 y_threshold = {}
@@ -230,7 +222,7 @@ for y_param in opts.y_param:
     coef_ps = []
     coef_ts = []
     for n in range(1,opts.nx_max+1):
-        for c in combinations(x_param,n):
+        for c in combinations(opts.x_param,n):
             x_list = list(c)
             if len(x_list) > 1:
                 flag = False
@@ -241,6 +233,8 @@ for y_param in opts.y_param:
                         break
                 if flag:
                     continue # Eliminate multicollinearity
+                #indx_param = [opts.x_priority.index(param) for param in opts.x_param]
+                #x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
             X = sm.add_constant(X_all[x_list]) # adding a constant
             x_all = list(X.columns)
             model = sm.OLS(Y,X).fit()
