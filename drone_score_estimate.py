@@ -91,7 +91,7 @@ if opts.dst_geotiff is None or opts.fignam is None:
 df = pd.read_csv(opts.inp_fnam,comment='#')
 df.columns = df.columns.str.strip()
 df['Y'] = df['Y'].str.strip()
-nmax = df['N'].max()
+nmax = df['N'].max()+1
 for n in range(nmax):
     p = 'P{}_param'.format(n)
     if not p in df.columns:

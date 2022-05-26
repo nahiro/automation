@@ -301,7 +301,7 @@ for y_param in opts.y_param:
             fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
                                                                                                             model_rmse_train[indx],model_r2_train[indx],
                                                                                                             model_aic_train[indx],model_bic_train[indx],
-                                                                                                            model_fs[indx],len(model_xs[indx])))
+                                                                                                            model_fs[indx],len(model_xs[indx])-1))
             for param in model_xs[indx]:
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
             for n in range(len(model_xs[indx]),opts.nmax+1):
