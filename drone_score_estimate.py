@@ -15,7 +15,7 @@ OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 
 # Default values
 Y_PARAM = ['BLB']
-Y_NUMBER = [0]
+Y_NUMBER = [1]
 SMAX = [9]
 SINT = [2]
 
@@ -25,7 +25,7 @@ parser.add_option('-i','--inp_fnam',default=None,help='Input formula file name (
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
 parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
 parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
-parser.add_option('--y_number',default=None,action='append',help='Formula number ({})'.format(Y_NUMBER))
+parser.add_option('--y_number',default=None,type='int',action='append',help='Formula number ({})'.format(Y_NUMBER))
 parser.add_option('-M','--smax',default=None,type='int',action='append',help='Max score ({})'.format(SMAX))
 parser.add_option('-S','--sint',default=None,type='int',action='append',help='Sampling interval for digitizing score ({})'.format(SINT))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
@@ -97,6 +97,10 @@ for n in range(nmax):
     if not p in df.columns:
         raise ValueError('Error in finding column for {} >>> {}'.format(p,opts.inp_fnam))
     df[p] = df[p].str.strip()
+    p = 'P{}_value'.format(n)
+    if not p in df.columns:
+        raise ValueError('Error in finding column for {} >>> {}'.format(p,opts.inp_fnam))
+    df[p] = df[p].astype(float)
 
 # Read Source GeoTIFF
 ds = gdal.Open(opts.src_geotiff)
