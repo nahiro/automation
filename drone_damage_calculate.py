@@ -31,6 +31,7 @@ parser.add_option('-F','--fignam',default=None,help='Output figure name for debu
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
+parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
@@ -112,14 +113,52 @@ mask_shape = (mask_ny,mask_nx)
 if mask_shape != src_shape:
     raise ValueError('Error, mask_shape={}, src_shape={} >>> {}'.format(mask_shape,src_shape,opts.mask_geotiff))
 mask_data = ds.ReadAsArray().reshape(mask_ny,mask_nx)
+band = ds.GetRasterBand(1)
+mask_nodata = band.GetNoDataValue()
+if np.isnan(mask_nodata):
+    mask_nodata = -(2**63)
+elif mask_nodata < 0.0:
+    mask_nodata = -int(-mask_nodata+0.5)
+else:
+    mask_nodata = int(mask_nodata+0.5)
 ds = None
 
-# 
+# Get OBJECTID
+object_ids = np.unique(mask_data[mask_data != mask_nodata])
 
-dst_data = []
-dst_data = np.array(dst_data)
-
-"""
+# Calculate mean damage intensity
+out_data = {}
+if opts.debug:
+    dst_nx = src_nx
+    dst_ny = src_ny
+    dst_nb = len(opts.y_param)
+    dst_shape = (dst_ny,dst_nx)
+    dst_data = np.full((dst_nb,dst_ny,dst_nx),np.nan)
+    dst_band = opts.y_param
+for y_param in opts.y_param:
+    if not y_param in src_band:
+        raise ValueError('Error in finding {} in {}'.format(y_param,opts.src_geotiff))
+    iband = src_band.index(y_param)
+    out_data[y_param] = {}
+    for object_id in object_ids:
+        cnd1 = (mask_data == object_id)
+        d1 = src_data[iband,cnd1]
+        n1 = d1.size
+        if n1 < 1:
+            continue
+        cnd2 = np.isnan(d1)
+        d2 = d1[cnd2]
+        n2 = d2.size
+        if n2/n1 > opts.rmax:
+            continue
+        if smax[y_param] == 1:
+            v = d1[~cnd2].mean()
+        else:
+            v = d1[~cnd2].mean()/smax[y_param]
+        out_data[y_param][object_id] = v
+        if opts.debug:
+            dst_data[iband,cnd1] = v
+    
 # For debug
 if opts.debug:
     if not opts.batch:
@@ -127,41 +166,43 @@ if opts.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(opts.fignam)
-    for i,param in enumerate(opts.param):
+    for param in opts.y_param:
+        iband = dst_band.index(param)
+        data = dst_data[iband]*100.0
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
         if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmin is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
         elif opts.ax1_zmax is not None:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(dst_data[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if opts.ax1_zstp is not None:
             if opts.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(dst_data[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i],opts.ax1_zmin[i])
+                zmin = min((np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
             else:
-                zmin = (np.floor(np.nanmin(dst_data[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i]
+                zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
             if opts.ax1_zmax is not None:
-                zmax = max(np.nanmax(dst_data[i]),opts.ax1_zmax[i]+0.1*opts.ax1_zstp[i])
+                zmax = max(np.nanmax(data),ax1_zmax[param]+0.1*ax1_zstp[param])
             else:
-                zmax = np.nanmax(dst_data[i])+0.1*opts.ax1_zstp[i]
-            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp[i])).ax
+                zmax = np.nanmax(data)+0.1*ax1_zstp[param]
+            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        ax2.set_ylabel(pnams[i])
+        ax2.set_ylabel('{} Intensity (%)'.format(param))
         ax2.yaxis.set_label_coords(3.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
-            cnd = ~np.isnan(dst_data[i])
+            cnd = ~np.isnan(data)
             xp = src_xp[cnd]
             yp = src_yp[cnd]
             fig_xmin = xp.min()
@@ -179,4 +220,3 @@ if opts.debug:
         if not opts.batch:
             plt.draw()
     pdf.close()
-"""
