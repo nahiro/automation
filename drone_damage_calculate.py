@@ -192,7 +192,7 @@ if opts.shp_fnam is not None:
     w.shapeType = shapefile.POLYGON
     w.fields = r.fields[1:] # skip first deletion field
     for y_param in opts.y_param:
-        w.field(y_param,'C',len(y_param),0)
+        w.field(y_param,'F',13,6)
     for iobj,shaperec in enumerate(r.iterShapeRecords()):
         rec = shaperec.record
         shp = shaperec.shape
