@@ -201,6 +201,8 @@ for param in y_threshold.keys():
 if cnd.sum() > 0:
     X = X.iloc[~cnd]
     Y = Y.iloc[~cnd]
+X_all = X.copy()
+Y_all = Y.copy()
 
 # Eliminate multicollinearity
 for indx in reversed(range(1,nx)):
