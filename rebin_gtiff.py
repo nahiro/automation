@@ -100,7 +100,7 @@ for iband in range(dst_nb):
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 dst_data.append(np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1))
             if opts.rmax is not None:
-                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
+                dst_nsum.append(np.sum(np.sum(cnd,axis=-1),axis=1)*dst_norm)
         else:
             dst_data.append(tmp_data.mean(axis=-1).mean(axis=1))
             if opts.rmax is not None:
@@ -113,7 +113,7 @@ for iband in range(dst_nb):
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 avg_data = np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1)
             if opts.rmax is not None:
-                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
+                dst_nsum.append(np.sum(np.sum(cnd,axis=-1),axis=1)*dst_norm)
             cnd = np.isnan(avg_data)
             avg_data[cnd] = src_nodata
             dst_data.append(avg_data)

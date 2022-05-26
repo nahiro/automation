@@ -23,6 +23,7 @@ parser.add_option('-y','--jmin',default=None,type='int',help='Start y index (%de
 parser.add_option('-Y','--jmax',default=None,type='int',help='Stop y index (%default)')
 parser.add_option('-S','--jstp',default=None,type='int',help='Step y index (%default)')
 parser.add_option('-r','--rmax',default=None,type='float',help='Maximum exclusion ratio (%default)')
+parser.add_option('-u','--ignore_uniformity',default=False,action='store_true',help='Ignore uniformity within a pixel (%default)')
 (opts,args) = parser.parse_args()
 
 ds = gdal.Open(opts.src_geotiff)
@@ -40,6 +41,7 @@ src_band = []
 for iband in range(src_nb):
     band = ds.GetRasterBand(iband+1)
     src_band.append(band.GetDescription())
+src_dtype = band.DataType
 src_nodata = band.GetNoDataValue()
 src_xmin = src_trans[0]
 src_xstp = src_trans[1]
@@ -98,9 +100,12 @@ for iband in range(dst_nb):
         if cnd.sum() > 0:
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
+                if not opts.ignore_uniformity:
+                    if not np.all(np.nanstd(tmp_data,axis=-1) == 0.0) or not np.all(np.nanstd(tmp_data,axis=1) == 0.0):
+                        raise ValueError('Uniformity Error')
                 dst_data.append(np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1))
             if opts.rmax is not None:
-                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
+                dst_nsum.append(np.sum(np.sum(cnd,axis=-1),axis=1)*dst_norm)
         else:
             dst_data.append(tmp_data.mean(axis=-1).mean(axis=1))
             if opts.rmax is not None:
@@ -111,9 +116,12 @@ for iband in range(dst_nb):
             tmp_data[cnd] = np.nan
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
+                if not opts.ignore_uniformity:
+                    if not np.all(np.nanstd(tmp_data,axis=-1) == 0.0) or not np.all(np.nanstd(tmp_data,axis=1) == 0.0):
+                        raise ValueError('Uniformity Error')
                 avg_data = np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1)
             if opts.rmax is not None:
-                dst_nsum.append(np.nansum(np.nansum(cnd,axis=-1),axis=1)*dst_norm)
+                dst_nsum.append(np.sum(np.sum(cnd,axis=-1),axis=1)*dst_norm)
             cnd = np.isnan(avg_data)
             avg_data[cnd] = src_nodata
             dst_data.append(avg_data)
@@ -122,14 +130,15 @@ for iband in range(dst_nb):
             if opts.rmax is not None:
                 dst_nsum.append(np.full(dst_shape,0.0))
     dst_band.append(src_band[iband])
-dst_data = np.array(dst_data).astype(np.float32)
+dst_data = (np.array(dst_data)+0.5).astype(np.int64)
 if opts.rmax is not None and src_nodata is not None:
     dst_nsum = np.array(dst_nsum)
-    dst_data[dst_nsum > opts.rmax] = np.nan
+    dst_data[dst_nsum > opts.rmax] = src_nodata
+dst_dtype = src_dtype
 dst_nodata = src_nodata
 
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Float32)
+ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)
@@ -138,7 +147,7 @@ for iband in range(dst_nb):
     band.WriteArray(dst_data[iband])
     band.SetDescription(dst_band[iband])
 if dst_nodata is None:
-    band.SetNoDataValue(np.nan) # The TIFFTAG_GDAL_NODATA only support one value per dataset
+    band.SetNoDataValue(-1) # The TIFFTAG_GDAL_NODATA only support one value per dataset
 else:
     band.SetNoDataValue(dst_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
 ds.FlushCache()
