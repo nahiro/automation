@@ -22,6 +22,7 @@ X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr
 Y_PARAM = ['BLB']
 VMAX = 5.0
 NX_MAX = 2
+NMODEL_MAX = 3
 CRITERIA = 'RMSE_test'
 N_CROSS = 5
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
@@ -40,6 +41,7 @@ parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.f
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
+parser.add_option('-M','--nmodel_max',default=NMODEL_MAX,type='int',help='Max number of formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
 parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
 parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
@@ -296,7 +298,7 @@ for y_param in opts.y_param:
 
     # Output results
     with open(opts.out_fnam,'a') as fp:
-        for indx in model_indx:
+        for indx in model_indx[:opts.nmodel_max]:
             fp.write('{:>13s},'.format(y_param))
             fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
                                                                                                             model_rmse_train[indx],model_r2_train[indx],
