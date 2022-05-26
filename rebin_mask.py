@@ -101,7 +101,7 @@ for iband in range(dst_nb):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 if not opts.ignore_uniformity:
-                    if not np.all(np.nanstd(tmp_data,axis=-1) == 0.0) or not np.all(np.nanstd(tmp_data,axis=1) == 0.0):
+                    if (np.nansum(np.nanstd(tmp_data,axis=-1)) != 0.0) or (np.nansum(np.nanstd(tmp_data,axis=1)) != 0.0):
                         raise ValueError('Uniformity Error')
                 dst_data.append(np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1))
             if opts.rmax is not None:
@@ -117,7 +117,7 @@ for iband in range(dst_nb):
             with warnings.catch_warnings():
                 warnings.filterwarnings(action='ignore',message='Mean of empty slice')
                 if not opts.ignore_uniformity:
-                    if not np.all(np.nanstd(tmp_data,axis=-1) == 0.0) or not np.all(np.nanstd(tmp_data,axis=1) == 0.0):
+                    if (np.nansum(np.nanstd(tmp_data,axis=-1)) != 0.0) or (np.nansum(np.nanstd(tmp_data,axis=1)) != 0.0):
                         raise ValueError('Uniformity Error')
                 avg_data = np.nanmean(np.nanmean(tmp_data,axis=-1),axis=1)
             if opts.rmax is not None:
