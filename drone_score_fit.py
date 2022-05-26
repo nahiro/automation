@@ -21,7 +21,7 @@ X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
 VMAX = 5.0
-NMAX = 2
+NX_MAX = 2
 CRITERIA = 'RMSE_test'
 N_CROSS = 5
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
@@ -39,7 +39,7 @@ parser.add_option('--y_threshold',default=None,action='append',help='Threshold f
 parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
-parser.add_option('-N','--nmax',default=NMAX,type='int',help='Max number of explanatory variable in a formula (%default)')
+parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
 parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
 parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
@@ -209,7 +209,7 @@ with open(opts.out_fnam,'w') as fp:
     for v in CRITERIAS:
         fp.write('{:>13s},'.format(v))
     fp.write('{:>13s},{:>2s}'.format('P','N'))
-    for n in range(opts.nmax+1):
+    for n in range(opts.nx_max+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
 for y_param in opts.y_param:
@@ -227,7 +227,7 @@ for y_param in opts.y_param:
     coef_errors = []
     coef_ps = []
     coef_ts = []
-    for n in range(1,opts.nmax+1):
+    for n in range(1,opts.nx_max+1):
         for c in combinations(x_param,n):
             x_list = list(c)
             if len(x_list) > 1:
@@ -304,6 +304,6 @@ for y_param in opts.y_param:
                                                                                                             model_fs[indx],len(model_xs[indx])-1))
             for param in model_xs[indx]:
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
-            for n in range(len(model_xs[indx]),opts.nmax+1):
+            for n in range(len(model_xs[indx]),opts.nx_max+1):
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
             fp.write('\n')
