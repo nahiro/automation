@@ -237,7 +237,7 @@ for y_param in opts.y_param:
     coef_errors = []
     coef_ps = []
     coef_ts = []
-    for n in range(1,min(opts.nmax,nx)+1):
+    for n in range(1,opts.nmax+1):
         for c in combinations(x_param,n):
             x_list = list(c)
             X = sm.add_constant(X_all[x_list]) # adding a constant
