@@ -2,6 +2,7 @@
 import os
 import shutil
 import gdal
+import shapefile
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -137,35 +138,57 @@ if opts.debug:
     dst_shape = (dst_ny,dst_nx)
     dst_data = np.full((dst_nb,dst_ny,dst_nx),np.nan)
     dst_band = opts.y_param
+src_band_index = {}
+dst_band_index = {}
 for y_param in opts.y_param:
     if not y_param in src_band:
         raise ValueError('Error in finding {} in {}'.format(y_param,opts.src_geotiff))
-    iband = src_band.index(y_param)
-    out_data[y_param] = {}
-    for object_id in object_ids:
-        cnd1 = (mask_data == object_id)
-        d1 = src_data[iband,cnd1]
-        n1 = d1.size
-        if n1 < 1:
-            continue
+    src_band_index[y_param] = src_band.index(y_param)
+    dst_band_index[y_param] = dst_band.index(y_param)
+for object_id in object_ids:
+    cnd1 = (mask_data == object_id)
+    n1 = cnd1.sum()
+    if n1 < 1:
+        continue
+    data = []
+    flag = False
+    for y_param in opts.y_param:
+        src_iband = src_band_index[y_param]
+        dst_iband = dst_band_index[y_param]
+        d1 = src_data[src_iband,cnd1]
         cnd2 = np.isnan(d1)
         d2 = d1[cnd2]
         n2 = d2.size
         if n2/n1 > opts.rmax:
-            continue
-        if smax[y_param] == 1:
-            v = d1[~cnd2].mean()
+            data.append(np.nan)
         else:
-            v = d1[~cnd2].mean()/smax[y_param]
-        out_data[y_param][object_id] = v
-        if opts.debug:
-            dst_data[iband,cnd1] = v
+            if smax[y_param] == 1:
+                v = d1[~cnd2].mean()
+            else:
+                v = d1[~cnd2].mean()/smax[y_param]
+            data.append(v)
+            flag = True
+            if opts.debug:
+                dst_data[dst_iband,cnd1] = v
+    if flag:
+        out_data[object_id] = data
+
+# Output results
+with open(opts.out_csv,'w') as fp:
+    fp.write('{:>8s}'.format('OBJECTID'))
+    for y_param in opts.y_param:
+        fp.write(', {:>13s}'.format(y_param))
+    fp.write('\n')
+    for object_id in object_ids:
+        if object_id in out_data.keys():
+            fp.write('{:8d}'.format(object_id))
+            for y_param in opts.y_param:
+                fp.write(', {:>13.6e}'.format(out_data[object_id][dst_band_index[y_param]]))
+            fp.write('\n')
 
 if opts.shp_fnam is not None:
     r = shapefile.Reader(opts.shp_fnam)
-    if len(r) != nobject:
-        raise ValueError('Error, len(r)={}, nobject={}'.format(len(r),nobject))
-    w = shapefile.Writer(opts.outnam)
+    w = shapefile.Writer(opts.out_shp)
     w.shapeType = shapefile.POLYGON
     w.fields = r.fields[1:] # skip first deletion field
     for y_param in opts.y_param:
@@ -177,20 +200,12 @@ if opts.shp_fnam is not None:
             object_id = iobj+1
         else:
             object_id = getattr(rec,'OBJECTID')
-        data = []
-        flag = False
-        for y_param in opts.y_param:
-            if object_id in out_data[y_param]:
-                data.append(out_data[y_param][object_id])
-                flag = True
-            else:
-                data.append(np.nan)
-        if flag:
-            rec.extend(data)
+        if object_id in out_data:
+            rec.extend(out_data[object_id])
             w.shape(shp)
             w.record(*rec)
     w.close()
-    shutil.copy2(os.path.splitext(opts.shp_fnam)[0]+'.prj',os.path.splitext(opts.out_shp)+'.prj')
+    shutil.copy2(os.path.splitext(opts.shp_fnam)[0]+'.prj',os.path.splitext(opts.out_shp)[0]+'.prj')
 
 # For debug
 if opts.debug:
@@ -200,7 +215,7 @@ if opts.debug:
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.80)
     pdf = PdfPages(opts.fignam)
     for param in opts.y_param:
-        iband = dst_band.index(param)
+        iband = dst_band_index[param]
         data = dst_data[iband]*100.0
         fig.clear()
         ax1 = plt.subplot(111)
