@@ -164,7 +164,7 @@ if opts.debug:
     if not opts.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
-    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
+    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.80)
     pdf = PdfPages(opts.fignam)
     for param in opts.y_param:
         iband = dst_band.index(param)
@@ -197,7 +197,7 @@ if opts.debug:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
         ax2.set_ylabel('{} Intensity (%)'.format(param))
-        ax2.yaxis.set_label_coords(3.5,0.5)
+        ax2.yaxis.set_label_coords(4.5,0.5)
         if opts.remove_nan:
             src_indy,src_indx = np.indices(src_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
