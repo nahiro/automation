@@ -217,7 +217,7 @@ with open(opts.out_fnam,'w') as fp:
     for v in CRITERIAS:
         fp.write('{:>13s},'.format(v))
     fp.write('{:>13s},{:>2s}'.format('P','N'))
-    for n in range(min(opts.nmax,nx)+1):
+    for n in range(opts.nmax+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
 for y_param in opts.y_param:
@@ -303,6 +303,6 @@ for y_param in opts.y_param:
                                                                                                             model_fs[indx],len(model_xs[indx])))
             for param in model_xs[indx]:
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
-            for n in range(len(model_xs[indx]),min(opts.nmax,nx)+1):
+            for n in range(len(model_xs[indx]),opts.nmax+1):
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
             fp.write('\n')
