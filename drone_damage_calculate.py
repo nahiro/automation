@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import shutil
 import gdal
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,6 +32,7 @@ parser.add_option('-F','--fignam',default=None,help='Output figure name for debu
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
+parser.add_option('--use_index',default=False,action='store_true',help='Use index instead of OBJECTID (%default)')
 parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
@@ -158,7 +160,38 @@ for y_param in opts.y_param:
         out_data[y_param][object_id] = v
         if opts.debug:
             dst_data[iband,cnd1] = v
-    
+
+if opts.shp_fnam is not None:
+    r = shapefile.Reader(opts.shp_fnam)
+    if len(r) != nobject:
+        raise ValueError('Error, len(r)={}, nobject={}'.format(len(r),nobject))
+    w = shapefile.Writer(opts.outnam)
+    w.shapeType = shapefile.POLYGON
+    w.fields = r.fields[1:] # skip first deletion field
+    for y_param in opts.y_param:
+        w.field(y_param,'C',len(y_param),0)
+    for iobj,shaperec in enumerate(r.iterShapeRecords()):
+        rec = shaperec.record
+        shp = shaperec.shape
+        if opts.use_index:
+            object_id = iobj+1
+        else:
+            object_id = getattr(rec,'OBJECTID')
+        data = []
+        flag = False
+        for y_param in opts.y_param:
+            if object_id in out_data[y_param]:
+                data.append(out_data[y_param][object_id])
+                flag = True
+            else:
+                data.append(np.nan)
+        if flag:
+            rec.extend(data)
+            w.shape(shp)
+            w.record(*rec)
+    w.close()
+    shutil.copy2(os.path.splitext(opts.shp_fnam)[0]+'.prj',os.path.splitext(opts.out_shp)+'.prj')
+
 # For debug
 if opts.debug:
     if not opts.batch:
