@@ -66,7 +66,6 @@ for param in opts.x_param:
         raise ValueError('Error, priority of {} is not given.'.format(param))
 indx_param = [opts.x_priority.index(param) for param in opts.x_param]
 x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
-nx = len(x_param)
 if opts.y_threshold is None:
     opts.y_threshold = Y_THRESHOLD
 y_threshold = {}
@@ -204,15 +203,6 @@ if cnd.sum() > 0:
 X_all = X.copy()
 Y_all = Y.copy()
 
-# Eliminate multicollinearity
-for indx in reversed(range(1,nx)):
-    vif = variance_inflation_factor(X[x_param].values,indx)
-    if vif > opts.vmax:
-        del x_param[indx]
-nx = len(x_param)
-X_all = X[x_param]
-Y_all = Y.copy()
-
 # Make formulas
 with open(opts.out_fnam,'w') as fp:
     fp.write('{:>13s},'.format('Y'))
@@ -240,6 +230,15 @@ for y_param in opts.y_param:
     for n in range(1,opts.nmax+1):
         for c in combinations(x_param,n):
             x_list = list(c)
+            if len(x_list) > 1:
+                flag = False
+                for indx in range(len(x_list)):
+                    vif = variance_inflation_factor(X_all[x_list].values,indx)
+                    if vif > opts.vmax:
+                        flag = True
+                        break
+                if flag:
+                    continue # Eliminate multicollinearity
             X = sm.add_constant(X_all[x_list]) # adding a constant
             x_all = list(X.columns)
             model = sm.OLS(Y,X).fit()
@@ -297,8 +296,8 @@ for y_param in opts.y_param:
 
     # Output results
     with open(opts.out_fnam,'a') as fp:
-        fp.write('{:>13s},'.format(y_param))
         for indx in model_indx:
+            fp.write('{:>13s},'.format(y_param))
             fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
                                                                                                             model_rmse_train[indx],model_r2_train[indx],
                                                                                                             model_aic_train[indx],model_bic_train[indx],
