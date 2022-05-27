@@ -25,7 +25,7 @@ bands['e'] = 'RedEdge'
 bands['n'] = 'NIR'
 
 # Default values
-GPS_FNAM = 'gps_points.dat'
+CSV_FNAM = 'gps_points.dat'
 FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 1.0  # m
 POINT_SMIN = 0.08 # m
@@ -46,7 +46,7 @@ STHR = 2.0
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
-parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%default)')
+parser.add_option('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%default)')
 parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
 parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point size in m (%default)')
@@ -67,6 +67,7 @@ parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name (%defa
 parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp for debug (%default)')
+parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
 parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
 parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
 (opts,args) = parser.parse_args()
@@ -75,7 +76,7 @@ if not opts.rr_param in RR_PARAMS:
 if not opts.sr_param in SR_PARAMS:
     raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(opts.sr_param))
 if opts.ext_fnam is None:
-    bnam,enam = os.path.splitext(opts.gps_fnam)
+    bnam,enam = os.path.splitext(opts.csv_fnam)
     opts.ext_fnam = bnam+'_extract'+enam
 
 comments = ''
@@ -86,7 +87,7 @@ plot_bunch = []
 x_bunch = []
 y_bunch = []
 rest_bunch = []
-with open(opts.gps_fnam,'r') as fp:
+with open(opts.csv_fnam,'r') as fp:
     #Location, BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
     #           15,   1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
@@ -95,17 +96,14 @@ with open(opts.gps_fnam,'r') as fp:
         elif line[0] == '#':
             comments += line
             continue
-        elif re.search('[a-zA-Z]',line):
-            if header is None:
-                header = line # skip header
-                item = [s.strip() for s in header.split(',')]
-                if len(item) < 6:
-                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
-                if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
-                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
-                continue
-            else:
-                raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
+        elif not opts.header_none and header is None:
+            header = line # skip header
+            item = [s.strip() for s in header.split(',')]
+            if len(item) < 6:
+                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+            if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
+                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+            continue
         m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
             continue
@@ -135,7 +133,7 @@ for plot in plots:
     indx = indx_bunch[cnd]
     size_plot[plot] = len(indx)
     if size_plot[plot] < opts.bunch_nmin:
-        raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.gps_fnam))
+        raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.csv_fnam))
     loc_plot[plot] = loc_bunch[indx]
     number_plot[plot] = number_bunch[indx]
     rest_plot[plot] = rest_bunch[indx]
@@ -143,7 +141,7 @@ for plot in plots:
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
     if not np.all(np.argsort(number_plot[plot]) == indx_member): # wrong order
-        raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],opts.gps_fnam))
+        raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],opts.csv_fnam))
     flag = []
     for i_temp in indx_member:
         cnd = (indx_member != i_temp)
@@ -156,7 +154,7 @@ for plot in plots:
     inside_plot[plot] = indx[flag]
     removed_plot[plot] = indx[~flag]
     if len(inside_plot[plot]) < opts.bunch_nmin:
-        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),opts.gps_fnam))
+        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),opts.csv_fnam))
 
 if opts.debug:
     plt.interactive(True)
