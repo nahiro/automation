@@ -285,6 +285,8 @@ for y_param in opts.y_param:
                 x_list = [c[indx] for indx in np.argsort(r_list)[::-1]]
             X = sm.add_constant(X_all[x_list]) # adding a constant
             x_all = list(X.columns)
+            if len(X) <= len(x_all):
+                raise ValueError('Error, not enough data available >>> {}'.format(len(X_all)))
             model = sm.OLS(Y,X).fit()
             model_xs.append(x_all)
             model_rmse_train.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
