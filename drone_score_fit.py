@@ -233,8 +233,10 @@ for y_param in opts.y_param:
                         break
                 if flag:
                     continue # Eliminate multicollinearity
-                #indx_param = [opts.x_priority.index(param) for param in opts.x_param]
-                #x_param = [opts.x_param[indx] for indx in np.argsort(indx_param)]
+                r_list = []
+                for x in x_list:
+                    r_list.append(np.corrcoef(X_all[x],Y)[0,1])
+                x_list = [c[indx] for indx in np.argsort(r_list)[::-1]]
             X = sm.add_constant(X_all[x_list]) # adding a constant
             x_all = list(X.columns)
             model = sm.OLS(Y,X).fit()
