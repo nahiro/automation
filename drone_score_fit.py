@@ -21,7 +21,9 @@ X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
 VMAX = 5.0
+NX_MIN = 1
 NX_MAX = 2
+NCHECK_MIN = 1
 NMODEL_MAX = 3
 CRITERIA = 'RMSE_test'
 N_CROSS = 5
@@ -39,10 +41,12 @@ parser.add_option('--y_threshold',default=None,action='append',help='Threshold f
 parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
+parser.add_option('-n','--nx_min',default=NX_MIN,type='int',help='Min number of explanatory variable in a formula (%default)')
 parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
+parser.add_option('-m','--ncheck_min',default=NCHECK_MIN,type='int',help='Min number of explanatory variables for multico. check (%default)')
 parser.add_option('-M','--nmodel_max',default=NMODEL_MAX,type='int',help='Max number of formula (%default)')
 parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
-parser.add_option('-n','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
+parser.add_option('-c','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
 parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
 parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
 (opts,args) = parser.parse_args()
@@ -221,10 +225,10 @@ for y_param in opts.y_param:
     coef_errors = []
     coef_ps = []
     coef_ts = []
-    for n in range(1,opts.nx_max+1):
+    for n in range(opts.nx_min,opts.nx_max+1):
         for c in combinations(opts.x_param,n):
             x_list = list(c)
-            if len(x_list) > 1:
+            if len(x_list) > opts.ncheck_min:
                 flag = False
                 for indx in range(len(x_list)):
                     vif = variance_inflation_factor(X_all[x_list].values,indx)
