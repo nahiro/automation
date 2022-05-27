@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import os
+import zlib # import zlib before gdal to prevent segmentation fault when saving pdf
 import gdal
 import numpy as np
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import zlib # to prevent segmentation fault when saving pdf
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 

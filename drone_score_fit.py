@@ -49,6 +49,7 @@ parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%
 parser.add_option('-c','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
 parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
 parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
+parser.add_option('-u','--use_average',default=False,action='store_true',help='Use plot average (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
