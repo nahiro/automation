@@ -9,22 +9,23 @@ from optparse import OptionParser,IndentedHelpFormatter
 # Constants
 
 # Default values
-GPS_FNAM = 'gps_points.dat'
+CSV_FNAM = 'gps_points.dat'
 INNER_RADIUS = 0.2 # m
 OUTER_RADIUS = 0.5 # m
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
 parser.add_option('-I','--src_geotiff',default=None,action='append',help='Source GeoTIFF name (%default)')
-parser.add_option('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%default)')
+parser.add_option('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%default)')
 parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
 parser.add_option('-i','--inner_radius',default=INNER_RADIUS,type='float',help='Inner region radius in m (%default)')
 parser.add_option('-o','--outer_radius',default=OUTER_RADIUS,type='float',help='Outer region radius in m (%default)')
+parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
 (opts,args) = parser.parse_args()
 if opts.src_geotiff is None:
     raise ValueError('Error, opts.src_geotiff={}'.format(opts.src_geotiff))
 if opts.ext_fnam is None:
-    bnam,enam = os.path.splitext(opts.gps_fnam)
+    bnam,enam = os.path.splitext(opts.csv_fnam)
     opts.ext_fnam = bnam+'_values'+enam
 
 comments = ''
@@ -35,7 +36,7 @@ plot_bunch = []
 x_bunch = []
 y_bunch = []
 rest_bunch = []
-with open(opts.gps_fnam,'r') as fp:
+with open(opts.csv_fnam,'r') as fp:
     #Location, BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
     #           15,   1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
@@ -44,17 +45,14 @@ with open(opts.gps_fnam,'r') as fp:
         elif line[0] == '#':
             comments += line
             continue
-        elif re.search('[a-zA-Z]',line):
-            if header is None:
-                header = line # skip header
-                item = [s.strip() for s in header.split(',')]
-                if len(item) < 6:
-                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
-                if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
-                    raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
-                continue
-            else:
-                raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
+        elif not opts.header_none and header is None:
+            header = line # skip header
+            item = [s.strip() for s in header.split(',')]
+            if len(item) < 6:
+                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+            if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
+                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+            continue
         m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
             continue
@@ -137,7 +135,7 @@ elif len(opts.src_geotiff) == len(plots):
             size = len(indx)
             indx_member = np.arange(size)
             if not np.all(np.argsort(ng) == indx_member): # wrong order
-                raise ValueError('Error, plot={}, ng={} >>> {}'.format(plot,ng,opts.gps_fnam))
+                raise ValueError('Error, plot={}, ng={} >>> {}'.format(plot,ng,opts.csv_fnam))
             # Read Source GeoTIFF
             ds = gdal.Open(fnam)
             src_nx = ds.RasterXSize
