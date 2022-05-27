@@ -80,14 +80,15 @@ if opts.ext_fnam is None:
 
 comments = ''
 header = None
+loc_bunch = []
 number_bunch = []
 plot_bunch = []
 x_bunch = []
 y_bunch = []
 rest_bunch = []
 with open(opts.gps_fnam,'r') as fp:
-    #BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
-    #  1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
+    #Location, BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
+    #           15,   1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
         if len(line) < 1:
             continue
@@ -98,21 +99,23 @@ with open(opts.gps_fnam,'r') as fp:
             if header is None:
                 header = line # skip header
                 item = [s.strip() for s in header.split(',')]
-                if len(item) < 5:
+                if len(item) < 6:
                     raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
-                if item[0] != 'BunchNumber' or item[1] != 'PlotPaddy' or item[2] != 'Easting' or item[3] != 'Northing':
+                if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
                     raise ValueError('Error in header ({}) >>> {}'.format(opts.gps_fnam,header))
                 continue
             else:
                 raise ValueError('Error in reading {} >>> {}'.format(opts.gps_fnam,line))
-        m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
+        m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
             continue
-        number_bunch.append(int(m.group(1)))
-        plot_bunch.append(int(m.group(2)))
-        x_bunch.append(float(m.group(3)))
-        y_bunch.append(float(m.group(4)))
-        rest_bunch.append(m.group(5))
+        loc_bunch.append(m.group(1))
+        number_bunch.append(int(m.group(2)))
+        plot_bunch.append(int(m.group(3)))
+        x_bunch.append(float(m.group(4)))
+        y_bunch.append(float(m.group(5)))
+        rest_bunch.append(m.group(6))
+loc_bunch = np.array(loc_bunch)
 number_bunch = np.array(number_bunch)
 indx_bunch = np.arange(len(number_bunch))
 plot_bunch = np.array(plot_bunch)
@@ -122,6 +125,7 @@ rest_bunch = np.array(rest_bunch)
 
 plots = np.unique(plot_bunch)
 size_plot = {}
+loc_plot = {}
 number_plot = {}
 rest_plot = {}
 inside_plot = {}
@@ -132,6 +136,7 @@ for plot in plots:
     size_plot[plot] = len(indx)
     if size_plot[plot] < opts.bunch_nmin:
         raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.gps_fnam))
+    loc_plot[plot] = loc_bunch[indx]
     number_plot[plot] = number_bunch[indx]
     rest_plot[plot] = rest_bunch[indx]
     xg = x_bunch[indx]
@@ -402,7 +407,7 @@ for plot in plots:
             cnd_dist = (dist < opts.point_dmax)
     with open(opts.ext_fnam,'a') as fp:
         for i in range(size_plot[plot]):
-            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
+            fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
     cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
