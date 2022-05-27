@@ -20,6 +20,7 @@ OUT_FNAM = 'drone_score_fit.csv'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
+I_PARAM = ['Location','PlotPaddy',' Date']
 VMAX = 5.0
 NX_MIN = 1
 NX_MAX = 2
@@ -32,7 +33,7 @@ Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
 Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hopper:Hopper:1.0','Drought:Drought:1.0']
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
+parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=300))
 parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
 parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%default)')
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
@@ -40,6 +41,7 @@ parser.add_option('-y','--y_param',default=None,action='append',help='Objective 
 parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
 parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
+parser.add_option('-p','--i_param',default=None,action='append',help='Identification parameter ({})'.format(I_PARAM))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-n','--nx_min',default=NX_MIN,type='int',help='Min number of explanatory variable in a formula (%default)')
 parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
@@ -57,14 +59,14 @@ if not opts.criteria in CRITERIAS:
     raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
 if opts.x_param is None:
     opts.x_param = X_PARAM
+for param in opts.x_param:
+    if not param in PARAMS:
+        raise ValueError('Error, unknown explanatory variable for x_param >>> {}'.format(param))
 if opts.y_param is None:
     opts.y_param = Y_PARAM
 for param in opts.y_param:
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
-for param in opts.x_param:
-    if not param in PARAMS:
-        raise ValueError('Error, unknown explanatory variable for x_param >>> {}'.format(param))
 if opts.y_threshold is None:
     opts.y_threshold = Y_THRESHOLD
 y_threshold = {}
@@ -109,6 +111,8 @@ for s in opts.y_factor:
     if y_param in opts.y_param:
         if not np.isnan(value) and (param != y_param):
             y_factor[y_param][param] = value
+if opts.i_param is None:
+    opts.i_param = I_PARAM
 
 def llf(y_true,y_pred):
     n = len(y_pred)
