@@ -20,7 +20,7 @@ OUT_FNAM = 'drone_score_fit.csv'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
-I_PARAM = ['Location','PlotPaddy','Date']
+Q_PARAM = ['Location','PlotPaddy','Date']
 VMAX = 5.0
 NX_MIN = 1
 NX_MAX = 2
@@ -41,7 +41,7 @@ parser.add_option('-y','--y_param',default=None,action='append',help='Objective 
 parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
 parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
 parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
-parser.add_option('-p','--i_param',default=None,action='append',help='Identification parameter ({})'.format(I_PARAM))
+parser.add_option('-p','--q_param',default=None,action='append',help='Identification parameter ({})'.format(Q_PARAM))
 parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
 parser.add_option('-n','--nx_min',default=NX_MIN,type='int',help='Min number of explanatory variable in a formula (%default)')
 parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
@@ -111,8 +111,8 @@ for s in opts.y_factor:
     if y_param in opts.y_param:
         if not np.isnan(value) and (param != y_param):
             y_factor[y_param][param] = value
-if opts.i_param is None:
-    opts.i_param = I_PARAM
+if opts.q_param is None:
+    opts.q_param = Q_PARAM
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -157,7 +157,7 @@ for param in p_param:
     P[param] = []
 if opts.use_average:
     Q = {}
-    for param in opts.i_param:
+    for param in opts.q_param:
         Q[param] = []
 for fnam in opts.inp_fnam:
     df = pd.read_csv(fnam,comment='#')
@@ -175,7 +175,7 @@ for fnam in opts.inp_fnam:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         P[param].extend(list(df[param]))
     if opts.use_average:
-        for param in opts.i_param:
+        for param in opts.q_param:
             if not param in df.columns:
                 raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
             Q[param].extend(list(df[param]))
