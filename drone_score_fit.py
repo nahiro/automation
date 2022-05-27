@@ -34,6 +34,7 @@ Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hop
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=300))
+parser.add_option('-i','--inp_list',default=None,help='Input file list (%default)')
 parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
 parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%default)')
 parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
@@ -53,8 +54,8 @@ parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (
 parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
 parser.add_option('-u','--use_average',default=False,action='store_true',help='Use plot average (%default)')
 (opts,args) = parser.parse_args()
-if opts.inp_fnam is None:
-    raise ValueError('Error, opts.inp_fnam={}'.format(opts.inp_fnam))
+if opts.inp_list is None and opts.inp_fnam is None:
+    raise ValueError('Error, opts.inp_list={}, opts.inp_fnam={}'.format(opts.inp_list,opts.inp_fnam))
 if not opts.criteria in CRITERIAS:
     raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
 if opts.x_param is None:
@@ -134,6 +135,15 @@ def bic(y_true,y_pred,npar):
     return -2.0*llf(y_true,y_pred)+np.log(n)*npar
 
 # Read data
+if opts.inp_list is not None:
+    fnams = []
+    with open(opts.inp_list,'r') as fp:
+        for line in fp:
+            if (len(line) < 1) or (line[0] == '#'):
+                continue
+            fnams.append(line.rstrip())
+else:
+    fnams = opts.inp_fnam
 X = {}
 Y = {}
 P = {}
@@ -159,7 +169,7 @@ if opts.use_average:
     Q = {}
     for param in opts.q_param:
         Q[param] = []
-for fnam in opts.inp_fnam:
+for fnam in fnams:
     df = pd.read_csv(fnam,comment='#')
     df.columns = df.columns.str.strip()
     for param in opts.x_param:
