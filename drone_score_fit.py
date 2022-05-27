@@ -20,7 +20,7 @@ OUT_FNAM = 'drone_score_fit.csv'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
 X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
-I_PARAM = ['Location','PlotPaddy',' Date']
+I_PARAM = ['Location','PlotPaddy','Date']
 VMAX = 5.0
 NX_MIN = 1
 NX_MAX = 2
@@ -155,6 +155,10 @@ for param in opts.y_param:
     Y[param] = []
 for param in p_param:
     P[param] = []
+if opts.use_average:
+    Q = {}
+    for param in opts.i_param:
+        Q[param] = []
 for fnam in opts.inp_fnam:
     df = pd.read_csv(fnam,comment='#')
     df.columns = df.columns.str.strip()
@@ -170,9 +174,42 @@ for fnam in opts.inp_fnam:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         P[param].extend(list(df[param]))
+    if opts.use_average:
+        for param in opts.i_param:
+            if not param in df.columns:
+                raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
+            Q[param].extend(list(df[param]))
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
 P = pd.DataFrame(P)
+
+# Calculate means
+if opts.use_average:
+    X_avg = {}
+    Y_avg = {}
+    P_avg = {}
+    for param in opts.x_param:
+        X_avg[param] = []
+    for param in opts.y_param:
+        Y_avg[param] = []
+    for param in p_param:
+        P_avg[param] = []
+    Q = pd.DataFrame(Q)
+    Q_uniq = Q.drop_duplicates()
+    for i in range(len(Q_uniq)):
+        cnd = (Q == Q_uniq.iloc[i]).all(axis=1)
+        X_cnd = X[cnd].mean()
+        Y_cnd = Y[cnd].mean()
+        P_cnd = P[cnd].mean()
+        for param in opts.x_param:
+            X_avg[param].append(X_cnd[param])
+        for param in opts.y_param:
+            Y_avg[param].append(Y_cnd[param])
+        for param in p_param:
+            P_avg[param].append(P_cnd[param])
+    X = pd.DataFrame(X_avg)
+    Y = pd.DataFrame(Y_avg)
+    P = pd.DataFrame(P_avg)
 
 # Convert objective variable to damage intensity
 for y_param in opts.y_param:
