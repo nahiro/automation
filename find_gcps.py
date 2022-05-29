@@ -361,12 +361,12 @@ for trg_indyc in np.arange(opts.trg_indy_start,opts.trg_indy_stop,opts.trg_indy_
         scan_xp = []
         scan_yp = []
         scan_r = []
-        p1 = np.array([0.0,0.0])
+        p1 = np.array([opts.x0,opts.y0])
         rmax = -1.0e10
         for i in scan_indy:
-            dy = np.abs(trg_yp_stp)*i
+            dy = opts.y0+np.abs(trg_yp_stp)*i
             for j in scan_indx:
-                dx = np.abs(trg_xp_stp)*j
+                dx = opts.x0+np.abs(trg_xp_stp)*j
                 p2 = np.array([dx,dy])
                 r = RMAX-residuals(p2,ref_subset_xp0,ref_subset_yp0,ref_subset_data,ref_subset_mask,
                                   trg_subset_xp0,trg_subset_yp0,trg_subset_data,trg_pmax)[0]
@@ -387,9 +387,9 @@ for trg_indyc in np.arange(opts.trg_indy_start,opts.trg_indy_stop,opts.trg_indy_
                                             epsfcn=opts.feps,full_output=True)
         p2 = result[0]
         if not opts.use_edge:
-            if np.abs(p2[0]) >= np.abs(trg_xp_stp*(opts.shift_width-0.5)):
+            if np.abs(p2[0]-opts.x0) >= np.abs(trg_xp_stp*(opts.shift_width-0.5)):
                 continue
-            if np.abs(p2[1]) >= np.abs(trg_yp_stp*(opts.shift_height-0.5)):
+            if np.abs(p2[1]-opts.y0) >= np.abs(trg_yp_stp*(opts.shift_height-0.5)):
                 continue
         r = RMAX-result[2]['fvec'][0]
         if r > opts.rthr:
