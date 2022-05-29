@@ -113,10 +113,11 @@ def residuals(p,refx,refy,refz,refm,trgx,trgy,trgz,pmax,check=False):
         sys.stderr.write('{}\n'.format(p))
     if np.any(np.isnan(p)):
         return np.full(3,RMAX) # length = len(p)+1
-    elif np.any(np.abs(p) > pmax):
-        pdif = np.abs(p)-pmax
+    else:
+        pdif = np.abs([p[0]-opts.x0,p[1]-opts.y0])-pmax
         cnd = (pdif > 0.0)
-        return np.full(3,RMAX+pdif[cnd].sum()) # length = len(p)+1
+        if np.any(cnd):
+            return np.full(3,RMAX+pdif[cnd].sum()) # length = len(p)+1
     if opts.trg_blur_sigma is not None:
         f = RegularGridInterpolator((trgx+p[0],trgy[::-1]+p[1]),gaussian_filter_nan(trgz,sigma=opts.trg_blur_sigma)[::-1].T,method=opts.interp)
     else:
