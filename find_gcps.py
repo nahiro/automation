@@ -21,6 +21,8 @@ REF_BAND = 4 # WorldView Red
 TRG_BAND = 3 # Sentinel-2 Red
 SUBSET_WIDTH = 100 # pixel
 SUBSET_HEIGHT = 100 # pixel
+X0 = 0.0 # m
+Y0 = 0.0 # m
 SHIFT_WIDTH = 3 # pixel
 SHIFT_HEIGHT = 3 # pixel
 MARGIN_WIDTH = 5 # pixel
@@ -50,6 +52,8 @@ parser.add_option('-Y','--trg_indy_stop',default=None,type='int',help='Target st
 parser.add_option('-S','--trg_indy_step',default=None,type='int',help='Target step y index (half of subset_height)')
 parser.add_option('-W','--subset_width',default=SUBSET_WIDTH,type='int',help='Subset width in target pixel (%default)')
 parser.add_option('-H','--subset_height',default=SUBSET_HEIGHT,type='int',help='Subset height in target pixel (%default)')
+parser.add_option('--x0',default=X0,type='float',help='Initial x shift in m (%default)')
+parser.add_option('--y0',default=Y0,type='float',help='Initial y shift in m (%default)')
 parser.add_option('--shift_width',default=SHIFT_WIDTH,type='int',help='Max shift width in target pixel (%default)')
 parser.add_option('--shift_height',default=SHIFT_HEIGHT,type='int',help='Max shift height in target pixel (%default)')
 parser.add_option('--margin_width',default=MARGIN_WIDTH,type='int',help='Margin width in target pixel (%default)')
