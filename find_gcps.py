@@ -282,8 +282,8 @@ for trg_indyc in np.arange(opts.trg_indy_start,opts.trg_indy_stop,opts.trg_indy_
         continue
     if trg_indy2 > trg_height:
         break
-    ref_yp1 = trg_yp0[trg_indyc-subset_half_height] # yp1 > ypc
-    ref_yp2 = trg_yp0[trg_indyc+subset_half_height] # yp2 < ypc
+    ref_yp1 = trg_yp0[trg_indyc-subset_half_height]+opts.y0 # yp1 > ypc
+    ref_yp2 = trg_yp0[trg_indyc+subset_half_height]+opts.y0 # yp2 < ypc
     if ref_yp1 > ref_yp_max:
         continue
     if ref_yp2 < ref_yp_min:
@@ -303,8 +303,8 @@ for trg_indyc in np.arange(opts.trg_indy_start,opts.trg_indy_stop,opts.trg_indy_
             continue
         if trg_indx2 > trg_width:
             break
-        ref_xp1 = trg_xp0[trg_indxc-subset_half_width]
-        ref_xp2 = trg_xp0[trg_indxc+subset_half_width]
+        ref_xp1 = trg_xp0[trg_indxc-subset_half_width]+opts.x0
+        ref_xp2 = trg_xp0[trg_indxc+subset_half_width]+opts.x0
         if ref_xp1 < ref_xp_min:
             continue
         if ref_xp2 > ref_xp_max:
