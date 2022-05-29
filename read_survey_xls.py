@@ -5,7 +5,7 @@ import re
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from matplotlib.dates import date2num
+from matplotlib.dates import date2num,num2date
 import gdal
 import pyproj
 from subprocess import call
@@ -14,6 +14,8 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Defaults
 SHEET = 0
+RMAX = 10.0 # m
+NMIN = 20
 EPSG = 32748 # UTM zone 48S
 
 # Read options
@@ -21,10 +23,13 @@ parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,widt
 parser.add_option('-I','--inp_fnam',default=None,help='Input file name (%default)')
 parser.add_option('-O','--out_fnam',default=None,help='Output file name (%default)')
 parser.add_option('-S','--sheet',default=SHEET,type='int',help='Sheet number (%default)')
+parser.add_option('-r','--ref_fnam',default=None,help='CSV file for reference coordinates (%default)')
+parser.add_option('-R','--rmax',default=RMAX,type='float',help='Maximum distance from reference in m (%default)')
+parser.add_option('-n','--nmin',default=NMIN,type='int',help='Minimum number of points near the reference (%default)')
 parser.add_option('-E','--epsg',default=EPSG,help='Output EPSG (%default)')
 parser.add_option('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%default)')
 parser.add_option('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%default)')
-parser.add_option('-n','--geocor_npoly',default=None,type='int',help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
+parser.add_option('-N','--geocor_npoly',default=None,type='int',help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
 (opts,args) = parser.parse_args()
 
 def read_gps(s):
@@ -444,6 +449,31 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     y_bunch = y
     if os.path.exists(tmp_fnam):
         os.remove(tmp_fnam)
+
+if opts.ref_fnam is not None:
+    df = pd.read_csv(opts.ref_fnam,comment='#')
+    df.columns = df.columns.str.strip()
+    loc_ref = df['Location'].astype(str).str.lower().values
+    number_ref = df['BunchNumber'].values
+    plot_ref = df['PlotPaddy'].values
+    x_ref = df['Easting'].values
+    y_ref = df['Northing'].values
+    trans_ref = np.array([num2date(d).replace(tzinfo=None) for d in df['Date'].values])
+    if not np.all(loc_ref == location.lower()):
+        raise ValueError('Error, different Location >>> {}'.format(opts.ref_fnam))
+    elif not np.array_equal(number_ref,number_bunch):
+        raise ValueError('Error, different BunchNumber >>> {}'.format(opts.ref_fnam))
+    elif not np.array_equal(plot_ref,plot_bunch):
+        raise ValueError('Error, different PlotPaddy >>> {}'.format(opts.ref_fnam))
+    elif not np.all(trans_ref == dtim):
+        raise ValueError('Error, different Date >>> {}'.format(opts.ref_fnam))
+    r = np.sqrt(np.square(x_ref-np.array(x_bunch))+np.square(y_ref-np.array(y_bunch)))
+    cnd = (r < opts.rmax)
+    rcnd = r[cnd]
+    if rcnd.size < opts.nmin:
+        raise ValueError('Error, too few points near reference >>> {}'.format(rcnd.size))
+    x_bunch = list(x_ref)
+    y_bunch = list(y_ref)
 
 with open(opts.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
