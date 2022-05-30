@@ -264,7 +264,7 @@ if opts.debug:
     if not opts.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
-    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.80)
+    plt.subplots_adjust(top=0.9,bottom=0.12,left=0.18,right=0.95)
     pdf = PdfPages(opts.fignam)
 with open(opts.out_fnam,'w') as fp:
     fp.write('{:>13s},'.format('Y'))
@@ -364,6 +364,7 @@ for y_param in opts.y_param:
 
     # Output results
     with open(opts.out_fnam,'a') as fp:
+        y_number = 1
         for indx in model_indx[:opts.nmodel_max]:
             fp.write('{:>13s},'.format(y_param))
             fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
@@ -375,5 +376,36 @@ for y_param in opts.y_param:
             for n in range(len(model_xs[indx]),opts.nx_max+1):
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
             fp.write('\n')
+            if opts.debug:
+                x_list = []
+                Y_pred = 0.0
+                for param in model_xs[indx]:
+                    param_low = param.lower()
+                    if param_low == 'none':
+                        continue
+                    elif param_low == 'const':
+                        Y_pred += coef_values[indx][param]
+                    else:
+                        x_list.append(param)
+                        Y_pred += coef_values[indx][param]*X_all[param].values
+                title = 'Model #{} ({})'.format(y_number,','.join(x_list))
+                fig.clear()
+                ax1 = plt.subplot(111)
+                ax1.minorticks_on()
+                ax1.plot(Y,Y_pred,'bo')
+                xmin = min(Y.min(),Y_pred.min())
+                xmax = max(Y.max(),Y_pred.max())
+                ax1.set_xlim(xmin,xmax)
+                ax1.set_ylim(xmin,xmax)
+                ax1.set_title(title)
+                ax1.set_xlabel('{} (true)'.format(y_param))
+                ax1.set_ylabel('{} (pred)'.format(y_param))
+                ax1.xaxis.set_tick_params(pad=7)
+                ax1.yaxis.set_label_coords(-0.14,0.5)
+                plt.savefig(pdf,format='pdf')
+                if not opts.batch:
+                    plt.draw()
+                    plt.pause(0.1)
+            y_number += 1
 if opts.debug:
     pdf.close()
