@@ -30,8 +30,10 @@ FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 1.0  # m
 POINT_DMAX = 1.0  # m
 POINT_LWID = 0.5  # m
-POINT_SMIN = 0.08 # m
-POINT_SMAX = 0.45 # m
+#POINT_SMIN = 0.08 # m
+#POINT_SMAX = 0.45 # m
+POINT_SMIN = 0.015 # m2
+POINT_SMAX = 0.105 # m2
 POINT_AREA = 0.05 # m2
 POINT_NMIN = 5
 BUNCH_RMAX = 10.0 # m
@@ -41,7 +43,7 @@ RR_PARAM = 'Lrg'
 SR_PARAM = 'Nr'
 RTHR = 1.0
 RSTP = 0.01
-STHR = 2.0
+STHR = 1.0
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -301,11 +303,13 @@ for plot in plots:
         num = len(number_point)
         if num < opts.point_nmin:
             continue
+        area_point = np.array(number_point)*np.abs(rr_xstp*rr_ystp)
         indexes_to_be_removed = []
         for i_point in range(len(number_point)):
-            xwid = xmax_point[i_point]-xmin_point[i_point]
-            ywid = ymax_point[i_point]-ymin_point[i_point]
-            if (xwid < opts.point_smin) or (xwid > opts.point_smax) or (ywid < opts.point_smin) or (ywid > opts.point_smax):
+            #xwid = xmax_point[i_point]-xmin_point[i_point]
+            #ywid = ymax_point[i_point]-ymin_point[i_point]
+            #if (xwid < opts.point_smin) or (xwid > opts.point_smax) or (ywid < opts.point_smin) or (ywid > opts.point_smax):
+            if (area_point[i_point] < opts.point_smin) or (area_point[i_point] > opts.point_smax):
                 indexes_to_be_removed.append(i_point)
         for indx in sorted(indexes_to_be_removed,reverse=True):
             del number_point[indx]
@@ -315,6 +319,7 @@ for plot in plots:
             del ymax_point[indx]
             del x_point[indx]
             del y_point[indx]
+            area_point = np.delete(area_point,indx)
         num = len(number_point)
         if num < opts.point_nmin:
             continue
@@ -336,12 +341,12 @@ for plot in plots:
                 indx_select = indx_point
                 break
             elif n > nmax:
-                r = np.sqrt((dist*dist).mean())
+                r = np.sqrt(np.square(dist[cnd]).mean())
                 nmax = n
                 rmin = r
                 indx_select = np.sort(np.append(indx_comb,indx_others[cnd]))
             elif n == nmax:
-                r = np.sqrt((dist*dist).mean())
+                r = np.sqrt(np.square(dist[cnd]).mean())
                 if r < rmin:
                     rmin = r
                     indx_select = np.sort(np.append(indx_comb,indx_others[cnd]))
@@ -378,12 +383,12 @@ for plot in plots:
             del ymax_point[indx]
             del x_point[indx]
             del y_point[indx]
+            area_point = np.delete(area_point,indx)
             xctr_point = np.delete(xctr_point,indx)
             yctr_point = np.delete(yctr_point,indx)
         num = len(number_point)
         if num >= size_plot[plot]:
             if num > size_plot[plot]:
-                area_point = np.array(number_point)*np.abs(rr_xstp*rr_ystp)
                 indexes_to_be_removed = np.argsort(np.abs(area_point-opts.point_area))[size_plot[plot]:]
                 for indx in sorted(indexes_to_be_removed,reverse=True):
                     del number_point[indx]
@@ -393,6 +398,7 @@ for plot in plots:
                     del ymax_point[indx]
                     del x_point[indx]
                     del y_point[indx]
+                    area_point = np.delete(area_point,indx)
                     xctr_point = np.delete(xctr_point,indx)
                     yctr_point = np.delete(yctr_point,indx)
             prod = (xctr_point-xo_point)*xd_point+(yctr_point-yo_point)*yd_point
@@ -407,7 +413,10 @@ for plot in plots:
         for i in range(size_plot[plot]):
             fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
-    cnd = cnd_sr & cnd_dist
+    if cnd_dist is None:
+        cnd = cnd_sr
+    else:
+        cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
 
     if opts.debug:
