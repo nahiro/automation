@@ -12,11 +12,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
+PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
 
 # Default values
 CSV_FNAM = 'gps_points.dat'
 INNER_RADIUS = 0.2 # m
 OUTER_RADIUS = 0.5 # m
+PARAM = ['Nr']
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -26,6 +28,7 @@ parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%defau
 parser.add_option('-i','--inner_radius',default=INNER_RADIUS,type='float',help='Inner region radius in m (%default)')
 parser.add_option('-o','--outer_radius',default=OUTER_RADIUS,type='float',help='Outer region radius in m (%default)')
 parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
+parser.add_option('-p','--param',default=None,action='append',help='Output parameter for debug ({})'.format(PARAM))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
@@ -42,6 +45,20 @@ if opts.ext_fnam is None or opts.fignam is None:
         opts.ext_fnam = bnam+'_values'+enam
     if opts.fignam is None:
         opts.fignam = bnam+'_values.pdf'
+if opts.param is None:
+    opts.param = PARAM
+for param in opts.param:
+    if not param in PARAMS:
+        raise ValueError('Error, unknown parameter >>> {}'.format(param))
+if opts.ax1_zmin is not None:
+    while len(opts.ax1_zmin) < len(opts.param):
+        opts.ax1_zmin.append(opts.ax1_zmin[-1])
+if opts.ax1_zmax is not None:
+    while len(opts.ax1_zmax) < len(opts.param):
+        opts.ax1_zmax.append(opts.ax1_zmax[-1])
+if opts.ax1_zstp is not None:
+    while len(opts.ax1_zstp) < len(opts.param):
+        opts.ax1_zstp.append(opts.ax1_zstp[-1])
 
 comments = ''
 header = None

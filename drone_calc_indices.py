@@ -49,8 +49,16 @@ parser.add_option('-b','--batch',default=False,action='store_true',help='Batch m
 (opts,args) = parser.parse_args()
 if opts.param is None:
     opts.param = PARAM
+for param in opts.param:
+    if not param in PARAMS:
+        raise ValueError('Error, unknown parameter >>> {}'.format(param))
 if opts.norm_band is None:
     opts.norm_band = NORM_BAND
+for band in opts.norm_band:
+    if not band in bands.keys():
+        raise ValueError('Error, unknown band for normalization >>> {}'.format(band))
+if not opts.rgi_red_band in bands.keys():
+    raise ValueError('Error, unknown band for rgi >>> {}'.format(opts.rgi_red_band))
 if opts.ax1_zmin is not None:
     while len(opts.ax1_zmin) < len(opts.param):
         opts.ax1_zmin.append(opts.ax1_zmin[-1])
@@ -60,14 +68,6 @@ if opts.ax1_zmax is not None:
 if opts.ax1_zstp is not None:
     while len(opts.ax1_zstp) < len(opts.param):
         opts.ax1_zstp.append(opts.ax1_zstp[-1])
-for param in opts.param:
-    if not param in PARAMS:
-        raise ValueError('Error, unknown parameter >>> {}'.format(param))
-for band in opts.norm_band:
-    if not band in bands.keys():
-        raise ValueError('Error, unknown band for normalization >>> {}'.format(band))
-if not opts.rgi_red_band in bands.keys():
-    raise ValueError('Error, unknown band for rgi >>> {}'.format(opts.rgi_red_band))
 if opts.dst_geotiff is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.src_geotiff)
     if opts.dst_geotiff is None:
