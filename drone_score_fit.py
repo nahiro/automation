@@ -162,6 +162,9 @@ for param in OBJECTS:
             p_param.append('Tiller')
         p_param.append(param)
 for y_param in opts.y_param:
+    if not y_param in y_max.keys():
+        if not 'Tiller' in p_param:
+            p_param.append('Tiller')
     for param in y_factor[y_param].keys():
         if not param in p_param:
             p_param.append(param)
@@ -396,15 +399,19 @@ for y_param in opts.y_param:
                     ax1.plot(Y*y_max[y_param],Y_pred*y_max[y_param],'bo')
                     xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
                     xmax = max(Y.max(),Y_pred.max())*y_max[y_param]
+                    x_label = '{} Score true '.format(y_param)
+                    y_label = '{} Score pred '.format(y_param)
                 else:
-                    ax1.plot(Y,Y_pred,'bo')
-                    xmin = min(Y.min(),Y_pred.min())
-                    xmax = max(Y.max(),Y_pred.max())
+                    ax1.plot(Y*100.0,Y_pred*100.0,'bo')
+                    xmin = min(Y.min(),Y_pred.min())*100.0
+                    xmax = max(Y.max(),Y_pred.max())*100.0
+                    x_label = '{} Intensity true (%) '.format(y_param)
+                    y_label = '{} Intensity pred (%) '.format(y_param)
                 ax1.set_xlim(xmin,xmax)
                 ax1.set_ylim(xmin,xmax)
                 ax1.set_title(title)
-                ax1.set_xlabel('{} (true)'.format(y_param))
-                ax1.set_ylabel('{} (pred)'.format(y_param))
+                ax1.set_xlabel(x_label)
+                ax1.set_ylabel(y_label)
                 ax1.xaxis.set_tick_params(pad=7)
                 ax1.yaxis.set_label_coords(-0.14,0.5)
                 plt.savefig(pdf,format='pdf')
