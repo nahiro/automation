@@ -399,14 +399,14 @@ for y_param in opts.y_param:
                     ax1.plot(Y*y_max[y_param],Y_pred*y_max[y_param],'bo')
                     xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
                     xmax = max(Y.max(),Y_pred.max())*y_max[y_param]
-                    x_label = '{} Score true '.format(y_param)
-                    y_label = '{} Score pred '.format(y_param)
+                    x_label = 'True {} Score'.format(y_param)
+                    y_label = 'Pred {} Score'.format(y_param)
                 else:
                     ax1.plot(Y*100.0,Y_pred*100.0,'bo')
                     xmin = min(Y.min(),Y_pred.min())*100.0
                     xmax = max(Y.max(),Y_pred.max())*100.0
-                    x_label = '{} Intensity true (%) '.format(y_param)
-                    y_label = '{} Intensity pred (%) '.format(y_param)
+                    x_label = 'True {} Intensity (%) '.format(y_param)
+                    y_label = 'Pred {} Intensity (%) '.format(y_param)
                 ax1.set_xlim(xmin,xmax)
                 ax1.set_ylim(xmin,xmax)
                 ax1.set_title(title)
