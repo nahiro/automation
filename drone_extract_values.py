@@ -42,6 +42,7 @@ parser.add_option('-o','--outer_radius',default=OUTER_RADIUS,type='float',help='
 parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
 parser.add_option('-p','--param',default=None,action='append',help='Output parameter for debug ({})'.format(PARAM))
 parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
+parser.add_option('-c','--marker_color',default=None,action='append',help='Marker color for debug (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
 parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
@@ -71,6 +72,9 @@ if opts.ax1_zmax is not None:
 if opts.ax1_zstp is not None:
     while len(opts.ax1_zstp) < len(opts.param):
         opts.ax1_zstp.append(opts.ax1_zstp[-1])
+if opts.marker_color is not None:
+    while len(opts.marker_color) < len(opts.param):
+        opts.marker_color.append(opts.marker_color[-1])
 
 comments = ''
 header = None
@@ -247,6 +251,10 @@ elif len(opts.src_geotiff) == len(plots):
                         im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
                     else:
                         im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+                    if opts.marker_color is not None:
+                        ax1.plot(xg,yg,'o',ms=10,mfc='none',mec=opts.marker_color[i])
+                    else:
+                        ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
                     ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
