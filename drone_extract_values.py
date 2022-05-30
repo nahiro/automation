@@ -13,6 +13,18 @@ from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
+bands = {}
+bands['b'] = 'Blue'
+bands['g'] = 'Green'
+bands['r'] = 'Red'
+bands['e'] = 'RedEdge'
+bands['n'] = 'NIR'
+pnams = {}
+for band in bands.keys():
+    pnams['S'+band] = bands[band]
+    pnams['N'+band] = 'Normalized '+bands[band]
+for param in ['NDVI','GNDVI','RGI','NRGI']:
+    pnams[param] = param
 
 # Default values
 CSV_FNAM = 'gps_points.dat'
@@ -251,7 +263,7 @@ elif len(opts.src_geotiff) == len(plots):
                     else:
                         ax2 = plt.colorbar(im,cax=cax).ax
                     ax2.minorticks_on()
-                    ax2.set_ylabel(param)
+                    ax2.set_ylabel(pnams[param])
                     ax2.yaxis.set_label_coords(3.5,0.5)
                     if opts.remove_nan:
                         src_indy,src_indx = np.indices(src_shape)
