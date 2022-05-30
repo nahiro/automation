@@ -17,6 +17,7 @@ from optparse import OptionParser,IndentedHelpFormatter
 # Constants
 RR_PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn']
 SR_PARAMS = ['Nr','Br']
+CRITERIAS = ['Distance','Area']
 bands = {}
 bands['b'] = 'Blue'
 bands['g'] = 'Green'
@@ -45,6 +46,7 @@ RTHR_MIN = 0.0
 RTHR_MAX = 1.0
 RSTP = 0.01
 STHR = 1.0
+CRITERIA = 'Distance'
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
@@ -67,6 +69,7 @@ parser.add_option('-t','--rthr_min',default=RTHR_MIN,type='float',help='Min thre
 parser.add_option('-T','--rthr_max',default=RTHR_MAX,type='float',help='Max threshold of redness ratio (%default)')
 parser.add_option('-r','--rstp',default=RSTP,type='float',help='Threshold step of redness ratio (%default)')
 parser.add_option('-S','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
+parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
@@ -79,6 +82,8 @@ if not opts.rr_param in RR_PARAMS:
     raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(opts.rr_param))
 if not opts.sr_param in SR_PARAMS:
     raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(opts.sr_param))
+if not opts.criteria in CRITERIAS:
+    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
 if opts.ext_fnam is None:
     bnam,enam = os.path.splitext(opts.csv_fnam)
     opts.ext_fnam = bnam+'_extract'+enam
@@ -393,7 +398,13 @@ for plot in plots:
         num = len(number_point)
         if num >= size_plot[plot]:
             if num > size_plot[plot]:
-                indexes_to_be_removed = np.argsort(np.abs(area_point-opts.point_area))[size_plot[plot]:]
+                if opts.criteria == 'Area':
+                    indexes_to_be_removed = np.argsort(np.abs(area_point-opts.point_area))[size_plot[plot]:]
+                elif opts.criteria == 'Distance':
+                    dist_point = np.abs(coef[0]*xctr_point-yctr_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
+                    indexes_to_be_removed = np.argsort(dist_point)[size_plot[plot]:]
+                else:
+                    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
                 for indx in sorted(indexes_to_be_removed,reverse=True):
                     del number_point[indx]
                     del xmin_point[indx]
