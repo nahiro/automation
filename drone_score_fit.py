@@ -8,6 +8,8 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import r2_score,mean_squared_error
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
@@ -31,6 +33,7 @@ N_CROSS = 5
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
 Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
 Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hopper:Hopper:1.0','Drought:Drought:1.0']
+FIGNAM = 'drone_score_fit.pdf'
 
 # Read options
 parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=300))
@@ -52,7 +55,10 @@ parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%
 parser.add_option('-c','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
 parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
 parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
+parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
 parser.add_option('-u','--use_average',default=False,action='store_true',help='Use plot average (%default)')
+parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
+parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.inp_list is None and opts.inp_fnam is None:
     raise ValueError('Error, opts.inp_list={}, opts.inp_fnam={}'.format(opts.inp_list,opts.inp_fnam))
@@ -254,6 +260,12 @@ X_all = X.copy()
 Y_all = Y.copy()
 
 # Make formulas
+if opts.debug:
+    if not opts.batch:
+        plt.interactive(True)
+    fig = plt.figure(1,facecolor='w',figsize=(5,5))
+    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.80)
+    pdf = PdfPages(opts.fignam)
 with open(opts.out_fnam,'w') as fp:
     fp.write('{:>13s},'.format('Y'))
     for v in CRITERIAS:
@@ -363,3 +375,5 @@ for y_param in opts.y_param:
             for n in range(len(model_xs[indx]),opts.nx_max+1):
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
             fp.write('\n')
+if opts.debug:
+    pdf.close()
