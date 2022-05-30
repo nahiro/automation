@@ -349,4 +349,5 @@ if opts.debug:
         plt.savefig(pdf,format='pdf')
         if not opts.batch:
             plt.draw()
+            plt.pause(0.1)
     pdf.close()

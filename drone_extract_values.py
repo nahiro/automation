@@ -174,6 +174,66 @@ if len(opts.src_geotiff) == 1:
                     raise ValueError('Error, no data for Plot#{}, Bunch#{} ({}) >>> {}'.format(plot_bunch[i],number_bunch[i],src_band[iband],fnam))
                 fp.write(', {:13.6e}'.format(dcnd.mean()))
             fp.write('\n')
+    # For debug
+    if opts.debug:
+        for i,param in enumerate(opts.param):
+            iband = src_band.index(param)
+            fig.clear()
+            ax1 = plt.subplot(111)
+            ax1.set_xticks([])
+            ax1.set_yticks([])
+            if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
+                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            elif opts.ax1_zmin is not None:
+                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],cmap=cm.jet,interpolation='none')
+            elif opts.ax1_zmax is not None:
+                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+            else:
+                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            if opts.marker_color is not None:
+                ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec=opts.marker_color[i])
+            else:
+                ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec='k')
+            ax1.set_title('Location: {}'.format(loc_bunch[0]))
+            divider = make_axes_locatable(ax1)
+            cax = divider.append_axes('right',size='5%',pad=0.05)
+            if opts.ax1_zstp is not None:
+                if opts.ax1_zmin is not None:
+                    zmin = min((np.floor(np.nanmin(src_data[iband])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i],opts.ax1_zmin[i])
+                else:
+                    zmin = (np.floor(np.nanmin(src_data[iband])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i]
+                if opts.ax1_zmax is not None:
+                    zmax = max(np.nanmax(src_data[iband]),opts.ax1_zmax[i]+0.1*opts.ax1_zstp[i])
+                else:
+                    zmax = np.nanmax(src_data[iband])+0.1*opts.ax1_zstp[i]
+                ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp[i])).ax
+            else:
+                ax2 = plt.colorbar(im,cax=cax).ax
+            ax2.minorticks_on()
+            ax2.set_ylabel(pnams[param])
+            ax2.yaxis.set_label_coords(3.5,0.5)
+            if opts.remove_nan:
+                src_indy,src_indx = np.indices(src_shape)
+                src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
+                src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
+                cnd = ~np.isnan(src_data[iband])
+                xp = src_xp[cnd]
+                yp = src_yp[cnd]
+                fig_xmin = xp.min()
+                fig_xmax = xp.max()
+                fig_ymin = yp.min()
+                fig_ymax = yp.max()
+            else:
+                fig_xmin = src_xmin
+                fig_xmax = src_xmax
+                fig_ymin = src_ymin
+                fig_ymax = src_ymax
+            ax1.set_xlim(fig_xmin,fig_xmax)
+            ax1.set_ylim(fig_ymin,fig_ymax)
+            plt.savefig(pdf,format='pdf')
+            if not opts.batch:
+                plt.draw()
+                plt.pause(0.1)
 elif len(opts.src_geotiff) == len(plots):
     with open(opts.ext_fnam,'w') as fp:
         if len(comments) > 0:
