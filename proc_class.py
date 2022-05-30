@@ -364,6 +364,10 @@ class Process:
                 self.center_var[pnam] = []
                 for j in range(self.list_sizes[pnam]):
                     self.center_var[pnam].append(tk.StringVar())
+            elif self.param_types[pnam] == 'int_select_list':
+                self.center_var[pnam] = []
+                for j in range(self.list_sizes[pnam]):
+                    self.center_var[pnam].append(tk.IntVar())
             else:
                 raise ValueError('Error, unsupported parameter type ({}) >>> {}'.format(pnam,self.param_types[pnam]))
             if '_list' in self.input_types[pnam]:
