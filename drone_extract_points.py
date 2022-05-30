@@ -28,10 +28,10 @@ bands['n'] = 'NIR'
 CSV_FNAM = 'gps_points.dat'
 FIGNAM = 'drone_extract_points.pdf'
 PIXEL_RMAX = 1.0  # m
-POINT_SMIN = 0.08 # m
-POINT_SMAX = 0.45 # m
 POINT_DMAX = 1.0  # m
 POINT_LWID = 0.5  # m
+POINT_SMIN = 0.08 # m
+POINT_SMAX = 0.45 # m
 POINT_AREA = 0.05 # m2
 POINT_NMIN = 5
 BUNCH_RMAX = 10.0 # m
@@ -49,10 +49,10 @@ parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%
 parser.add_option('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%default)')
 parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
 parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
-parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point size in m (%default)')
-parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point size in m (%default)')
 parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maximum distance of a point from the fit line in m (%default)')
 parser.add_option('-W','--point_lwid',default=POINT_LWID,type='float',help='Maximum distance of a point from the selected line in m (%default)')
+parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point area in m2 (%default)')
+parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point area in m2 (%default)')
 parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
 parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
 parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
