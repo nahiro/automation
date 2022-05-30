@@ -392,9 +392,14 @@ for y_param in opts.y_param:
                 fig.clear()
                 ax1 = plt.subplot(111)
                 ax1.minorticks_on()
-                ax1.plot(Y,Y_pred,'bo')
-                xmin = min(Y.min(),Y_pred.min())
-                xmax = max(Y.max(),Y_pred.max())
+                if y_param in y_max.keys():
+                    ax1.plot(Y*y_max[y_param],Y_pred*y_max[y_param],'bo')
+                    xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
+                    xmax = max(Y.max(),Y_pred.max())*y_max[y_param]
+                else:
+                    ax1.plot(Y,Y_pred,'bo')
+                    xmin = min(Y.min(),Y_pred.min())
+                    xmax = max(Y.max(),Y_pred.max())
                 ax1.set_xlim(xmin,xmax)
                 ax1.set_ylim(xmin,xmax)
                 ax1.set_title(title)
