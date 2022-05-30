@@ -2,8 +2,13 @@
 import os
 import sys
 import re
+import zlib # import zlib before gdal to prevent segmentation fault when saving pdf
 import gdal
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser,IndentedHelpFormatter
 
 # Constants
@@ -21,12 +26,22 @@ parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%defau
 parser.add_option('-i','--inner_radius',default=INNER_RADIUS,type='float',help='Inner region radius in m (%default)')
 parser.add_option('-o','--outer_radius',default=OUTER_RADIUS,type='float',help='Outer region radius in m (%default)')
 parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
+parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
+parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
+parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
+parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
+parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
+parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
+parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
 (opts,args) = parser.parse_args()
 if opts.src_geotiff is None:
     raise ValueError('Error, opts.src_geotiff={}'.format(opts.src_geotiff))
-if opts.ext_fnam is None:
+if opts.ext_fnam is None or opts.fignam is None:
     bnam,enam = os.path.splitext(opts.csv_fnam)
-    opts.ext_fnam = bnam+'_values'+enam
+    if opts.ext_fnam is None:
+        opts.ext_fnam = bnam+'_values'+enam
+    if opts.fignam is None:
+        opts.fignam = bnam+'_values.pdf'
 
 comments = ''
 header = None
@@ -71,6 +86,12 @@ y_bunch = np.array(y_bunch)
 rest_bunch = np.array(rest_bunch)
 plots = np.unique(plot_bunch)
 
+if opts.debug:
+    if not opts.batch:
+        plt.interactive(True)
+    fig = plt.figure(1,facecolor='w',figsize=(5,5))
+    plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
+    pdf = PdfPages(opts.fignam)
 if len(opts.src_geotiff) == 1:
     # Read Source GeoTIFF
     fnam = opts.src_geotiff[0]
@@ -183,3 +204,5 @@ elif len(opts.src_geotiff) == len(plots):
                 fp.write('\n')
 else:
     raise ValueError('Error, len(opts.src_geotiff)={}'.format(len(opts.src_geotiff)))
+if opts.debug:
+    pdf.close()
