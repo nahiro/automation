@@ -116,7 +116,7 @@ with open(opts.csv_fnam,'r') as fp:
         m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
             continue
-        loc_bunch.append(m.group(1))
+        loc_bunch.append(m.group(1).strip())
         number_bunch.append(int(m.group(2)))
         plot_bunch.append(int(m.group(3)))
         x_bunch.append(float(m.group(4)))
