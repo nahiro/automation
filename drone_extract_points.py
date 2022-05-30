@@ -41,7 +41,8 @@ BUNCH_EMAX = 2.0  # sigma
 BUNCH_NMIN = 5
 RR_PARAM = 'Lrg'
 SR_PARAM = 'Nr'
-RTHR = 1.0
+RTHR_MIN = 0.0
+RTHR_MAX = 1.0
 RSTP = 0.01
 STHR = 1.0
 
@@ -62,9 +63,10 @@ parser.add_option('--bunch_emax',default=BUNCH_EMAX,type='float',help='Maximum d
 parser.add_option('--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
 parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
 parser.add_option('-P','--sr_param',default=SR_PARAM,help='Signal ratio parameter (%default)')
-parser.add_option('-t','--rthr',default=RTHR,type='float',help='Max threshold of redness ratio (%default)')
+parser.add_option('-t','--rthr_min',default=RTHR_MIN,type='float',help='Min threshold of redness ratio (%default)')
+parser.add_option('-T','--rthr_max',default=RTHR_MAX,type='float',help='Max threshold of redness ratio (%default)')
 parser.add_option('-r','--rstp',default=RSTP,type='float',help='Threshold step of redness ratio (%default)')
-parser.add_option('-T','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
+parser.add_option('-S','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
 parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name (%default)')
 parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
 parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
@@ -244,9 +246,11 @@ for plot in plots:
         xd_bunch,yd_bunch = np.negative([xd_bunch,yd_bunch])
     # Search points
     cnd_dist = None
-    rthr = opts.rthr
+    rthr = opts.rthr_max
     while True:
-        if cnd_dist is None:
+        if rthr < opts.rthr_min:
+            raise ValueError('Error in searching point, rthr={}'.format(rthr))
+        elif cnd_dist is None:
             cnd_all = cnd_sr & (rr > rthr)
         else:
             cnd_all = cnd_sr & cnd_dist & (rr > rthr)
