@@ -367,22 +367,20 @@ for plot in plots:
     x,y = transform_wgs84_to_utm(lon_plot[plot],lat_plot[plot])
     x_plot[plot] = x
     y_plot[plot] = y
-date_plot = {}
-dtim_plot = {}
+plant_plot = {}
 for plot in plots:
     # Plot 1. 04.01.2022 Plot 2. 04.01.2022 Plot 3. 04.01.2022
     m = re.search('Plot\s*{}[\D]+([\d\.]+)\s*'.format(plot),trans_date)
     if m:
-        date_plot[plot] = m.group(1)
-        dtim_plot[plot] = datetime.strptime(date_plot[plot],'%d.%m.%Y')
+        plant_plot[plot] = datetime.strptime(m.group(1),'%d.%m.%Y')
         continue
     # 26 Desember 2021
     m = re.search('(\d+)\s*(\D+)\s*(\d+)',trans_date)
     if m:
-        date_plot[plot] = trans_date
-        dtim_plot[plot] = datetime(int(m.group(3)),read_month(m.group(2)),int(m.group(1)))
+        plant_plot[plot] = datetime(int(m.group(3)),read_month(m.group(2)),int(m.group(1)))
         continue
     raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
+plant_bunch = [plant_plot[plot] for plot in plot_bunch]
 
 if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     bnam,enam = os.path.splitext(opts.out_fnam)
@@ -458,15 +456,15 @@ if opts.ref_fnam is not None:
     plot_ref = df['PlotPaddy'].values
     x_ref = df['Easting'].values
     y_ref = df['Northing'].values
-    trans_ref = np.array([num2date(d).replace(tzinfo=None) for d in df['Date'].values])
+    plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
     if not np.all(loc_ref == location.lower()):
         raise ValueError('Error, different Location >>> {}'.format(opts.ref_fnam))
     elif not np.array_equal(number_ref,number_bunch):
         raise ValueError('Error, different BunchNumber >>> {}'.format(opts.ref_fnam))
     elif not np.array_equal(plot_ref,plot_bunch):
         raise ValueError('Error, different PlotPaddy >>> {}'.format(opts.ref_fnam))
-    elif not np.all(trans_ref == dtim):
-        raise ValueError('Error, different Date >>> {}'.format(opts.ref_fnam))
+    elif not np.array_equal(plant_ref,plant_bunch):
+        raise ValueError('Error, different PlantDate >>> {}'.format(opts.ref_fnam))
     r = np.sqrt(np.square(x_ref-np.array(x_bunch))+np.square(y_ref-np.array(y_bunch)))
     cnd = (r < opts.rmax)
     rcnd = r[cnd]
@@ -478,16 +476,16 @@ if opts.ref_fnam is not None:
 with open(opts.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
     fp.write('# Village: {}\n'.format(village))
-    fp.write('# Variety: {}\n'.format(variety))
-    fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
     for plot in plots:
-        fp.write('# Plot{}: {:%Y-%m-%d}'.format(plot,dtim_plot[plot]))
+        fp.write('# Plot{}:'.format(plot))
         for i in range(len(x_plot[plot])):
             fp.write(' {:12.4f} {:13.4f}'.format(x_plot[plot][i],y_plot[plot][i]))
         fp.write('\n')
+    fp.write('# Variety: {}\n'.format(variety))
+    fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
     fp.write('#------------------------\n')
-    fp.write('Location, BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    fp.write('Location, BunchNumber, PlotPaddy, Easting, Northing, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
     for i in range(len(plot_bunch)):
-        fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f}, {:8.0f}, {:5.0f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
-                 location,number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],date2num(dtim),date2num(dtim)-date2num(dtim_plot[plot_bunch[i]]),
+        fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f}, {:10s}, {:5.0f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
+                 location,number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],plant_bunch[i].strftime('%Y-%m-%d'),date2num(dtim)-date2num(plant_bunch[i]),
                  tiller_bunch[i],blb_bunch[i],blast_bunch[i],borer_bunch[i],rat_bunch[i],hopper_bunch[i],0))
