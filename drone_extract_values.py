@@ -37,8 +37,8 @@ x_bunch = []
 y_bunch = []
 rest_bunch = []
 with open(opts.csv_fnam,'r') as fp:
-    #Location, BunchNumber, PlotPaddy, Easting, Northing, Date, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
-    #           15,   1,   1,  750982.3829,  9242831.2452,    19055,    55,  27,   1,   0,   5,   0,   0,   0
+    #Location, BunchNumber, PlotPaddy, Easting, Northing, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
+    #           15,   1,   1,  750949.8273,  9242821.0756, 2022-01-08,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
         if len(line) < 1:
             continue
