@@ -17,6 +17,7 @@ proc_identify.pnams.append('point_nmin')
 proc_identify.pnams.append('point_rmax')
 proc_identify.pnams.append('point_dmax')
 proc_identify.pnams.append('point_area')
+proc_identify.pnams.append('criteria')
 proc_identify.pnams.append('rr_param')
 proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
@@ -35,6 +36,7 @@ proc_identify.params['point_nmin'] = 'Min Point# in a Plot'
 proc_identify.params['point_rmax'] = 'Max Distance within Point (m)'
 proc_identify.params['point_dmax'] = 'Max Distance from Line (m)'
 proc_identify.params['point_area'] = 'Point Area (m\u00B2)'
+proc_identify.params['criteria'] = 'Selection Criteria'
 proc_identify.params['rr_param'] = 'Parameter'
 proc_identify.params['rthr'] = 'Redness Ratio Threshold'
 proc_identify.params['sthr'] = 'Signal Ratio Threshold'
@@ -53,6 +55,7 @@ proc_identify.param_types['point_nmin'] = 'int'
 proc_identify.param_types['point_rmax'] = 'double'
 proc_identify.param_types['point_dmax'] = 'double_list'
 proc_identify.param_types['point_area'] = 'double_list'
+proc_identify.param_types['criteria'] = 'string_select'
 proc_identify.param_types['rr_param'] = 'string_select_list'
 proc_identify.param_types['rthr'] = 'double_list'
 proc_identify.param_types['sthr'] = 'double'
@@ -85,6 +88,7 @@ proc_identify.defaults['point_nmin'] = 5
 proc_identify.defaults['point_rmax'] = 1.0
 proc_identify.defaults['point_dmax'] = [1.0,0.5]
 proc_identify.defaults['point_area'] = [0.015,0.105,0.05]
+proc_identify.defaults['criteria'] = 'Distance from Line'
 proc_identify.defaults['rr_param'] = ['Lrg','S/N']
 proc_identify.defaults['rthr'] = [0.0,1.0,0.01]
 proc_identify.defaults['sthr'] = 1.0
@@ -93,6 +97,7 @@ proc_identify.defaults['neighbor_size'] = [29,35]
 proc_identify.list_sizes['geocor_order'] = 4
 proc_identify.list_sizes['point_dmax'] = 2
 proc_identify.list_sizes['point_area'] = 3
+proc_identify.list_sizes['criteria'] = 2
 proc_identify.list_sizes['rr_param'] = 2
 proc_identify.list_sizes['rthr'] = 3
 proc_identify.list_sizes['data_range'] = 2
@@ -100,6 +105,7 @@ proc_identify.list_sizes['neighbor_size'] = 2
 proc_identify.list_labels['geocor_order'] = ['0th','1st','2nd','3rd']
 proc_identify.list_labels['point_dmax'] = ['Fit :',' Select :']
 proc_identify.list_labels['point_area'] = ['Min :',' Max :',' Avg :']
+proc_identify.list_labels['criteria'] = ['Distance from Line','Point Area']
 proc_identify.list_labels['rr_param'] = [('Redness :',['Grg','Lrg','Lb','Lg','Lr','Le','Ln','rg','b','g','r','e','n']),(' Signal :',['S/N','S/B'])]
 proc_identify.list_labels['rthr'] = ['Min :',' Max :',' Step :']
 proc_identify.list_labels['data_range'] = ['Min :',' Max :']
@@ -117,6 +123,7 @@ proc_identify.input_types['point_nmin'] = 'box'
 proc_identify.input_types['point_rmax'] = 'box'
 proc_identify.input_types['point_dmax'] = 'double_list'
 proc_identify.input_types['point_area'] = 'double_list'
+proc_identify.input_types['criteria'] = 'string_select'
 proc_identify.input_types['rr_param'] = 'string_select_list'
 proc_identify.input_types['rthr'] = 'double_list'
 proc_identify.input_types['sthr'] = 'box'
