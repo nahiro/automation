@@ -2,6 +2,20 @@ import os
 import sys
 import time
 import Metashape
+from argparse import ArgumentParser,RawTextHelpFormatter
+
+# Defaults
+QMIN = 0.5
+EPSG = 32748 # UTM zone 48S
+
+# Read options
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-I','--inp_dnam',default=None,help='Input folder name (%(default)s)')
+parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(default)s)')
+parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
+parser.add_argument('-q','--qmin',default=QMIN,type=float,help='Min image quality (%(default)s)')
+parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
+args = parser.parse_args()
 
 # Checking compatibility
 compatible_major_version = '1.7'
