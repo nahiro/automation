@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
-from optparse import OptionParser,IndentedHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn','Nr','Br']
@@ -31,57 +31,57 @@ INNER_SIZE = 29 # pixel
 OUTER_SIZE = 35 # pixel
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
-parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
-parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
-parser.add_option('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
-parser.add_option('--data_min',default=None,type='float',help='Minimum data value (%default)')
-parser.add_option('--data_max',default=None,type='float',help='Maximum data value (%default)')
-parser.add_option('-i','--inner_size',default=INNER_SIZE,type='int',help='Inner region size in pixel (%default)')
-parser.add_option('-o','--outer_size',default=OUTER_SIZE,type='int',help='Outer region size in pixel (%default)')
-parser.add_option('-F','--fignam',default=None,help='Output figure name for debug (%default)')
-parser.add_option('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%default)')
-parser.add_option('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%default)')
-parser.add_option('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%default)')
-parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
-parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
-parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
-(opts,args) = parser.parse_args()
-if opts.param is None:
-    opts.param = PARAM
-if opts.ax1_zmin is not None:
-    while len(opts.ax1_zmin) < len(opts.param):
-        opts.ax1_zmin.append(opts.ax1_zmin[-1])
-if opts.ax1_zmax is not None:
-    while len(opts.ax1_zmax) < len(opts.param):
-        opts.ax1_zmax.append(opts.ax1_zmax[-1])
-if opts.ax1_zstp is not None:
-    while len(opts.ax1_zstp) < len(opts.param):
-        opts.ax1_zstp.append(opts.ax1_zstp[-1])
-for param in opts.param:
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
+parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
+parser.add_argument('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
+parser.add_argument('--data_min',default=None,type=float,help='Minimum data value (%(default)s)')
+parser.add_argument('--data_max',default=None,type=float,help='Maximum data value (%(default)s)')
+parser.add_argument('-i','--inner_size',default=INNER_SIZE,type=int,help='Inner region size in pixel (%(default)s)')
+parser.add_argument('-o','--outer_size',default=OUTER_SIZE,type=int,help='Outer region size in pixel (%(default)s)')
+parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
+parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
+parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
+parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',help='Axis1 Z stp for debug (%(default)s)')
+parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
+parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
+args = parser.parse_args()
+if args.param is None:
+    args.param = PARAM
+if args.ax1_zmin is not None:
+    while len(args.ax1_zmin) < len(args.param):
+        args.ax1_zmin.append(args.ax1_zmin[-1])
+if args.ax1_zmax is not None:
+    while len(args.ax1_zmax) < len(args.param):
+        args.ax1_zmax.append(args.ax1_zmax[-1])
+if args.ax1_zstp is not None:
+    while len(args.ax1_zstp) < len(args.param):
+        args.ax1_zstp.append(args.ax1_zstp[-1])
+for param in args.param:
     if not param in PARAMS:
         raise ValueError('Error, unknown parameter >>> {}'.format(param))
-if opts.dst_geotiff is None or opts.fignam is None:
-    bnam,enam = os.path.splitext(opts.src_geotiff)
-    if opts.dst_geotiff is None:
-        opts.dst_geotiff = bnam+'_rr'+enam
-    if opts.fignam is None:
-        opts.fignam = bnam+'_rr.pdf'
+if args.dst_geotiff is None or args.fignam is None:
+    bnam,enam = os.path.splitext(args.src_geotiff)
+    if args.dst_geotiff is None:
+        args.dst_geotiff = bnam+'_rr'+enam
+    if args.fignam is None:
+        args.fignam = bnam+'_rr.pdf'
 
-filt1 = np.ones((opts.outer_size,opts.outer_size))
+filt1 = np.ones((args.outer_size,args.outer_size))
 norm = filt1.sum()
 filt1 *= 1.0/norm
 
-filt2 = np.ones((opts.inner_size,opts.inner_size))
+filt2 = np.ones((args.inner_size,args.inner_size))
 norm = filt2.sum()
 filt2 *= 1.0/norm
 
 def calc_vpix(data,band):
     vpix = data[band_index[band]].copy()
-    if opts.data_min is not None:
-        vpix[vpix < opts.data_min] = np.nan
-    if opts.data_max is not None:
-        vpix[vpix > opts.data_max] = np.nan
+    if args.data_min is not None:
+        vpix[vpix < args.data_min] = np.nan
+    if args.data_max is not None:
+        vpix[vpix > args.data_max] = np.nan
     return vpix
 
 def calc_vout(vpix):
@@ -103,16 +103,16 @@ def calc_sb(vpix,vout):
     return sb
 
 # Read Source GeoTIFF
-ds = gdal.Open(opts.src_geotiff)
+ds = gdal.Open(args.src_geotiff)
 src_nx = ds.RasterXSize
 src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
 if src_nb != len(bands):
-    raise ValueError('Error, src_nb={}, len(bands)={} >>> {}'.format(src_nb,len(bands),opts.src_geotiff))
+    raise ValueError('Error, src_nb={}, len(bands)={} >>> {}'.format(src_nb,len(bands),args.src_geotiff))
 src_prj = ds.GetProjection()
 src_trans = ds.GetGeoTransform()
 if src_trans[2] != 0.0 or src_trans[4] != 0.0:
-    raise ValueError('Error, src_trans={} >>> {}'.format(src_trans,opts.src_geotiff))
+    raise ValueError('Error, src_trans={} >>> {}'.format(src_trans,args.src_geotiff))
 src_meta = ds.GetMetadata()
 src_data = ds.ReadAsArray().astype(np.float64).reshape(src_nb,src_ny,src_nx)
 src_band = []
@@ -129,7 +129,7 @@ src_ystp = src_trans[5]
 src_ymin = src_ymax+src_ny*src_ystp
 ds = None
 
-fnam = opts.src_geotiff
+fnam = args.src_geotiff
 data_shape = (src_ny,src_nx)
 value_pix = {}
 value_out = {}
@@ -147,7 +147,7 @@ if green.shape != data_shape:
     raise ValueError('Error, green.shape={}, data_shape={} >>> {}'.format(green.shape,data_shape,fnam))
 rr = []
 pnams = []
-for param in opts.param:
+for param in args.param:
     if param[0] == 'L':
         if len(param) == 2:
             band1 = param[1]
@@ -270,16 +270,16 @@ rr = np.array(rr)
 # Write Destination GeoTIFF
 dst_nx = src_nx
 dst_ny = src_ny
-dst_nb = len(opts.param)
+dst_nb = len(args.param)
 dst_prj = src_prj
 dst_trans = src_trans
 dst_meta = src_meta
 dst_dtype = gdal.GDT_Float32
 dst_nodata = np.nan
 dst_data = rr
-dst_band = opts.param
+dst_band = args.param
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
+ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,dst_dtype)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)
@@ -292,43 +292,43 @@ ds.FlushCache()
 ds = None # close dataset
 
 # For debug
-if opts.debug:
-    if not opts.batch:
+if args.debug:
+    if not args.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
-    pdf = PdfPages(opts.fignam)
-    for i,param in enumerate(opts.param):
+    pdf = PdfPages(args.fignam)
+    for i,param in enumerate(args.param):
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
-        if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
-        elif opts.ax1_zmin is not None:
-            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=opts.ax1_zmin[i],cmap=cm.jet,interpolation='none')
-        elif opts.ax1_zmax is not None:
-            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=opts.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+        if args.ax1_zmin is not None and args.ax1_zmax is not None:
+            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+        elif args.ax1_zmin is not None:
+            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],cmap=cm.jet,interpolation='none')
+        elif args.ax1_zmax is not None:
+            im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
         else:
             im = ax1.imshow(rr[i],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
-        if opts.ax1_zstp is not None:
-            if opts.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(rr[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i],opts.ax1_zmin[i])
+        if args.ax1_zstp is not None:
+            if args.ax1_zmin is not None:
+                zmin = min((np.floor(np.nanmin(rr[i])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i],args.ax1_zmin[i])
             else:
-                zmin = (np.floor(np.nanmin(rr[i])/opts.ax1_zstp[i])-1.0)*opts.ax1_zstp[i]
-            if opts.ax1_zmax is not None:
-                zmax = max(np.nanmax(rr[i]),opts.ax1_zmax[i]+0.1*opts.ax1_zstp[i])
+                zmin = (np.floor(np.nanmin(rr[i])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
+            if args.ax1_zmax is not None:
+                zmax = max(np.nanmax(rr[i]),args.ax1_zmax[i]+0.1*args.ax1_zstp[i])
             else:
-                zmax = np.nanmax(rr[i])+0.1*opts.ax1_zstp[i]
-            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp[i])).ax
+                zmax = np.nanmax(rr[i])+0.1*args.ax1_zstp[i]
+            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp[i])).ax
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
         ax2.set_ylabel(pnams[i])
         ax2.yaxis.set_label_coords(3.5,0.5)
-        if opts.remove_nan:
+        if args.remove_nan:
             src_indy,src_indx = np.indices(data_shape)
             src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
             src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
@@ -347,7 +347,7 @@ if opts.debug:
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
-        if not opts.batch:
+        if not args.batch:
             plt.draw()
             plt.pause(0.1)
     pdf.close()

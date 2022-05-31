@@ -10,7 +10,7 @@ import gdal
 import pyproj
 from subprocess import call
 from io import StringIO
-from optparse import OptionParser,IndentedHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Defaults
 SHEET = 0
@@ -19,18 +19,18 @@ NMIN = 20
 EPSG = 32748 # UTM zone 48S
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
-parser.add_option('-I','--inp_fnam',default=None,help='Input file name (%default)')
-parser.add_option('-O','--out_fnam',default=None,help='Output file name (%default)')
-parser.add_option('-S','--sheet',default=SHEET,type='int',help='Sheet number (%default)')
-parser.add_option('-r','--ref_fnam',default=None,help='CSV file for reference coordinates (%default)')
-parser.add_option('-R','--rmax',default=RMAX,type='float',help='Maximum distance from reference in m (%default)')
-parser.add_option('-n','--nmin',default=NMIN,type='int',help='Minimum number of points near the reference (%default)')
-parser.add_option('-E','--epsg',default=EPSG,help='Output EPSG (%default)')
-parser.add_option('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%default)')
-parser.add_option('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%default)')
-parser.add_option('-N','--geocor_npoly',default=None,type='int',help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
-(opts,args) = parser.parse_args()
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-I','--inp_fnam',default=None,help='Input file name (%(default)s)')
+parser.add_argument('-O','--out_fnam',default=None,help='Output file name (%(default)s)')
+parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number (%(default)s)')
+parser.add_argument('-r','--ref_fnam',default=None,help='CSV file for reference coordinates (%(default)s)')
+parser.add_argument('-R','--rmax',default=RMAX,type=float,help='Maximum distance from reference in m (%(default)s)')
+parser.add_argument('-n','--nmin',default=NMIN,type=int,help='Minimum number of points near the reference (%(default)s)')
+parser.add_argument('-E','--epsg',default=EPSG,help='Output EPSG (%(default)s)')
+parser.add_argument('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%(default)s)')
+parser.add_argument('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%(default)s)')
+parser.add_argument('-N','--geocor_npoly',default=None,type=int,help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
+args = parser.parse_args()
 
 def read_gps(s):
     #'S 06°50\'31.62"  E 107°16\'41.50"'
@@ -76,19 +76,19 @@ def read_month(s):
 
 if int(pyproj.__version__[0]) > 1:
     def transform_wgs84_to_utm(longitude,latitude):
-        return pyproj.Transformer.from_crs(4326,opts.epsg,always_xy=True).transform(longitude,latitude)
+        return pyproj.Transformer.from_crs(4326,args.epsg,always_xy=True).transform(longitude,latitude)
 else:
     def transform_wgs84_to_utm(longitude,latitude):
         inProj = pyproj.Proj(init='epsg:4326')
-        outProj = pyproj.Proj(init='epsg:{}'.format(opts.epsg))
+        outProj = pyproj.Proj(init='epsg:{}'.format(args.epsg))
         return pyproj.transform(inProj,outProj,longitude,latitude)
 
-xl = pd.ExcelFile(opts.inp_fnam)
-if opts.sheet > 0:
+xl = pd.ExcelFile(args.inp_fnam)
+if args.sheet > 0:
     sheets = xl.sheet_names
-    if len(sheets) <= opts.sheet:
-        raise ValueError('Error, len(sheets)={}, opts.sheet={}'.format(len(sheets),opts.sheet))
-    df = pd.read_excel(xl,header=None,sheet_name=sheets[opts.sheet])
+    if len(sheets) <= args.sheet:
+        raise ValueError('Error, len(sheets)={}, args.sheet={}'.format(len(sheets),args.sheet))
+    df = pd.read_excel(xl,header=None,sheet_name=sheets[args.sheet])
 else:
     df = pd.read_excel(xl,header=None)
 ny,nx = df.shape
@@ -131,8 +131,8 @@ if location is None:
 if date is None:
     raise ValueError('Error, failed in finding date.')
 dtim = datetime.strptime(date,'%d.%m.%Y')
-if opts.out_fnam is None:
-    opts.out_fnam = '{}_{:%Y-%m-%d}_blb.csv'.format(location,dtim)
+if args.out_fnam is None:
+    args.out_fnam = '{}_{:%Y-%m-%d}_blb.csv'.format(location,dtim)
 
 row_number_str = None
 col_number_1 = 0
@@ -382,10 +382,10 @@ for plot in plots:
     raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
 plant_bunch = [plant_plot[plot] for plot in plot_bunch]
 
-if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
-    bnam,enam = os.path.splitext(opts.out_fnam)
+if args.geocor_fnam is not None and args.geocor_geotiff is not None:
+    bnam,enam = os.path.splitext(args.out_fnam)
     tmp_fnam = bnam+'_tmp'+enam
-    ds = gdal.Open(opts.geocor_geotiff)
+    ds = gdal.Open(args.geocor_geotiff)
     src_trans = ds.GetGeoTransform()
     if src_trans[2] != 0.0 or src_trans[4] != 0.0:
         raise ValueError('Error, src_trans={}'.format(src_trans))
@@ -398,13 +398,13 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     src_yi = []
     src_xp = []
     src_yp = []
-    with open(opts.geocor_fnam,'r') as fp:
+    with open(args.geocor_fnam,'r') as fp:
         for line in fp:
             #660.5    120.5 751655.112266 9243156.957321  -0.009634  -0.003979    2.10494      0.824779      0.016902   3555      0.789201   1440
             #720.5    120.5 751667.515378 9243156.775077   0.393478  -0.186223    2.37634      0.832486      0.014921   5446      0.797028   1845
             m = re.search('^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+',line)
             if not m:
-                raise ValueError('Error in reading '+opts.geocor_fnam)
+                raise ValueError('Error in reading '+args.geocor_fnam)
             src_xi.append(float(m.group(1)))
             src_yi.append(float(m.group(2)))
             src_xp.append(float(m.group(3)))
@@ -417,23 +417,23 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     dst_yi = src_ymax+src_ystp*src_yi
     command = 'ogr2ogr'
     command += ' -f CSV'
-    command += ' -s_srs EPSG:{}'.format(opts.epsg)
-    command += ' -t_srs EPSG:{}'.format(opts.epsg)
+    command += ' -s_srs EPSG:{}'.format(args.epsg)
+    command += ' -t_srs EPSG:{}'.format(args.epsg)
     #command += ' -overwrite'
     command += ' -oo X_POSSIBLE_NAMES=Easting'
     command += ' -oo Y_POSSIBLE_NAMES=Northing'
     command += ' -lco GEOMETRY=AS_XY'
     command += ' -lco STRING_QUOTING=IF_NEEDED'
-    if opts.geocor_npoly is not None:
-        command += ' -order {}'.format(opts.geocor_npoly)
+    if args.geocor_npoly is not None:
+        command += ' -order {}'.format(args.geocor_npoly)
     for xi,yi,xp,yp in zip(dst_xi,dst_yi,src_xp,src_yp):
         command += ' -gcp {:22.15e} {:22.15e} {:22.15e} {:22.15e}'.format(xi,yi,xp,yp)
     command += ' {}'.format(tmp_fnam)
-    command += ' {}'.format(opts.out_fnam)
+    command += ' {}'.format(args.out_fnam)
     #command += ' 2>err'
     if os.path.exists(tmp_fnam):
         os.remove(tmp_fnam)
-    with open(opts.out_fnam,'w') as fp:
+    with open(args.out_fnam,'w') as fp:
         fp.write('Easting, Northing\n')
         for i in range(len(plot_bunch)):
             fp.write('{:12.4f}, {:13.4f}\n'.format(x_bunch[i],y_bunch[i]))
@@ -448,8 +448,8 @@ if opts.geocor_fnam is not None and opts.geocor_geotiff is not None:
     if os.path.exists(tmp_fnam):
         os.remove(tmp_fnam)
 
-if opts.ref_fnam is not None:
-    df = pd.read_csv(opts.ref_fnam,comment='#')
+if args.ref_fnam is not None:
+    df = pd.read_csv(args.ref_fnam,comment='#')
     df.columns = df.columns.str.strip()
     loc_ref = df['Location'].astype(str).str.lower().values
     number_ref = df['BunchNumber'].values
@@ -458,22 +458,22 @@ if opts.ref_fnam is not None:
     y_ref = df['Northing'].values
     plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
     if not np.all(loc_ref == location.lower()):
-        raise ValueError('Error, different Location >>> {}'.format(opts.ref_fnam))
+        raise ValueError('Error, different Location >>> {}'.format(args.ref_fnam))
     elif not np.array_equal(number_ref,number_bunch):
-        raise ValueError('Error, different BunchNumber >>> {}'.format(opts.ref_fnam))
+        raise ValueError('Error, different BunchNumber >>> {}'.format(args.ref_fnam))
     elif not np.array_equal(plot_ref,plot_bunch):
-        raise ValueError('Error, different PlotPaddy >>> {}'.format(opts.ref_fnam))
+        raise ValueError('Error, different PlotPaddy >>> {}'.format(args.ref_fnam))
     elif not np.array_equal(plant_ref,plant_bunch):
-        raise ValueError('Error, different PlantDate >>> {}'.format(opts.ref_fnam))
+        raise ValueError('Error, different PlantDate >>> {}'.format(args.ref_fnam))
     r = np.sqrt(np.square(x_ref-np.array(x_bunch))+np.square(y_ref-np.array(y_bunch)))
-    cnd = (r < opts.rmax)
+    cnd = (r < args.rmax)
     rcnd = r[cnd]
-    if rcnd.size < opts.nmin:
+    if rcnd.size < args.nmin:
         raise ValueError('Error, too few points near reference >>> {}'.format(rcnd.size))
     x_bunch = list(x_ref)
     y_bunch = list(y_ref)
 
-with open(opts.out_fnam,'w') as fp:
+with open(args.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
     fp.write('# Village: {}\n'.format(village))
     for plot in plots:

@@ -12,7 +12,7 @@ import matplotlib.cm as cm
 import matplotlib.patches as patches
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
-from optparse import OptionParser,IndentedHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 RR_PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn']
@@ -49,44 +49,44 @@ STHR = 1.0
 CRITERIA = 'Distance'
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
-parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
-parser.add_option('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%default)')
-parser.add_option('-e','--ext_fnam',default=None,help='Extract file name (%default)')
-parser.add_option('-R','--pixel_rmax',default=PIXEL_RMAX,type='float',help='Maximum pixel distance of a point in m (%default)')
-parser.add_option('-D','--point_dmax',default=POINT_DMAX,type='float',help='Maximum distance of a point from the fit line in m (%default)')
-parser.add_option('-W','--point_lwid',default=POINT_LWID,type='float',help='Maximum distance of a point from the selected line in m (%default)')
-parser.add_option('-m','--point_smin',default=POINT_SMIN,type='float',help='Minimum point area in m2 (%default)')
-parser.add_option('-M','--point_smax',default=POINT_SMAX,type='float',help='Maximum point area in m2 (%default)')
-parser.add_option('-a','--point_area',default=POINT_AREA,type='float',help='Standard point area in m2 (%default)')
-parser.add_option('-N','--point_nmin',default=POINT_NMIN,type='int',help='Minimum point number in a plot (%default)')
-parser.add_option('--bunch_rmax',default=BUNCH_RMAX,type='float',help='Maximum bunch distance in a plot in m (%default)')
-parser.add_option('--bunch_emax',default=BUNCH_EMAX,type='float',help='Maximum distance of a bunch from the fit line in sigma (%default)')
-parser.add_option('--bunch_nmin',default=BUNCH_NMIN,type='int',help='Minimum bunch number in a plot (%default)')
-parser.add_option('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%default)')
-parser.add_option('-P','--sr_param',default=SR_PARAM,help='Signal ratio parameter (%default)')
-parser.add_option('-t','--rthr_min',default=RTHR_MIN,type='float',help='Min threshold of redness ratio (%default)')
-parser.add_option('-T','--rthr_max',default=RTHR_MAX,type='float',help='Max threshold of redness ratio (%default)')
-parser.add_option('-r','--rstp',default=RSTP,type='float',help='Threshold step of redness ratio (%default)')
-parser.add_option('-S','--sthr',default=STHR,type='float',help='Threshold of signal ratio (%default)')
-parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
-parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name (%default)')
-parser.add_option('-z','--ax1_zmin',default=None,type='float',help='Axis1 Z min for debug (%default)')
-parser.add_option('-Z','--ax1_zmax',default=None,type='float',help='Axis1 Z max for debug (%default)')
-parser.add_option('-s','--ax1_zstp',default=None,type='float',help='Axis1 Z stp for debug (%default)')
-parser.add_option('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%default)')
-parser.add_option('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%default)')
-parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
-(opts,args) = parser.parse_args()
-if not opts.rr_param in RR_PARAMS:
-    raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(opts.rr_param))
-if not opts.sr_param in SR_PARAMS:
-    raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(opts.sr_param))
-if not opts.criteria in CRITERIAS:
-    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
-if opts.ext_fnam is None:
-    bnam,enam = os.path.splitext(opts.csv_fnam)
-    opts.ext_fnam = bnam+'_extract'+enam
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
+parser.add_argument('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%(default)s)')
+parser.add_argument('-e','--ext_fnam',default=None,help='Extract file name (%(default)s)')
+parser.add_argument('-R','--pixel_rmax',default=PIXEL_RMAX,type=float,help='Maximum pixel distance of a point in m (%(default)s)')
+parser.add_argument('-D','--point_dmax',default=POINT_DMAX,type=float,help='Maximum distance of a point from the fit line in m (%(default)s)')
+parser.add_argument('-W','--point_lwid',default=POINT_LWID,type=float,help='Maximum distance of a point from the selected line in m (%(default)s)')
+parser.add_argument('-m','--point_smin',default=POINT_SMIN,type=float,help='Minimum point area in m2 (%(default)s)')
+parser.add_argument('-M','--point_smax',default=POINT_SMAX,type=float,help='Maximum point area in m2 (%(default)s)')
+parser.add_argument('-a','--point_area',default=POINT_AREA,type=float,help='Standard point area in m2 (%(default)s)')
+parser.add_argument('-N','--point_nmin',default=POINT_NMIN,type=int,help='Minimum point number in a plot (%(default)s)')
+parser.add_argument('--bunch_rmax',default=BUNCH_RMAX,type=float,help='Maximum bunch distance in a plot in m (%(default)s)')
+parser.add_argument('--bunch_emax',default=BUNCH_EMAX,type=float,help='Maximum distance of a bunch from the fit line in sigma (%(default)s)')
+parser.add_argument('--bunch_nmin',default=BUNCH_NMIN,type=int,help='Minimum bunch number in a plot (%(default)s)')
+parser.add_argument('-p','--rr_param',default=RR_PARAM,help='Redness ratio parameter (%(default)s)')
+parser.add_argument('-P','--sr_param',default=SR_PARAM,help='Signal ratio parameter (%(default)s)')
+parser.add_argument('-t','--rthr_min',default=RTHR_MIN,type=float,help='Min threshold of redness ratio (%(default)s)')
+parser.add_argument('-T','--rthr_max',default=RTHR_MAX,type=float,help='Max threshold of redness ratio (%(default)s)')
+parser.add_argument('-r','--rstp',default=RSTP,type=float,help='Threshold step of redness ratio (%(default)s)')
+parser.add_argument('-S','--sthr',default=STHR,type=float,help='Threshold of signal ratio (%(default)s)')
+parser.add_argument('-C','--criteria',default=CRITERIA,help='Selection criteria (%(default)s)')
+parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name (%(default)s)')
+parser.add_argument('-z','--ax1_zmin',default=None,type=float,help='Axis1 Z min for debug (%(default)s)')
+parser.add_argument('-Z','--ax1_zmax',default=None,type=float,help='Axis1 Z max for debug (%(default)s)')
+parser.add_argument('-s','--ax1_zstp',default=None,type=float,help='Axis1 Z stp for debug (%(default)s)')
+parser.add_argument('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%(default)s)')
+parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
+parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+args = parser.parse_args()
+if not args.rr_param in RR_PARAMS:
+    raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(args.rr_param))
+if not args.sr_param in SR_PARAMS:
+    raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(args.sr_param))
+if not args.criteria in CRITERIAS:
+    raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
+if args.ext_fnam is None:
+    bnam,enam = os.path.splitext(args.csv_fnam)
+    args.ext_fnam = bnam+'_extract'+enam
 
 comments = ''
 header = None
@@ -96,7 +96,7 @@ plot_bunch = []
 x_bunch = []
 y_bunch = []
 rest_bunch = []
-with open(opts.csv_fnam,'r') as fp:
+with open(args.csv_fnam,'r') as fp:
     #Location, BunchNumber, PlotPaddy, Easting, Northing, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
     #           15,   1,   1,  750949.8273,  9242821.0756, 2022-01-08,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
@@ -105,13 +105,13 @@ with open(opts.csv_fnam,'r') as fp:
         elif line[0] == '#':
             comments += line
             continue
-        elif not opts.header_none and header is None:
+        elif not args.header_none and header is None:
             header = line # skip header
             item = [s.strip() for s in header.split(',')]
             if len(item) < 6:
-                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+                raise ValueError('Error in header ({}) >>> {}'.format(args.csv_fnam,header))
             if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
-                raise ValueError('Error in header ({}) >>> {}'.format(opts.csv_fnam,header))
+                raise ValueError('Error in header ({}) >>> {}'.format(args.csv_fnam,header))
             continue
         m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
@@ -141,8 +141,8 @@ for plot in plots:
     cnd = (plot_bunch == plot)
     indx = indx_bunch[cnd]
     size_plot[plot] = len(indx)
-    if size_plot[plot] < opts.bunch_nmin:
-        raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],opts.csv_fnam))
+    if size_plot[plot] < args.bunch_nmin:
+        raise ValueError('Error, plot={}, size_plot[{}]={} >>> {}'.format(plot,plot,size_plot[plot],args.csv_fnam))
     loc_plot[plot] = loc_bunch[indx]
     number_plot[plot] = number_bunch[indx]
     rest_plot[plot] = rest_bunch[indx]
@@ -150,32 +150,32 @@ for plot in plots:
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
     if not np.all(np.argsort(number_plot[plot]) == indx_member): # wrong order
-        raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],opts.csv_fnam))
+        raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],args.csv_fnam))
     flag = []
     for i_temp in indx_member:
         cnd = (indx_member != i_temp)
         r = np.sqrt(np.square(xg[cnd]-xg[i_temp])+np.square(yg[cnd]-yg[i_temp]))
-        if r.min() > opts.bunch_rmax:
+        if r.min() > args.bunch_rmax:
             flag.append(False)
         else:
             flag.append(True)
     flag = np.array(flag)
     inside_plot[plot] = indx[flag]
     removed_plot[plot] = indx[~flag]
-    if len(inside_plot[plot]) < opts.bunch_nmin:
-        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),opts.csv_fnam))
+    if len(inside_plot[plot]) < args.bunch_nmin:
+        raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),args.csv_fnam))
 
-if opts.debug:
+if args.debug:
     plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
-    pdf = PdfPages(opts.fignam)
-with open(opts.ext_fnam,'w') as fp:
+    pdf = PdfPages(args.fignam)
+with open(args.ext_fnam,'w') as fp:
     if len(comments) > 0:
         fp.write(comments)
     if header is not None:
         fp.write(header)
-bnam,enam = os.path.splitext(opts.src_geotiff)
+bnam,enam = os.path.splitext(args.src_geotiff)
 for plot in plots:
     # Read redness ratio image
     onam = bnam+'_plot{}_rr'.format(plot)+enam
@@ -193,9 +193,9 @@ for plot in plots:
     for iband in range(rr_nb):
         band = ds.GetRasterBand(iband+1)
         rr_band.append(band.GetDescription())
-        if rr_band[iband] == opts.rr_param:
+        if rr_band[iband] == args.rr_param:
             rr = band.ReadAsArray().reshape(rr_ny,rr_nx)
-        elif rr_band[iband] == opts.sr_param:
+        elif rr_band[iband] == args.sr_param:
             sr = band.ReadAsArray().reshape(rr_ny,rr_nx)
     rr_xmin = rr_trans[0]
     rr_xstp = rr_trans[1]
@@ -210,10 +210,10 @@ for plot in plots:
     rr_xp = rr_trans[0]+(rr_indx+0.5)*rr_trans[1]+(rr_indy+0.5)*rr_trans[2]
     rr_yp = rr_trans[3]+(rr_indx+0.5)*rr_trans[4]+(rr_indy+0.5)*rr_trans[5]
     if rr is None:
-        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.rr_param,rr_band,onam))
+        raise ValueError('Error in finding {} ({}) >>> {}'.format(args.rr_param,rr_band,onam))
     if sr is None:
-        raise ValueError('Error in finding {} ({}) >>> {}'.format(opts.sr_param,rr_band,onam))
-    cnd_sr = (sr > opts.sthr)
+        raise ValueError('Error in finding {} ({}) >>> {}'.format(args.sr_param,rr_band,onam))
+    cnd_sr = (sr > args.sthr)
     # Fit line
     xg_bunch = x_bunch[inside_plot[plot]]
     yg_bunch = y_bunch[inside_plot[plot]]
@@ -221,13 +221,13 @@ for plot in plots:
     yc_bunch = yg_bunch.copy()
     coef = np.polyfit(xc_bunch,yc_bunch,1)
     dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-    cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
+    cnd = (dist-dist.mean()) < args.bunch_emax*dist.std()
     if not np.all(cnd):
         xc_bunch = xc_bunch[cnd]
         yc_bunch = yc_bunch[cnd]
         coef = np.polyfit(xc_bunch,yc_bunch,1)
         dist = np.abs(coef[0]*xc_bunch-yc_bunch+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-        cnd = (dist-dist.mean()) < opts.bunch_emax*dist.std()
+        cnd = (dist-dist.mean()) < args.bunch_emax*dist.std()
         if not np.all(cnd):
             xc_bunch = xc_bunch[cnd]
             yc_bunch = yc_bunch[cnd]
@@ -251,19 +251,19 @@ for plot in plots:
         xd_bunch,yd_bunch = np.negative([xd_bunch,yd_bunch])
     # Search points
     cnd_dist = None
-    rthr = opts.rthr_max
+    rthr = args.rthr_max
     while True:
-        if rthr < opts.rthr_min:
+        if rthr < args.rthr_min:
             raise ValueError('Error in searching point, rthr={}'.format(rthr))
         elif cnd_dist is None:
             cnd_all = cnd_sr & (rr > rthr)
         else:
             cnd_all = cnd_sr & cnd_dist & (rr > rthr)
-        rthr -= opts.rstp
+        rthr -= args.rstp
         if cnd_all.sum() < 1:
             continue
         labels,num = label(cnd_all,return_num=True)
-        if num < opts.point_nmin:
+        if num < args.point_nmin:
             continue
         number_point = []
         xmin_point = []
@@ -284,12 +284,12 @@ for plot in plots:
             y = rr_ymax+(indy+0.5)*rr_ystp
             flag = False
             for i_point in range(len(number_point)):
-                if (xmax < xmin_point[i_point]-opts.pixel_rmax) or (xmin > xmax_point[i_point]+opts.pixel_rmax) \
-                or (ymax < ymin_point[i_point]-opts.pixel_rmax) or (ymin > ymax_point[i_point]+opts.pixel_rmax):
+                if (xmax < xmin_point[i_point]-args.pixel_rmax) or (xmin > xmax_point[i_point]+args.pixel_rmax) \
+                or (ymax < ymin_point[i_point]-args.pixel_rmax) or (ymin > ymax_point[i_point]+args.pixel_rmax):
                     continue
                 for xtmp,ytmp in zip(x,y):
                     r = np.sqrt(np.square(xtmp-x_point[i_point])+np.square(ytmp-y_point[i_point]))
-                    if r.min() < opts.pixel_rmax:
+                    if r.min() < args.pixel_rmax:
                         number_point[i_point] += region.area
                         xmin_point[i_point] = min(xmin_point[i_point],xmin)
                         xmax_point[i_point] = max(xmax_point[i_point],xmax)
@@ -310,15 +310,15 @@ for plot in plots:
                 x_point.append(x)
                 y_point.append(y)
         num = len(number_point)
-        if num < opts.point_nmin:
+        if num < args.point_nmin:
             continue
         area_point = np.array(number_point)*np.abs(rr_xstp*rr_ystp)
         indexes_to_be_removed = []
         for i_point in range(len(number_point)):
             #xwid = xmax_point[i_point]-xmin_point[i_point]
             #ywid = ymax_point[i_point]-ymin_point[i_point]
-            #if (xwid < opts.point_smin) or (xwid > opts.point_smax) or (ywid < opts.point_smin) or (ywid > opts.point_smax):
-            if (area_point[i_point] < opts.point_smin) or (area_point[i_point] > opts.point_smax):
+            #if (xwid < args.point_smin) or (xwid > args.point_smax) or (ywid < args.point_smin) or (ywid > args.point_smax):
+            if (area_point[i_point] < args.point_smin) or (area_point[i_point] > args.point_smax):
                 indexes_to_be_removed.append(i_point)
         for indx in sorted(indexes_to_be_removed,reverse=True):
             del number_point[indx]
@@ -330,7 +330,7 @@ for plot in plots:
             del y_point[indx]
             area_point = np.delete(area_point,indx)
         num = len(number_point)
-        if num < opts.point_nmin:
+        if num < args.point_nmin:
             continue
         xctr_point = np.array([x.mean() for x in x_point])
         yctr_point = np.array([y.mean() for y in y_point])
@@ -344,7 +344,7 @@ for plot in plots:
             indx_others = np.array([i for i in indx_point if i not in c])
             coef = np.polyfit(xctr_point[indx_comb],yctr_point[indx_comb],1)
             dist = np.abs(coef[0]*xctr_point[indx_others]-yctr_point[indx_others]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-            cnd = (dist < opts.point_lwid)
+            cnd = (dist < args.point_lwid)
             n = cnd.sum()
             if n == cnd.size: # all passed
                 indx_select = indx_point
@@ -382,7 +382,7 @@ for plot in plots:
         indexes_to_be_removed = []
         for i_point in range(len(number_point)):
             dist = np.abs(coef[0]*xctr_point[i_point]-yctr_point[i_point]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-            if dist > opts.point_dmax:
+            if dist > args.point_dmax:
                 indexes_to_be_removed.append(i_point)
         for indx in sorted(indexes_to_be_removed,reverse=True):
             del number_point[indx]
@@ -398,13 +398,13 @@ for plot in plots:
         num = len(number_point)
         if num >= size_plot[plot]:
             if num > size_plot[plot]:
-                if opts.criteria == 'Area':
-                    indexes_to_be_removed = np.argsort(np.abs(area_point-opts.point_area))[size_plot[plot]:]
-                elif opts.criteria == 'Distance':
+                if args.criteria == 'Area':
+                    indexes_to_be_removed = np.argsort(np.abs(area_point-args.point_area))[size_plot[plot]:]
+                elif args.criteria == 'Distance':
                     dist_point = np.abs(coef[0]*xctr_point-yctr_point+coef[1])/np.sqrt(coef[0]*coef[0]+1)
                     indexes_to_be_removed = np.argsort(dist_point)[size_plot[plot]:]
                 else:
-                    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
+                    raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
                 for indx in sorted(indexes_to_be_removed,reverse=True):
                     del number_point[indx]
                     del xmin_point[indx]
@@ -423,8 +423,8 @@ for plot in plots:
             break
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
-            cnd_dist = (dist < opts.point_dmax)
-    with open(opts.ext_fnam,'a') as fp:
+            cnd_dist = (dist < args.point_dmax)
+    with open(args.ext_fnam,'a') as fp:
         for i in range(size_plot[plot]):
             fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
@@ -434,66 +434,66 @@ for plot in plots:
         cnd = cnd_sr & cnd_dist
     rr_copy[~cnd] = np.nan
 
-    if opts.debug:
+    if args.debug:
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
-        if opts.ax1_zmin is not None and opts.ax1_zmax is not None:
-            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
-        elif opts.ax1_zmin is not None:
-            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=opts.ax1_zmin,cmap=cm.jet,interpolation='none')
-        elif opts.ax1_zmax is not None:
-            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmax=opts.ax1_zmax,cmap=cm.jet,interpolation='none')
+        if args.ax1_zmin is not None and args.ax1_zmax is not None:
+            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=args.ax1_zmin,vmax=args.ax1_zmax,cmap=cm.jet,interpolation='none')
+        elif args.ax1_zmin is not None:
+            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmin=args.ax1_zmin,cmap=cm.jet,interpolation='none')
+        elif args.ax1_zmax is not None:
+            im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),vmax=args.ax1_zmax,cmap=cm.jet,interpolation='none')
         else:
             im = ax1.imshow(rr_copy,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
-        if opts.ax1_zstp is not None:
-            if opts.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp,opts.ax1_zmin)
+        if args.ax1_zstp is not None:
+            if args.ax1_zmin is not None:
+                zmin = min((np.floor(np.nanmin(rr)/args.ax1_zstp)-1.0)*args.ax1_zstp,args.ax1_zmin)
             else:
-                zmin = (np.floor(np.nanmin(rr)/opts.ax1_zstp)-1.0)*opts.ax1_zstp
-            if opts.ax1_zmax is not None:
-                zmax = max(np.nanmax(rr),opts.ax1_zmax+0.1*opts.ax1_zstp)
+                zmin = (np.floor(np.nanmin(rr)/args.ax1_zstp)-1.0)*args.ax1_zstp
+            if args.ax1_zmax is not None:
+                zmax = max(np.nanmax(rr),args.ax1_zmax+0.1*args.ax1_zstp)
             else:
-                zmax = np.nanmax(rr)+0.1*opts.ax1_zstp
-            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,opts.ax1_zstp)).ax
+                zmax = np.nanmax(rr)+0.1*args.ax1_zstp
+            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp)).ax
         else:
             ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
-        if opts.rr_param[0] == 'L':
-            if len(opts.rr_param) == 2:
-                band1 = opts.rr_param[1]
+        if args.rr_param[0] == 'L':
+            if len(args.rr_param) == 2:
+                band1 = args.rr_param[1]
                 pnam = 'Redness Ratio (Local {})'.format(bands[band1])
-            elif len(opts.rr_param) == 3:
-                band1 = opts.rr_param[1]
-                band2 = opts.rr_param[2]
+            elif len(args.rr_param) == 3:
+                band1 = args.rr_param[1]
+                band2 = args.rr_param[2]
                 pnam = 'Redness Ratio (Local {} + {})'.format(bands[band1],bands[band2])
             else:
-                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
-        elif opts.rr_param[0] == 'G':
-            if len(opts.rr_param) == 2:
-                band1 = opts.rr_param[1]
+                raise ValueError('Error, len(args.rr_param)={} >>> {}'.format(len(args.rr_param),args.rr_param))
+        elif args.rr_param[0] == 'G':
+            if len(args.rr_param) == 2:
+                band1 = args.rr_param[1]
                 pnam = 'Redness Ratio (Global {})'.format(bands[band1])
-            elif len(opts.rr_param) == 3:
-                band1 = opts.rr_param[1]
-                band2 = opts.rr_param[2]
+            elif len(args.rr_param) == 3:
+                band1 = args.rr_param[1]
+                band2 = args.rr_param[2]
                 pnam = 'Redness Ratio (Global {} + {})'.format(bands[band1],bands[band2])
             else:
-                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
-        elif opts.rr_param[0] == 'S':
-            if len(opts.rr_param) == 2:
-                band1 = opts.rr_param[1]
+                raise ValueError('Error, len(args.rr_param)={} >>> {}'.format(len(args.rr_param),args.rr_param))
+        elif args.rr_param[0] == 'S':
+            if len(args.rr_param) == 2:
+                band1 = args.rr_param[1]
                 pnam = 'Redness Ratio ({})'.format(bands[band1])
-            elif len(opts.rr_param) == 3:
-                band1 = opts.rr_param[1]
-                band2 = opts.rr_param[2]
+            elif len(args.rr_param) == 3:
+                band1 = args.rr_param[1]
+                band2 = args.rr_param[2]
                 pnam = 'Redness Ratio ({} + {})'.format(bands[band1],bands[band2])
             else:
-                raise ValueError('Error, len(opts.rr_param)={} >>> {}'.format(len(opts.rr_param),opts.rr_param))
+                raise ValueError('Error, len(args.rr_param)={} >>> {}'.format(len(args.rr_param),args.rr_param))
         else:
-            raise ValueError('Error, opts.rr_param={}'.format(opts.rr_param))
+            raise ValueError('Error, args.rr_param={}'.format(args.rr_param))
         ax2.set_ylabel(pnam)
         ax2.yaxis.set_label_coords(3.5,0.5)
 
@@ -508,7 +508,7 @@ for plot in plots:
         ng = number_plot[plot]
         for ntmp,xtmp,ytmp in zip(ng,xctr_point,yctr_point):
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
-        if opts.remove_nan:
+        if args.remove_nan:
             cnd = ~np.isnan(rr)
             xp = rr_xp[cnd]
             yp = rr_yp[cnd]
@@ -528,5 +528,5 @@ for plot in plots:
         plt.pause(0.1)
     #if plot == 2:
     #    break
-if opts.debug:
+if args.debug:
     pdf.close()

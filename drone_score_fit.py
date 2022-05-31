@@ -10,7 +10,7 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-from optparse import OptionParser,IndentedHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
@@ -36,48 +36,48 @@ Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hop
 FIGNAM = 'drone_score_fit.pdf'
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=300))
-parser.add_option('-i','--inp_list',default=None,help='Input file list (%default)')
-parser.add_option('-I','--inp_fnam',default=None,action='append',help='Input file name (%default)')
-parser.add_option('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%default)')
-parser.add_option('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
-parser.add_option('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
-parser.add_option('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
-parser.add_option('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
-parser.add_option('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
-parser.add_option('-p','--q_param',default=None,action='append',help='Identification parameter ({})'.format(Q_PARAM))
-parser.add_option('-V','--vmax',default=VMAX,type='float',help='Max variance inflation factor (%default)')
-parser.add_option('-n','--nx_min',default=NX_MIN,type='int',help='Min number of explanatory variable in a formula (%default)')
-parser.add_option('-N','--nx_max',default=NX_MAX,type='int',help='Max number of explanatory variable in a formula (%default)')
-parser.add_option('-m','--ncheck_min',default=NCHECK_MIN,type='int',help='Min number of explanatory variables for multico. check (%default)')
-parser.add_option('-M','--nmodel_max',default=NMODEL_MAX,type='int',help='Max number of formula (%default)')
-parser.add_option('-C','--criteria',default=CRITERIA,help='Selection criteria (%default)')
-parser.add_option('-c','--n_cross',default=N_CROSS,type='int',help='Number of cross validation (%default)')
-parser.add_option('-a','--amin',default=None,type='float',help='Min age in day (%default)')
-parser.add_option('-A','--amax',default=None,type='float',help='Max age in day (%default)')
-parser.add_option('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%default)')
-parser.add_option('-u','--use_average',default=False,action='store_true',help='Use plot average (%default)')
-parser.add_option('-d','--debug',default=False,action='store_true',help='Debug mode (%default)')
-parser.add_option('-b','--batch',default=False,action='store_true',help='Batch mode (%default)')
-(opts,args) = parser.parse_args()
-if opts.inp_list is None and opts.inp_fnam is None:
-    raise ValueError('Error, opts.inp_list={}, opts.inp_fnam={}'.format(opts.inp_list,opts.inp_fnam))
-if not opts.criteria in CRITERIAS:
-    raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
-if opts.x_param is None:
-    opts.x_param = X_PARAM
-for param in opts.x_param:
+parser = ArgumentParser(formatter=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-i','--inp_list',default=None,help='Input file list (%(default)s)')
+parser.add_argument('-I','--inp_fnam',default=None,action='append',help='Input file name (%(default)s)')
+parser.add_argument('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%(default)s)')
+parser.add_argument('-x','--x_param',default=None,action='append',help='Candidate explanatory variable ({})'.format(X_PARAM))
+parser.add_argument('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
+parser.add_argument('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
+parser.add_argument('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
+parser.add_argument('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
+parser.add_argument('-p','--q_param',default=None,action='append',help='Identification parameter ({})'.format(Q_PARAM))
+parser.add_argument('-V','--vmax',default=VMAX,type=float,help='Max variance inflation factor (%(default)s)')
+parser.add_argument('-n','--nx_min',default=NX_MIN,type=int,help='Min number of explanatory variable in a formula (%(default)s)')
+parser.add_argument('-N','--nx_max',default=NX_MAX,type=int,help='Max number of explanatory variable in a formula (%(default)s)')
+parser.add_argument('-m','--ncheck_min',default=NCHECK_MIN,type=int,help='Min number of explanatory variables for multico. check (%(default)s)')
+parser.add_argument('-M','--nmodel_max',default=NMODEL_MAX,type=int,help='Max number of formula (%(default)s)')
+parser.add_argument('-C','--criteria',default=CRITERIA,help='Selection criteria (%(default)s)')
+parser.add_argument('-c','--n_cross',default=N_CROSS,type=int,help='Number of cross validation (%(default)s)')
+parser.add_argument('-a','--amin',default=None,type=float,help='Min age in day (%(default)s)')
+parser.add_argument('-A','--amax',default=None,type=float,help='Max age in day (%(default)s)')
+parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
+parser.add_argument('-u','--use_average',default=False,action='store_true',help='Use plot average (%(default)s)')
+parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
+args = parser.parse_args()
+if args.inp_list is None and args.inp_fnam is None:
+    raise ValueError('Error, args.inp_list={}, args.inp_fnam={}'.format(args.inp_list,args.inp_fnam))
+if not args.criteria in CRITERIAS:
+    raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
+if args.x_param is None:
+    args.x_param = X_PARAM
+for param in args.x_param:
     if not param in PARAMS:
         raise ValueError('Error, unknown explanatory variable for x_param >>> {}'.format(param))
-if opts.y_param is None:
-    opts.y_param = Y_PARAM
-for param in opts.y_param:
+if args.y_param is None:
+    args.y_param = Y_PARAM
+for param in args.y_param:
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_param >>> {}'.format(param))
-if opts.y_threshold is None:
-    opts.y_threshold = Y_THRESHOLD
+if args.y_threshold is None:
+    args.y_threshold = Y_THRESHOLD
 y_threshold = {}
-for s in opts.y_threshold:
+for s in args.y_threshold:
     m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
     if not m:
         raise ValueError('Error, invalid threshold >>> {}'.format(s))
@@ -87,10 +87,10 @@ for s in opts.y_threshold:
         raise ValueError('Error, unknown objective variable for y_threshold ({}) >>> {}'.format(param,s))
     if not np.isnan(value):
         y_threshold[param] = value
-if opts.y_max is None:
-    opts.y_max = Y_MAX
+if args.y_max is None:
+    args.y_max = Y_MAX
 y_max = {}
-for s in opts.y_max:
+for s in args.y_max:
     m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
     if not m:
         raise ValueError('Error, invalid max >>> {}'.format(s))
@@ -99,12 +99,12 @@ for s in opts.y_max:
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_max ({}) >>> {}'.format(param,s))
     y_max[param] = value
-if opts.y_factor is None:
-    opts.y_factor = Y_FACTOR
+if args.y_factor is None:
+    args.y_factor = Y_FACTOR
 y_factor = {}
-for y_param in opts.y_param:
+for y_param in args.y_param:
     y_factor[y_param] = {}
-for s in opts.y_factor:
+for s in args.y_factor:
     m = re.search('\s*(\S+)\s*:\s*(\S+)\s*:\s*(\S+)\s*',s)
     if not m:
         raise ValueError('Error, invalid factor >>> {}'.format(s))
@@ -115,11 +115,11 @@ for s in opts.y_factor:
         raise ValueError('Error, unknown objective variable for y_factor ({}) >>> {}'.format(y_param,s))
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_factor ({}) >>> {}'.format(param,s))
-    if y_param in opts.y_param:
+    if y_param in args.y_param:
         if not np.isnan(value) and (param != y_param):
             y_factor[y_param][param] = value
-if opts.q_param is None:
-    opts.q_param = Q_PARAM
+if args.q_param is None:
+    args.q_param = Q_PARAM
 
 def llf(y_true,y_pred):
     n = len(y_pred)
@@ -141,51 +141,51 @@ def bic(y_true,y_pred,npar):
     return -2.0*llf(y_true,y_pred)+np.log(n)*npar
 
 # Read data
-if opts.inp_list is not None:
+if args.inp_list is not None:
     fnams = []
-    with open(opts.inp_list,'r') as fp:
+    with open(args.inp_list,'r') as fp:
         for line in fp:
             if (len(line) < 1) or (line[0] == '#'):
                 continue
             fnams.append(line.rstrip())
 else:
-    fnams = opts.inp_fnam
+    fnams = args.inp_fnam
 X = {}
 Y = {}
 P = {}
 p_param = []
-if opts.amin is not None or opts.amax is not None:
+if args.amin is not None or args.amax is not None:
     p_param.append('Age')
 for param in OBJECTS:
     if param in y_threshold.keys():
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
         p_param.append(param)
-for y_param in opts.y_param:
+for y_param in args.y_param:
     if not y_param in y_max.keys():
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
     for param in y_factor[y_param].keys():
         if not param in p_param:
             p_param.append(param)
-for param in opts.x_param:
+for param in args.x_param:
     X[param] = []
-for param in opts.y_param:
+for param in args.y_param:
     Y[param] = []
 for param in p_param:
     P[param] = []
-if opts.use_average:
+if args.use_average:
     Q = {}
-    for param in opts.q_param:
+    for param in args.q_param:
         Q[param] = []
 for fnam in fnams:
     df = pd.read_csv(fnam,comment='#')
     df.columns = df.columns.str.strip()
-    for param in opts.x_param:
+    for param in args.x_param:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         X[param].extend(list(df[param]))
-    for param in opts.y_param:
+    for param in args.y_param:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         Y[param].extend(list(df[param]))
@@ -193,8 +193,8 @@ for fnam in fnams:
         if not param in df.columns:
             raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
         P[param].extend(list(df[param]))
-    if opts.use_average:
-        for param in opts.q_param:
+    if args.use_average:
+        for param in args.q_param:
             if not param in df.columns:
                 raise ValueError('Error in finding column for {} >>> {}'.format(param,fnam))
             Q[param].extend(list(df[param]))
@@ -203,13 +203,13 @@ Y = pd.DataFrame(Y)
 P = pd.DataFrame(P)
 
 # Calculate means
-if opts.use_average:
+if args.use_average:
     X_avg = {}
     Y_avg = {}
     P_avg = {}
-    for param in opts.x_param:
+    for param in args.x_param:
         X_avg[param] = []
-    for param in opts.y_param:
+    for param in args.y_param:
         Y_avg[param] = []
     for param in p_param:
         P_avg[param] = []
@@ -220,9 +220,9 @@ if opts.use_average:
         X_cnd = X[cnd].mean()
         Y_cnd = Y[cnd].mean()
         P_cnd = P[cnd].mean()
-        for param in opts.x_param:
+        for param in args.x_param:
             X_avg[param].append(X_cnd[param])
-        for param in opts.y_param:
+        for param in args.y_param:
             Y_avg[param].append(Y_cnd[param])
         for param in p_param:
             P_avg[param].append(P_cnd[param])
@@ -231,14 +231,14 @@ if opts.use_average:
     P = pd.DataFrame(P_avg)
 
 # Convert objective variable to damage intensity
-for y_param in opts.y_param:
+for y_param in args.y_param:
     if y_param in y_max.keys():
         Y[y_param] = Y[y_param]/y_max[y_param]
     else:
         Y[y_param] = Y[y_param]/P['Tiller']
 
 # Add equivalent values to objective variables
-for y_param in opts.y_param:
+for y_param in args.y_param:
     for param in y_factor[y_param].keys():
         if param in y_max.keys():
             Y[y_param] += P[param]/y_max[param]*y_factor[y_param][param]
@@ -247,10 +247,10 @@ for y_param in opts.y_param:
 
 # Select data
 cnd = np.full((len(X),),False)
-if opts.amin is not None:
-    cnd |= (P['Age'] < opts.amin).values
-if opts.amax is not None:
-    cnd |= (P['Age'] > opts.amax).values
+if args.amin is not None:
+    cnd |= (P['Age'] < args.amin).values
+if args.amax is not None:
+    cnd |= (P['Age'] > args.amax).values
 if cnd.sum() > 0:
     X = X.iloc[~cnd]
     Y = Y.iloc[~cnd]
@@ -260,21 +260,21 @@ Y_inp = Y.copy()
 P_inp = P.copy()
 
 # Make formulas
-if opts.debug:
-    if not opts.batch:
+if args.debug:
+    if not args.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.12,left=0.18,right=0.95)
-    pdf = PdfPages(opts.fignam)
-with open(opts.out_fnam,'w') as fp:
+    pdf = PdfPages(args.fignam)
+with open(args.out_fnam,'w') as fp:
     fp.write('{:>13s},'.format('Y'))
     for v in CRITERIAS:
         fp.write('{:>13s},'.format(v))
     fp.write('{:>13s},{:>2s}'.format('P','N'))
-    for n in range(opts.nx_max+1):
+    for n in range(args.nx_max+1):
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
-for y_param in opts.y_param:
+for y_param in args.y_param:
     cnd = np.full((len(X_inp),),False)
     for param in y_threshold.keys():
         if param in [y_param]:
@@ -305,14 +305,14 @@ for y_param in opts.y_param:
     coef_errors = []
     coef_ps = []
     coef_ts = []
-    for n in range(opts.nx_min,opts.nx_max+1):
-        for c in combinations(opts.x_param,n):
+    for n in range(args.nx_min,args.nx_max+1):
+        for c in combinations(args.x_param,n):
             x_list = list(c)
-            if len(x_list) > opts.ncheck_min:
+            if len(x_list) > args.ncheck_min:
                 flag = False
                 for indx in range(len(x_list)):
                     vif = variance_inflation_factor(X_all[x_list].values,indx)
-                    if vif > opts.vmax:
+                    if vif > args.vmax:
                         flag = True
                         break
                 if flag:
@@ -340,7 +340,7 @@ for y_param in opts.y_param:
             errors = {}
             for param in x_all:
                 values[param] = []
-            kf = KFold(n_splits=opts.n_cross,random_state=None,shuffle=False)
+            kf = KFold(n_splits=args.n_cross,random_state=None,shuffle=False)
             for train_index,test_index in kf.split(X):
                 X_train,X_test = X.iloc[train_index],X.iloc[test_index]
                 Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
@@ -361,27 +361,27 @@ for y_param in opts.y_param:
             coef_ts.append(model.tvalues)
 
     # Sort formulas
-    if opts.criteria == 'RMSE_test':
+    if args.criteria == 'RMSE_test':
         model_indx = np.argsort(model_rmse_test)
-    elif opts.criteria == 'R2_test':
+    elif args.criteria == 'R2_test':
         model_indx = np.argsort(model_r2_test)[::-1]
-    elif opts.criteria == 'AIC_test':
+    elif args.criteria == 'AIC_test':
         model_indx = np.argsort(model_aic_test)
-    elif opts.criteria == 'RMSE_train':
+    elif args.criteria == 'RMSE_train':
         model_indx = np.argsort(model_rmse_train)
-    elif opts.criteria == 'R2_train':
+    elif args.criteria == 'R2_train':
         model_indx = np.argsort(model_r2_train)[::-1]
-    elif opts.criteria == 'AIC_train':
+    elif args.criteria == 'AIC_train':
         model_indx = np.argsort(model_aic_train)
-    elif opts.criteria == 'BIC_train':
+    elif args.criteria == 'BIC_train':
         model_indx = np.argsort(model_bic_train)
     else:
-        raise ValueError('Error, unsupported criteria >>> {}'.format(opts.criteria))
+        raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
 
     # Output results
-    with open(opts.out_fnam,'a') as fp:
+    with open(args.out_fnam,'a') as fp:
         y_number = 1
-        for indx in model_indx[:opts.nmodel_max]:
+        for indx in model_indx[:args.nmodel_max]:
             fp.write('{:>13s},'.format(y_param))
             fp.write('{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:13.6e},{:2d}'.format(model_rmse_test[indx],model_r2_test[indx],model_aic_test[indx],
                                                                                                             model_rmse_train[indx],model_r2_train[indx],
@@ -389,10 +389,10 @@ for y_param in opts.y_param:
                                                                                                             model_fs[indx],len(model_xs[indx])-1))
             for param in model_xs[indx]:
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format(param,coef_values[indx][param],coef_errors[indx][param],coef_ps[indx][param],coef_ts[indx][param]))
-            for n in range(len(model_xs[indx]),opts.nx_max+1):
+            for n in range(len(model_xs[indx]),args.nx_max+1):
                 fp.write(',{:>13s},{:13.6e},{:13.6e},{:13.6e},{:13.6e}'.format('None',np.nan,np.nan,np.nan,np.nan))
             fp.write('\n')
-            if opts.debug:
+            if args.debug:
                 x_list = []
                 Y_pred = 0.0
                 for param in model_xs[indx]:
@@ -428,9 +428,9 @@ for y_param in opts.y_param:
                 ax1.xaxis.set_tick_params(pad=7)
                 ax1.yaxis.set_label_coords(-0.14,0.5)
                 plt.savefig(pdf,format='pdf')
-                if not opts.batch:
+                if not args.batch:
                     plt.draw()
                     plt.pause(0.1)
             y_number += 1
-if opts.debug:
+if args.debug:
     pdf.close()
