@@ -59,7 +59,7 @@ def check_int(s,t,vmin=-sys.maxsize,vmax=sys.maxsize):
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_double(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max,allow_nan=False):
+def check_float(s,t,vmin=-sys.float_info.max,vmax=sys.float_info.max,allow_nan=False):
     try:
         v = float(t)
         if allow_nan and np.isnan(v):

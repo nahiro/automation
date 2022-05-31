@@ -183,11 +183,11 @@ for proc in pnams:
             modules[proc].values[pnam] = config[proc].get('{}.{}'.format(proc,pnam))
         elif modules[proc].param_types[pnam] in ['int','int_select']:
             modules[proc].values[pnam] = config[proc].getint('{}.{}'.format(proc,pnam))
-        elif modules[proc].param_types[pnam] in ['double','double_select']:
+        elif modules[proc].param_types[pnam] in ['float','float_select']:
             modules[proc].values[pnam] = config[proc].getfloat('{}.{}'.format(proc,pnam))
         elif modules[proc].param_types[pnam] in ['boolean','boolean_select']:
             modules[proc].values[pnam] = config[proc].getboolean('{}.{}'.format(proc,pnam))
-        elif modules[proc].param_types[pnam] in ['double_list','double_select_list']:
+        elif modules[proc].param_types[pnam] in ['float_list','float_select_list']:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).replace('nan','np.nan'))
         else:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))

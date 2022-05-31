@@ -164,8 +164,8 @@ class Process:
                 return True
             elif self.param_types[pnam] == 'int':
                 return check_int(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
-            elif self.param_types[pnam] == 'double':
-                return check_double(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
+            elif self.param_types[pnam] == 'float':
+                return check_float(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif self.input_types[pnam] == 'ask_file':
             return check_file(self.params[pnam],t)
         elif self.input_types[pnam] == 'ask_files':
@@ -180,8 +180,8 @@ class Process:
             return True
         elif 'int_list' in self.input_types[pnam]:
             return check_int(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
-        elif 'double_list' in self.input_types[pnam]:
-            return check_double(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
+        elif 'float_list' in self.input_types[pnam]:
+            return check_float(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif '_select' in self.input_types[pnam]:
             return True
         elif '_select_list' in self.input_types[pnam]:
@@ -338,7 +338,7 @@ class Process:
                 self.center_var[pnam] = tk.StringVar()
             elif self.param_types[pnam] == 'int':
                 self.center_var[pnam] = tk.IntVar()
-            elif self.param_types[pnam] == 'double':
+            elif self.param_types[pnam] == 'float':
                 self.center_var[pnam] = tk.DoubleVar()
             elif self.param_types[pnam] == 'boolean':
                 self.center_var[pnam] = tk.BooleanVar()
@@ -346,7 +346,7 @@ class Process:
                 self.center_var[pnam] = tk.StringVar()
             elif self.param_types[pnam] == 'int_select':
                 self.center_var[pnam] = tk.IntVar()
-            elif self.param_types[pnam] == 'double_select':
+            elif self.param_types[pnam] == 'float_select':
                 self.center_var[pnam] = tk.DoubleVar()
             elif self.param_types[pnam] == 'string_list':
                 self.center_var[pnam] = []
@@ -356,7 +356,7 @@ class Process:
                 self.center_var[pnam] = []
                 for j in range(self.list_sizes[pnam]):
                     self.center_var[pnam].append(tk.IntVar())
-            elif self.param_types[pnam] == 'double_list':
+            elif self.param_types[pnam] == 'float_list':
                 self.center_var[pnam] = []
                 for j in range(self.list_sizes[pnam]):
                     self.center_var[pnam].append(tk.DoubleVar())
