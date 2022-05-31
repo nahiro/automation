@@ -40,10 +40,11 @@ defaults['extract'] = False
 defaults['formula'] = False
 defaults['estimate'] = True
 
-blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
-'8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
+from config import *
+#blocks = ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B',
+#'8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15']
 
-date_format = 'yyyy-mm&mmm-dd'
+#date_format = 'yyyy-mm&mmm-dd'
 
 inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
 if not os.path.isdir(inidir):
