@@ -8,6 +8,7 @@ proc_estimate.pnams.append('score_fnam')
 proc_estimate.pnams.append('score_number')
 proc_estimate.pnams.append('intensity_fnam')
 proc_estimate.pnams.append('intensity_number')
+proc_estimate.pnams.append('digitize')
 proc_estimate.pnams.append('y_params')
 proc_estimate.pnams.append('score_max')
 proc_estimate.pnams.append('score_step')
@@ -19,6 +20,7 @@ proc_estimate.params['score_fnam'] = 'Score Formula File'
 proc_estimate.params['score_number'] = 'Score Formula Number'
 proc_estimate.params['intensity_fnam'] = 'Intensity Formula File'
 proc_estimate.params['intensity_number'] = 'Intensity Formula Number'
+proc_estimate.params['digitize'] = 'Digitize'
 proc_estimate.params['y_params'] = 'Output Variable'
 proc_estimate.params['score_max'] = 'Max Output Score'
 proc_estimate.params['score_step'] = 'Digitize Score Step'
@@ -30,6 +32,7 @@ proc_estimate.param_types['score_fnam'] = 'string'
 proc_estimate.param_types['score_number'] = 'int'
 proc_estimate.param_types['intensity_fnam'] = 'string'
 proc_estimate.param_types['intensity_number'] = 'int'
+proc_estimate.param_types['digitize'] = 'boolean'
 proc_estimate.param_types['y_params'] = 'boolean_list'
 proc_estimate.param_types['score_max'] = 'int_list'
 proc_estimate.param_types['score_step'] = 'int_list'
@@ -47,6 +50,7 @@ proc_estimate.defaults['score_fnam'] = 'score_formula.csv'
 proc_estimate.defaults['score_number'] = 1
 proc_estimate.defaults['intensity_fnam'] = 'intensity_formula.csv'
 proc_estimate.defaults['intensity_number'] = 1
+proc_estimate.defaults['digitize'] = True
 proc_estimate.defaults['y_params'] = [True,False,False,False,False,False]
 proc_estimate.defaults['score_max'] = [9,9,1,1,1,9]
 proc_estimate.defaults['score_step'] = [2,2,1,1,1,2]
@@ -64,6 +68,7 @@ proc_estimate.input_types['score_fnam'] = 'ask_file'
 proc_estimate.input_types['score_number'] = 'box'
 proc_estimate.input_types['intensity_fnam'] = 'ask_file'
 proc_estimate.input_types['intensity_number'] = 'box'
+proc_estimate.input_types['digitize'] = 'boolean'
 proc_estimate.input_types['y_params'] = 'boolean_list'
 proc_estimate.input_types['score_max'] = 'int_list'
 proc_estimate.input_types['score_step'] = 'int_list'
@@ -72,4 +77,4 @@ proc_estimate.input_types['buffer'] = 'box'
 proc_estimate.input_types['region_size'] = 'box'
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
-proc_estimate.middle_left_frame_width = 650
+proc_estimate.middle_left_frame_width = 750
