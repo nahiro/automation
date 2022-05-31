@@ -85,7 +85,8 @@ for s in opts.y_threshold:
     value = float(m.group(2))
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_threshold ({}) >>> {}'.format(param,s))
-    y_threshold[param] = value
+    if not np.isnan(value):
+        y_threshold[param] = value
 if opts.y_max is None:
     opts.y_max = Y_MAX
 y_max = {}
