@@ -250,16 +250,13 @@ if opts.amin is not None:
     cnd |= (P['Age'] < opts.amin).values
 if opts.amax is not None:
     cnd |= (P['Age'] > opts.amax).values
-for param in y_threshold.keys():
-    if param in y_max.keys():
-        cnd |= (P[param]/y_max[param] > y_threshold[param]).values
-    else:
-        cnd |= (P[param]/P['Tiller'] > y_threshold[param]).values
 if cnd.sum() > 0:
     X = X.iloc[~cnd]
     Y = Y.iloc[~cnd]
-X_all = X.copy()
-Y_all = Y.copy()
+    P = P.iloc[~cnd]
+X_inp = X.copy()
+Y_inp = Y.copy()
+P_inp = P.copy()
 
 # Make formulas
 if opts.debug:
@@ -277,6 +274,22 @@ with open(opts.out_fnam,'w') as fp:
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
 for y_param in opts.y_param:
+    cnd = np.full((len(X_inp),),False)
+    for param in y_threshold.keys():
+        if param in [y_param]:
+            continue
+        elif param in y_max.keys():
+            cnd |= (P_inp[param]/y_max[param] > y_threshold[param]).values
+        else:
+            cnd |= (P_inp[param]/P_inp['Tiller'] > y_threshold[param]).values
+    if cnd.sum() > 0:
+        X_all = X_inp.iloc[~cnd].copy()
+        Y_all = Y_inp.iloc[~cnd].copy()
+        P_all = P_inp.iloc[~cnd].copy()
+    else:
+        X_all = X_inp.copy()
+        Y_all = Y_inp.copy()
+        P_all = P_inp.copy()
     Y = Y_all[y_param]
     model_xs = []
     model_rmse_test = []
