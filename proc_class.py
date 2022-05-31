@@ -7,6 +7,10 @@ import tkfilebrowser
 from subprocess import call
 from proc_func import *
 
+HOME = os.environ.get('USERPROFILE')
+if HOME is None:
+    HOME = os.environ.get('HOME')
+
 class Process:
 
     def __init__(self):
@@ -32,11 +36,11 @@ class Process:
         self.center_cnv_height = 25
         self.right_cnv_height = 25
         self.center_btn_width = 20
-        self.inidir = os.path.join(os.environ.get('USERPROFILE'),'Work','Drone')
+        self.inidir = os.path.join(HOME,'Work','Drone')
         if not os.path.isdir(self.inidir):
-            self.inidir = os.path.join(os.environ.get('USERPROFILE'),'Documents')
-        self.scrdir = os.path.join(os.environ.get('USERPROFILE'),'Script')
-        self.browse_image = os.path.join(os.environ.get('USERPROFILE'),'Pictures','browse.png')
+            self.inidir = os.path.join(HOME,'Documents')
+        self.scrdir = os.path.join(HOME,'Script')
+        self.browse_image = os.path.join(HOME,'Pictures','browse.png')
         self.root = None
         self.chk_btn = None
         self.middle_left_canvas = None

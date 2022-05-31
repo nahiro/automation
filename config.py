@@ -1,7 +1,7 @@
 import os
 import sys
 import configparser
-#from proc_orthomosaic import proc_orthomosaic
+from proc_orthomosaic import proc_orthomosaic
 
 # Set folder&file names
 HOME = os.environ.get('USERPROFILE')
