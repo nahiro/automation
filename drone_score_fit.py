@@ -362,7 +362,7 @@ for y_param in opts.y_param:
 
     # Sort formulas
     if opts.criteria == 'RMSE_test':
-        model_indx = np.argsort(model_rmse_test)[::-1]
+        model_indx = np.argsort(model_rmse_test)
     elif opts.criteria == 'R2_test':
         model_indx = np.argsort(model_r2_test)[::-1]
     elif opts.criteria == 'AIC_test':
