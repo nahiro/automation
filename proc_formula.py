@@ -19,6 +19,7 @@ proc_formula.pnams.append('yfac4')
 proc_formula.pnams.append('yfac5')
 proc_formula.pnams.append('yfac6')
 proc_formula.pnams.append('criteria')
+proc_formula.pnams.append('n_multi')
 proc_formula.pnams.append('vmax')
 proc_formula.pnams.append('n_cros')
 proc_formula.pnams.append('mmax')
@@ -37,6 +38,7 @@ proc_formula.params['yfac4'] = 'Conversion Factor for Rat'
 proc_formula.params['yfac5'] = 'Conversion Factor for Hopper'
 proc_formula.params['yfac6'] = 'Conversion Factor for Drought'
 proc_formula.params['criteria'] = 'Selection Criteria'
+proc_formula.params['n_multi'] = 'Min Multicollinearity Number'
 proc_formula.params['vmax'] = 'Max Variance Inflation Factor'
 proc_formula.params['n_cros'] = 'Cross Validation Number'
 proc_formula.params['mmax'] = 'Max Formula Number'
@@ -55,6 +57,7 @@ proc_formula.param_types['yfac4'] = 'double_list'
 proc_formula.param_types['yfac5'] = 'double_list'
 proc_formula.param_types['yfac6'] = 'double_list'
 proc_formula.param_types['criteria'] = 'string_select'
+proc_formula.param_types['n_multi'] = 'int'
 proc_formula.param_types['vmax'] = 'double'
 proc_formula.param_types['n_cros'] = 'int'
 proc_formula.param_types['mmax'] = 'int'
@@ -68,6 +71,7 @@ proc_formula.param_range['yfac3'] = (0.0,1.0e5)
 proc_formula.param_range['yfac4'] = (0.0,1.0e5)
 proc_formula.param_range['yfac5'] = (0.0,1.0e5)
 proc_formula.param_range['yfac6'] = (0.0,1.0e5)
+proc_formula.param_range['n_multi'] = (1,1000)
 proc_formula.param_range['vmax'] = (0.0,1.0e5)
 proc_formula.param_range['n_cros'] = (2,1000)
 proc_formula.param_range['mmax'] = (1,1000)
@@ -86,6 +90,7 @@ proc_formula.defaults['yfac4'] = [np.nan,np.nan,np.nan,1.0,np.nan,np.nan]
 proc_formula.defaults['yfac5'] = [np.nan,np.nan,np.nan,np.nan,1.0,np.nan]
 proc_formula.defaults['yfac6'] = [np.nan,np.nan,np.nan,np.nan,np.nan,1.0]
 proc_formula.defaults['criteria'] = 'RMSE_test'
+proc_formula.defaults['n_multi'] = 1
 proc_formula.defaults['vmax'] = 5.0
 proc_formula.defaults['n_cros'] = 5
 proc_formula.defaults['mmax'] = 3
@@ -132,6 +137,7 @@ proc_formula.input_types['yfac4'] = 'double_list'
 proc_formula.input_types['yfac5'] = 'double_list'
 proc_formula.input_types['yfac6'] = 'double_list'
 proc_formula.input_types['criteria'] = 'string_select'
+proc_formula.input_types['n_multi'] = 'box'
 proc_formula.input_types['vmax'] = 'box'
 proc_formula.input_types['n_cros'] = 'box'
 proc_formula.input_types['mmax'] = 'box'
