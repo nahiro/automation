@@ -36,7 +36,7 @@ Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hop
 FIGNAM = 'drone_score_fit.pdf'
 
 # Read options
-parser = ArgumentParser(formatter=RawTextHelpFormatter)
+parser = ArgumentParser(formatter=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-i','--inp_list',default=None,help='Input file list (%(default)s)')
 parser.add_argument('-I','--inp_fnam',default=None,action='append',help='Input file name (%(default)s)')
 parser.add_argument('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%(default)s)')

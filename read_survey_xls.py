@@ -19,7 +19,7 @@ NMIN = 20
 EPSG = 32748 # UTM zone 48S
 
 # Read options
-parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-I','--inp_fnam',default=None,help='Input file name (%(default)s)')
 parser.add_argument('-O','--out_fnam',default=None,help='Output file name (%(default)s)')
 parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number (%(default)s)')

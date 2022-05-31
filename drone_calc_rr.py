@@ -31,7 +31,7 @@ INNER_SIZE = 29 # pixel
 OUTER_SIZE = 35 # pixel
 
 # Read options
-parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))

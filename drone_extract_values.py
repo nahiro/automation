@@ -33,7 +33,7 @@ OUTER_RADIUS = 0.5 # m
 PARAM = ['Nr']
 
 # Read options
-parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-I','--src_geotiff',default=None,action='append',help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%(default)s)')
 parser.add_argument('-e','--ext_fnam',default=None,help='Extract file name (%(default)s)')
