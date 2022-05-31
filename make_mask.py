@@ -8,24 +8,24 @@ import shapefile
 from shapely.geometry import Polygon
 import numpy as np
 from scipy.interpolate import griddata
-from optparse import OptionParser,IndentedHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Default values
 BUFFER = -1.5 # m
 
 # Read options
-parser = OptionParser(formatter=IndentedHelpFormatter(max_help_position=200,width=200))
-parser.add_option('-s','--shp_fnam',default=None,help='Shape file name (%default)')
-parser.add_option('-b','--buffer',default=BUFFER,type='float',help='Buffer distance (%default)')
-parser.add_option('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%default)')
-parser.add_option('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%default)')
-parser.add_option('--use_index',default=False,action='store_true',help='Use index instead of OBJECTID (%default)')
-(opts,args) = parser.parse_args()
-if opts.dst_geotiff is None:
-    bnam,enam = os.path.splitext(os.path.basename(opts.src_geotiff))
-    opts.dst_geotiff = bnam+'_mask'+enam
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-s','--shp_fnam',default=None,help='Shape file name (%(default)s)')
+parser.add_argument('-b','--buffer',default=BUFFER,type=float,help='Buffer distance (%(default)s)')
+parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
+parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
+parser.add_argument('--use_index',default=False,action='store_true',help='Use index instead of OBJECTID (%(default)s)')
+args = parser.parse_args()
+if args.dst_geotiff is None:
+    bnam,enam = os.path.splitext(os.path.basename(args.src_geotiff))
+    args.dst_geotiff = bnam+'_mask'+enam
 
-ds = gdal.Open(opts.src_geotiff)
+ds = gdal.Open(args.src_geotiff)
 src_nx = ds.RasterXSize
 src_ny = ds.RasterYSize
 src_nb = ds.RasterCount
@@ -62,18 +62,18 @@ dst_data = np.full(dst_shape,-1)
 dst_band = 'mask'
 dst_nodata = -1
 
-r = shapefile.Reader(opts.shp_fnam)
+r = shapefile.Reader(args.shp_fnam)
 for ii,shaperec in enumerate(r.iterShapeRecords()):
     rec = shaperec.record
     shp = shaperec.shape
-    if opts.use_index:
+    if args.use_index:
         object_id = ii+1
     else:
         object_id = rec.OBJECTID
     if len(shp.points) < 1:
         sys.stderr.write('Warning, len(shp.points)={}, ii={}\n'.format(len(shp.points),ii))
         continue
-    poly_buffer = Polygon(shp.points).buffer(opts.buffer)
+    poly_buffer = Polygon(shp.points).buffer(args.buffer)
     if poly_buffer.area <= 0.0:
         continue
     xmin_buffer,ymin_buffer,xmax_buffer,ymax_buffer = poly_buffer.bounds
@@ -90,7 +90,7 @@ for ii,shaperec in enumerate(r.iterShapeRecords()):
     dst_data[flags] = object_id
 
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(opts.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Int32)
+ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Int32)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)
