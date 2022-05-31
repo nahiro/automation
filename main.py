@@ -4,22 +4,8 @@ import tkinter as tk
 from tkinter import ttk
 import tkfilebrowser
 from custom_calendar import CustomDateEntry
-from proc_orthomosaic import proc_orthomosaic
-from proc_geocor import proc_geocor
-from proc_indices import proc_indices
-from proc_identify import proc_identify
-from proc_extract import proc_extract
-from proc_formula import proc_formula
-from proc_estimate import proc_estimate
+from config import *
 
-pnams = []
-pnams.append('orthomosaic')
-pnams.append('geocor')
-pnams.append('indices')
-pnams.append('identify')
-pnams.append('extract')
-pnams.append('formula')
-pnams.append('estimate')
 modules = {}
 modules['orthomosaic'] = proc_orthomosaic
 modules['geocor'] = proc_geocor
@@ -39,8 +25,6 @@ defaults['identify'] = False
 defaults['extract'] = False
 defaults['formula'] = False
 defaults['estimate'] = True
-
-from config import *
 
 def set_title():
     pnam = 'set'

@@ -3,6 +3,12 @@ import sys
 import numpy as np
 import configparser
 from proc_orthomosaic import proc_orthomosaic
+from proc_geocor import proc_geocor
+from proc_indices import proc_indices
+from proc_identify import proc_identify
+from proc_extract import proc_extract
+from proc_formula import proc_formula
+from proc_estimate import proc_estimate
 
 # Set folder&file names
 HOME = os.environ.get('USERPROFILE')
@@ -124,7 +130,6 @@ config_defaults = {
 'estimate.region_size'      : [0.2,0.5],
 }
 config = configparser.ConfigParser(config_defaults)
-config['main'] = {}
 
 # Read configuration
 if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
@@ -133,6 +138,7 @@ if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
 
 # Configure parameters
 #----------- main -----------
+config['main'] = {}
 blocks = eval(config['main'].get('main.blocks'))
 date_format = config['main'].get('main.date_format')
 inidir = config['main'].get('main.inidir')
@@ -144,6 +150,17 @@ right_frame_width = config['main'].getint('main.right_frame_width')
 left_cnv_height = config['main'].getint('main.left_cnv_height')
 right_cnv_height = config['main'].getint('main.right_cnv_height')
 center_btn_width = config['main'].getint('main.center_btn_width')
+#----------- subprocess -----------
+pnams = []
+pnams.append('orthomosaic')
+pnams.append('geocor')
+pnams.append('indices')
+pnams.append('identify')
+pnams.append('extract')
+pnams.append('formula')
+pnams.append('estimate')
+for pnam in pnams:
+    config[pnam] = {}
 #----------- orthomosaic -----------
 #proc_orthomosaic.values['inpdirs'] = config[].get('inpdirs')
 #----------- geocor -----------
