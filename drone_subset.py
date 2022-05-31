@@ -12,7 +12,7 @@ from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.backends.backend_pdf import PdfPages
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Default values
 GPS_FNAM = 'gps_points.csv'
@@ -27,7 +27,7 @@ FACT = 10.0
 GAMMA = 2.2
 
 # Read options
-parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
 parser.add_argument('-g','--gps_fnam',default=GPS_FNAM,help='GPS file name (%(default)s)')

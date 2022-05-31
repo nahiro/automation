@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
@@ -20,7 +20,7 @@ SMAX = [9]
 SINT = [2]
 
 # Read options
-parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument('-i','--inp_fnam',default=None,help='Input formula file name (%(default)s)')
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')

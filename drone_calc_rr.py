@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 PARAMS = ['Grg','Lrg','Lb','Lg','Lr','Le','Ln','Srg','Sb','Sg','Sr','Se','Sn','Nr','Br']
@@ -31,7 +31,7 @@ INNER_SIZE = 29 # pixel
 OUTER_SIZE = 35 # pixel
 
 # Read options
-parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))

@@ -10,7 +10,7 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
@@ -36,7 +36,7 @@ Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hop
 FIGNAM = 'drone_score_fit.pdf'
 
 # Read options
-parser = ArgumentParser(formatter=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter=RawTextHelpFormatter)
 parser.add_argument('-i','--inp_list',default=None,help='Input file list (%(default)s)')
 parser.add_argument('-I','--inp_fnam',default=None,action='append',help='Input file name (%(default)s)')
 parser.add_argument('-O','--out_fnam',default=OUT_FNAM,help='Output file name (%(default)s)')

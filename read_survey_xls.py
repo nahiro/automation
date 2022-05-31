@@ -10,7 +10,7 @@ import gdal
 import pyproj
 from subprocess import call
 from io import StringIO
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Defaults
 SHEET = 0
@@ -19,7 +19,7 @@ NMIN = 20
 EPSG = 32748 # UTM zone 48S
 
 # Read options
-parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument('-I','--inp_fnam',default=None,help='Input file name (%(default)s)')
 parser.add_argument('-O','--out_fnam',default=None,help='Output file name (%(default)s)')
 parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number (%(default)s)')

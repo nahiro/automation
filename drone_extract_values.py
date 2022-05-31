@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_pdf import PdfPages
-from argparse import ArgumentParser,RawDescriptionHelpFormatter
+from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
@@ -33,7 +33,7 @@ OUTER_RADIUS = 0.5 # m
 PARAM = ['Nr']
 
 # Read options
-parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter)
+parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
 parser.add_argument('-I','--src_geotiff',default=None,action='append',help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%(default)s)')
 parser.add_argument('-e','--ext_fnam',default=None,help='Extract file name (%(default)s)')
