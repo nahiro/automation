@@ -41,8 +41,6 @@ defaults['formula'] = False
 defaults['estimate'] = True
 
 from config import *
-if not os.path.isdir(inidir):
-    inidir = os.path.join(os.environ.get('USERPROFILE'),'Documents')
 
 def set_title():
     pnam = 'set'
