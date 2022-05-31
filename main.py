@@ -6,18 +6,6 @@ import tkfilebrowser
 from custom_calendar import CustomDateEntry
 from config import *
 
-titles = {}
-for pnam in pnams:
-    titles[pnam] = modules[pnam].proc_title
-defaults = {}
-defaults['orthomosaic'] = True
-defaults['geocor'] = True
-defaults['indices'] = True
-defaults['identify'] = False
-defaults['extract'] = False
-defaults['formula'] = False
-defaults['estimate'] = True
-
 def set_title():
     pnam = 'set'
     #top_lbl[pnam].pack(pady=(0,3),side=tk.LEFT)

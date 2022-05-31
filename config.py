@@ -26,6 +26,13 @@ config_defaults = {
 'main.date_format'          : 'yyyy-mm&mmm-dd',
 'main.inidir'               : main_inidir,
 'main.browse_image'         : main_browse_image,
+'main.orthomosaic'          : True,
+'main.geocor'               : True,
+'main.indices'              : True,
+'main.identify'             : False,
+'main.extract'              : False,
+'main.formula'              : False,
+'main.estimate'             : True,
 'main.window_width'         : 500,
 'main.top_frame_height'     : 60,
 'main.left_frame_width'     : 30,
@@ -169,14 +176,12 @@ pnams.append('extract')
 pnams.append('formula')
 pnams.append('estimate')
 modules = {}
-modules['orthomosaic'] = proc_orthomosaic
-modules['geocor'] = proc_geocor
-modules['indices'] = proc_indices
-modules['identify'] = proc_identify
-modules['extract'] = proc_extract
-modules['formula'] = proc_formula
-modules['estimate'] = proc_estimate
+titles = {}
+defaults = {}
 for proc in pnams:
+    modules[proc] = eval('proc_{}'.format(proc))
+    titles[proc] = modules[proc].proc_title
+    defaults[proc] = config['main'].getboolean('main.{}'.format(proc))
     config[proc] = {}
     for pnam in modules[proc].pnams:
         if modules[proc].param_types[pnam] in ['string','string_select']:
