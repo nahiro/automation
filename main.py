@@ -6,14 +6,6 @@ import tkfilebrowser
 from custom_calendar import CustomDateEntry
 from config import *
 
-modules = {}
-modules['orthomosaic'] = proc_orthomosaic
-modules['geocor'] = proc_geocor
-modules['indices'] = proc_indices
-modules['identify'] = proc_identify
-modules['extract'] = proc_extract
-modules['formula'] = proc_formula
-modules['estimate'] = proc_estimate
 titles = {}
 for pnam in pnams:
     titles[pnam] = modules[pnam].proc_title

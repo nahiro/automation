@@ -125,9 +125,18 @@ config_defaults = {
 'formula.n_cros'            : 5,
 'formula.n_formula'         : 3,
 #----------- estimate -----------
-'estimate.inp_fnams'        : 'input.tif',
-'estimate.gps_fnam'         : 'gps.csv',
-'estimate.region_size'      : [0.2,0.5],
+'estimate.inp_fnam'         : 'input.tif',
+'estimate.score_fnam'       : 'score_formula.csv',
+'estimate.score_number'     : 1,
+'estimate.intensity_fnam'   : 'intensity_formula.csv',
+'estimate.intensity_number' : 1,
+'estimate.digitize'         : True,
+'estimate.y_params'         : [True,False,False,False,False,False],
+'estimate.score_max'        : [9,9,1,1,1,9],
+'estimate.score_step'       : [2,2,1,1,1,2],
+'estimate.gis_fnam'         : 'All_area_polygon_20210914.shp',
+'estimate.buffer'           : 1.0,
+'estimate.region_size'      : 1.0,
 }
 config = configparser.ConfigParser(config_defaults)
 
@@ -159,14 +168,26 @@ pnams.append('identify')
 pnams.append('extract')
 pnams.append('formula')
 pnams.append('estimate')
-for pnam in pnams:
-    config[pnam] = {}
-#----------- orthomosaic -----------
-#proc_orthomosaic.values['inpdirs'] = config[].get('inpdirs')
-#----------- geocor -----------
-#----------- indices -----------
-#----------- identify -----------
-#----------- extract -----------
-#----------- formula -----------
-#----------- estimate -----------
-
+modules = {}
+modules['orthomosaic'] = proc_orthomosaic
+modules['geocor'] = proc_geocor
+modules['indices'] = proc_indices
+modules['identify'] = proc_identify
+modules['extract'] = proc_extract
+modules['formula'] = proc_formula
+modules['estimate'] = proc_estimate
+for proc in pnams:
+    config[proc] = {}
+    for pnam in modules[proc].pnams:
+        if modules[proc].param_types[pnam] in ['string','string_select']:
+            modules[proc].values[pnam] = config[proc].get('{}.{}'.format(proc,pnam))
+        elif modules[proc].param_types[pnam] in ['int','int_select']:
+            modules[proc].values[pnam] = config[proc].getint('{}.{}'.format(proc,pnam))
+        elif modules[proc].param_types[pnam] in ['double','double_select']:
+            modules[proc].values[pnam] = config[proc].getfloat('{}.{}'.format(proc,pnam))
+        elif modules[proc].param_types[pnam] in ['boolean','boolean_select']:
+            modules[proc].values[pnam] = config[proc].getboolean('{}.{}'.format(proc,pnam))
+        elif modules[proc].param_types[pnam] in ['double_list','double_select_list']:
+            modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).replace('nan','np.nan'))
+        else:
+            modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))
