@@ -8,16 +8,21 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 METASHAPE_VERSION = '1.7'
 ALIGN_LEVELS = ['High','Medium','Low']
 FILTER_MODES = ['None','Mild','Moderate','Aggressive']
+CAMERA_PARAMS = ['f','k1','k2','k3','k4','cx','cy','p1','p2','b1','b2']
+DEPTH_MAP_QUALITIES = ['High','Medium','Low']
 OUTPUT_TYPES = ['UInt16','Int16','Float32']
 
 # Defaults
 QMIN = 0.5
 ALIGN_LEVEL = 'High'
-FILTER_MODE = 'Aggressive'
 KEY_LIMIT = 40000
 TIE_LIMIT = 4000
+CAMERA_PARAM = ['f','k1','k2','k3','cx','cy','p1','p2']
+DEPTH_MAP_QUALITY = 'Medium'
+FILTER_MODE = 'Aggressive'
 EPSG = 32748 # UTM zone 48S
 PIXEL_SIZE = 0.025 # m
+SCALE_FACTOR = 1.0
 OUTPUT_TYPE = 'Float32'
 
 # Read options
@@ -27,15 +32,17 @@ parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(d
 parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
 parser.add_argument('-q','--qmin',default=QMIN,type=float,help='Min image quality (%(default)s)')
 parser.add_argument('--align_level',default=ALIGN_LEVEL,help='Image alignment accuracy (%(default)s)')
-parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
 parser.add_argument('-l','--key_limit',default=KEY_LIMIT,type=int,help='Keypoint limit (%(default)s)')
 parser.add_argument('-L','--tie_limit',default=TIE_LIMIT,type=int,help='Tiepoint limit (%(default)s)')
+parser.add_argument('--camera_param',default=None,action='append',help='Camera model parameter ({})'.format(CAMERA_PARAM))
+parser.add_argument('--depth_map_quality',default=DEPTH_MAP_QUALITY,help='Depth map quality (%(default)s)')
+parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
 parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
 parser.add_argument('-f','--scale_factor',default=SCALE_FACTOR,type=float,help='Scale factor (%(default)s)')
 parser.add_argument('-o','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
-parser.add_argument('-p','--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
-parser.add_argument('-s','--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
+parser.add_argument('--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
+parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
 parser.add_argument('--ignore_xmp_calibration',default=False,action='store_true',help='Ignore calibration in XMP meta data (%(default)s)')
 parser.add_argument('--ignore_xmp_orientation',default=False,action='store_true',help='Ignore orientation in XMP meta data (%(default)s)')
 parser.add_argument('--ignore_accuracy',default=False,action='store_true',help='Ignore accuracy in XMP meta data (%(default)s)')
@@ -48,6 +55,13 @@ parser.add_argument('--adaptive_fitting_optimize',default=False,action='store_tr
 args = parser.parse_args()
 if not args.align_level in ALIGN_LEVELS:
     raise ValueError('Error, unsupported align level >>> {}'.args.align_level)
+if args.camera_param is None:
+    args.camera_param = CAMERA_PARAM
+for param in args.camera_param:
+    if not args.camera_param in CAMERA_PARAMS:
+        raise ValueError('Error, unknown camera parameter >>> {}'.args.camera_param)
+if not args.depth_map_quality in DEPTH_MAP_QUALITIES:
+    raise ValueError('Error, unsupported depth map quality >>> {}'.args.depth_map_quality)
 if not args.filter_mode in FILTER_MODES:
     raise ValueError('Error, unknown filter mode >>> {}'.args.filter_mode)
 if not args.output_type in OUTPUT_TYPES:
