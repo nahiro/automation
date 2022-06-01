@@ -1,12 +1,24 @@
 import os
 import sys
 import time
-import Metashape
+#import Metashape
 from argparse import ArgumentParser,RawTextHelpFormatter
+
+# Constants
+METASHAPE_VERSION = '1.7'
+ALIGN_LEVELS = ['High','Medium','Low']
+FILTER_MODES = ['None','Mild','Moderate','Aggressive']
+OUTPUT_TYPES = ['UInt16','Int16','Float32']
 
 # Defaults
 QMIN = 0.5
+ALIGN_LEVEL = 'High'
+FILTER_MODE = 'Aggressive'
+KEY_LIMIT = 40000
+TIE_LIMIT = 4000
 EPSG = 32748 # UTM zone 48S
+PIXEL_SIZE = 0.025 # m
+OUTPUT_TYPE = 'Float32'
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
@@ -14,11 +26,35 @@ parser.add_argument('-I','--inp_dnam',default=None,help='Input folder name (%(de
 parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(default)s)')
 parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
 parser.add_argument('-q','--qmin',default=QMIN,type=float,help='Min image quality (%(default)s)')
+parser.add_argument('--align_level',default=ALIGN_LEVEL,help='Image alignment accuracy (%(default)s)')
+parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
+parser.add_argument('-l','--key_limit',default=KEY_LIMIT,type=int,help='Keypoint limit (%(default)s)')
+parser.add_argument('-L','--tie_limit',default=TIE_LIMIT,type=int,help='Tiepoint limit (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
+parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
+parser.add_argument('-f','--scale_factor',default=SCALE_FACTOR,type=float,help='Scale factor (%(default)s)')
+parser.add_argument('-o','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
+parser.add_argument('-p','--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
+parser.add_argument('-s','--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
+parser.add_argument('--ignore_xmp_calibration',default=False,action='store_true',help='Ignore calibration in XMP meta data (%(default)s)')
+parser.add_argument('--ignore_xmp_orientation',default=False,action='store_true',help='Ignore orientation in XMP meta data (%(default)s)')
+parser.add_argument('--ignore_accuracy',default=False,action='store_true',help='Ignore accuracy in XMP meta data (%(default)s)')
+parser.add_argument('--ignore_antenna',default=False,action='store_true',help='Ignore GPS/INS offset in XMP meta data (%(default)s)')
+parser.add_argument('--disable_generic_preselection',default=False,action='store_true',help='Disable generic preselection (%(default)s)')
+parser.add_argument('--disable_reference_preselection',default=False,action='store_true',help='Disable reference preselection (%(default)s)')
+parser.add_argument('--disable_camera_optimization',default=False,action='store_true',help='Disable camera optimization (%(default)s)')
+parser.add_argument('--adaptive_fitting_align',default=False,action='store_true',help='Adaptive fitting during align cameras (%(default)s)')
+parser.add_argument('--adaptive_fitting_optimize',default=False,action='store_true',help='Adaptive fitting during optimize cameras (%(default)s)')
 args = parser.parse_args()
+if not args.align_level in ALIGN_LEVELS:
+    raise ValueError('Error, unsupported align level >>> {}'.args.align_level)
+if not args.filter_mode in FILTER_MODES:
+    raise ValueError('Error, unknown filter mode >>> {}'.args.filter_mode)
+if not args.output_type in OUTPUT_TYPES:
+    raise ValueError('Error, unsupported output type >>> {}'.args.output_type)
 
 # Checking compatibility
-compatible_major_version = '1.7'
+compatible_major_version = METASHAPE_VERSION
 found_major_version = '.'.join(Metashape.app.version.split('.')[:2])
 if found_major_version != compatible_major_version:
     raise Exception('Incompatible Metashape version: {} != {}'.format(found_major_version,compatible_major_version))
