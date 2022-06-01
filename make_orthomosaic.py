@@ -9,6 +9,10 @@ METASHAPE_VERSION = '1.7'
 DOWNSCALE = {'High':1,'Midium':4,'Low':16}
 ALIGN_LEVELS = ['High','Medium','Low']
 FILTER_MODES = ['None','Mild','Moderate','Aggressive']
+FILTER = {'None':Metashape.NoFiltering,
+          'Mild':Metashape.MildFiltering,
+          'Moderate':Metashape.ModerateFiltering,
+          'Aggressive':Metashape.AggressiveFiltering}
 CAMERA_PARAMS = ['f','k1','k2','k3','k4','cx','cy','p1','p2','b1','b2']
 DEPTH_MAP_QUALITIES = ['High','Medium','Low']
 OUTPUT_TYPES = ['UInt16','Int16','Float32']
@@ -101,10 +105,17 @@ doc.save()
 
 sys.stderr.write(str(len(chunk.cameras))+' images loaded\n')
 
-for sensor in doc.chunk.sensors:
-    sensor.fixed_params=['F','Cx','Cy','K1','K2','K3','P1','P2']
+if args.disable_camera_optimization:
+    params = [param.capitalize() for param in CAMERA_PARAMS]
+    for sensor in doc.chunk.sensors:
+        sensor.fixed_params = params
+else:
+    params = [param.capitalize() for param in CAMERA_PARAMS if param not in args.camera_param]
+    if len(params) > 0:
+        for sensor in doc.chunk.sensors:
+            sensor.fixed_params = params
 
-chunk.calibrateReflectance(use_reflectance_panels=False,use_sun_sensor=True)
+chunk.calibrateReflectance(use_reflectance_panels=args.use_panel,use_sun_sensor=not args.ignore_sunsensor)
 doc.save()
 
 chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
@@ -139,7 +150,7 @@ if not args.disable_camera_optimization:
     doc.save()
 
 chunk.buildDepthMaps(downscale=DOWNSCALE[args.depth_map_quality],
-                     filter_mode=Metashape.AggressiveFiltering,
+                     filter_mode=FILTER[args.filter_mode],
                      reuse_depth=True)
 doc.save()
 
@@ -163,7 +174,12 @@ if has_transform:
     chunk.buildDem(source_data=Metashape.DenseCloudData,projection=proj,interpolation=Metashape.EnabledInterpolation)
     doc.save()
 
-    chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,projection=proj,blending_mode=Metashape.MosaicBlending,refine_seamlines=False,fill_holes=True,cull_faces=False)
+    chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
+                           projection=proj,
+                           blending_mode=Metashape.MosaicBlending,
+                           refine_seamlines=False,
+                           fill_holes=True,
+                           cull_faces=False)
     doc.save()
 
 # export results
