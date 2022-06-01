@@ -6,6 +6,7 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 METASHAPE_VERSION = '1.7'
+DOWNSCALE = {'High':1,'Midium':4,'Low':16}
 ALIGN_LEVELS = ['High','Medium','Low']
 FILTER_MODES = ['None','Mild','Moderate','Aggressive']
 CAMERA_PARAMS = ['f','k1','k2','k3','k4','cx','cy','p1','p2','b1','b2']
@@ -54,18 +55,18 @@ parser.add_argument('--adaptive_fitting_align',default=False,action='store_true'
 parser.add_argument('--adaptive_fitting_optimize',default=False,action='store_true',help='Adaptive fitting during optimize cameras (%(default)s)')
 args = parser.parse_args()
 if not args.align_level in ALIGN_LEVELS:
-    raise ValueError('Error, unsupported align level >>> {}'.args.align_level)
+    raise ValueError('Error, unsupported alignment accuracy >>> {}'.format(args.align_level))
 if args.camera_param is None:
     args.camera_param = CAMERA_PARAM
 for param in args.camera_param:
-    if not args.camera_param in CAMERA_PARAMS:
-        raise ValueError('Error, unknown camera parameter >>> {}'.args.camera_param)
+    if not param in CAMERA_PARAMS:
+        raise ValueError('Error, unknown camera model parameter >>> {}'.format(param))
 if not args.depth_map_quality in DEPTH_MAP_QUALITIES:
-    raise ValueError('Error, unsupported depth map quality >>> {}'.args.depth_map_quality)
+    raise ValueError('Error, unsupported depth map quality >>> {}'.format(args.depth_map_quality))
 if not args.filter_mode in FILTER_MODES:
-    raise ValueError('Error, unknown filter mode >>> {}'.args.filter_mode)
+    raise ValueError('Error, unknown depth map filter mode >>> {}'.format(args.filter_mode))
 if not args.output_type in OUTPUT_TYPES:
-    raise ValueError('Error, unsupported output type >>> {}'.args.output_type)
+    raise ValueError('Error, unsupported output type >>> {}'.format(args.output_type))
 
 # Checking compatibility
 compatible_major_version = METASHAPE_VERSION
@@ -103,7 +104,15 @@ for sensor in doc.chunk.sensors:
 chunk.calibrateReflectance(use_reflectance_panels=False,use_sun_sensor=True)
 doc.save()
 
-chunk.matchPhotos(downscale=1,generic_preselection=False,reference_preselection=True,reference_preselection_mode=Metashape.ReferencePreselectionSource,reset_matches=True,keypoint_limit=40000,tiepoint_limit=4000,mask_tiepoints=False,guided_matching=False)
+chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
+                  generic_preselection=not args.disable_generic_preselection,
+                  reference_preselection=not args.disable_reference_preselection,
+                  reference_preselection_mode=Metashape.ReferencePreselectionSource,
+                  reset_matches=True,
+                  keypoint_limit=args.key_limit,
+                  tiepoint_limit=args.tie_limit,
+                  mask_tiepoints=False,
+                  guided_matching=False)
 doc.save()
 
 chunk.alignCameras(adaptive_fitting=False,reset_alignment=True)
