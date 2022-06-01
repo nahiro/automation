@@ -105,6 +105,11 @@ doc.save()
 
 sys.stderr.write(str(len(chunk.cameras))+' images loaded\n')
 
+chunk.estimateImageQuality(cameras=chunk.cameras)
+for camera in chunk.cameras:
+    if float(camera.photo.meta['Image/Quality']) < args.qmin:
+        camera.enabled = False
+
 if args.disable_camera_optimization:
     params = [param.capitalize() for param in CAMERA_PARAMS]
     for sensor in doc.chunk.sensors:
@@ -115,7 +120,15 @@ else:
         for sensor in doc.chunk.sensors:
             sensor.fixed_params = params
 
-chunk.calibrateReflectance(use_reflectance_panels=args.use_panel,use_sun_sensor=not args.ignore_sunsensor)
+if args.use_panel:
+    for sensor in chunk.sensors:
+        sensor.normalize_sensitivity = True
+    chunk.locateReflectancePanels()
+    if args.panel_fnam is not None:
+        chunk.loadReflectancePanelCalibration(path=args.panel_fnam)
+    chunk.calibrateReflectance(use_reflectance_panels=args.use_panel,use_sun_sensor=not args.ignore_sunsensor)
+else:
+    chunk.calibrateReflectance(use_reflectance_panels=args.use_panel,use_sun_sensor=not args.ignore_sunsensor)
 doc.save()
 
 chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
