@@ -46,8 +46,8 @@ parser.add_argument('--use_panel',default=False,action='store_true',help='Use re
 parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
 parser.add_argument('--ignore_xmp_calibration',default=False,action='store_true',help='Ignore calibration in XMP meta data (%(default)s)')
 parser.add_argument('--ignore_xmp_orientation',default=False,action='store_true',help='Ignore orientation in XMP meta data (%(default)s)')
-parser.add_argument('--ignore_accuracy',default=False,action='store_true',help='Ignore accuracy in XMP meta data (%(default)s)')
-parser.add_argument('--ignore_antenna',default=False,action='store_true',help='Ignore GPS/INS offset in XMP meta data (%(default)s)')
+parser.add_argument('--ignore_xmp_accuracy',default=False,action='store_true',help='Ignore accuracy in XMP meta data (%(default)s)')
+parser.add_argument('--ignore_xmp_antenna',default=False,action='store_true',help='Ignore GPS/INS offset in XMP meta data (%(default)s)')
 parser.add_argument('--disable_generic_preselection',default=False,action='store_true',help='Disable generic preselection (%(default)s)')
 parser.add_argument('--disable_reference_preselection',default=False,action='store_true',help='Disable reference preselection (%(default)s)')
 parser.add_argument('--disable_camera_optimization',default=False,action='store_true',help='Disable camera optimization (%(default)s)')
@@ -77,10 +77,6 @@ if found_major_version != compatible_major_version:
 def find_files(folder,types):
     return [entry.path for entry in os.scandir(folder) if (entry.is_file() and os.path.splitext(entry.name)[1].lower() in types)]
 
-if len(sys.argv) < 3:
-    sys.stderr.write('Usage: general_workflow.py <image_folder> <output_folder>\n')
-    sys.exit(1)
-
 image_folder = sys.argv[1]
 output_folder = sys.argv[2]
 
@@ -89,11 +85,18 @@ photos = find_files(image_folder,['.jpg','.jpeg','.tif','.tiff'])
 doc = Metashape.Document()
 Metashape.app.gpu_mask = 1
 Metashape.app.cpu_enable = True
-doc.save(output_folder+'/project.psx')
+doc.save(os.path.join(args.out_dnam,'project.psx'))
 
 chunk = doc.addChunk()
 
-chunk.addPhotos(photos,layout=Metashape.MultiplaneLayout,strip_extensions=True,load_xmp_calibration=True,load_xmp_orientation=True,load_xmp_accuracy=True,load_xmp_antenna=True,load_rpc_txt=True)
+chunk.addPhotos(photos,
+                layout=Metashape.MultiplaneLayout,
+                strip_extensions=True,
+                load_xmp_calibration=not args.ignore_xmp_calibrationTrue,
+                load_xmp_orientation=not args.ignore_xmp_orientation,
+                load_xmp_accuracy=not args.ignore_xmp_accuracy,
+                load_xmp_antenna=not args.ignore_xmp_antenna,
+                load_rpc_txt=True)
 doc.save()
 
 sys.stderr.write(str(len(chunk.cameras))+' images loaded\n')
@@ -115,15 +118,29 @@ chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
                   guided_matching=False)
 doc.save()
 
-chunk.alignCameras(adaptive_fitting=False,reset_alignment=True)
+chunk.alignCameras(adaptive_fitting=args.adaptive_fitting_align,reset_alignment=True)
 doc.save()
 
-#chunk.optimizeCameras(fit_f=True,fit_k1=True,fit_k2=True,fit_k3=True,
-#fit_k4=False,fit_cx=True,fit_cy=True,fit_p1=True,fit_p2=True,fit_b1=False,
-#fit_b2=False,adaptive_fitting=False,tiepoint_covariance=False,fit_corrections=True)
-#doc.save()
+if not args.disable_camera_optimization:
+    chunk.optimizeCameras(fit_f='f' in args.camera_param,
+                          fit_k1='k1' in args.camera_param,
+                          fit_k2='k2' in args.camera_param,
+                          fit_k3='k3' in args.camera_param,
+                          fit_k4='k4' in args.camera_param,
+                          fit_cx='cx' in args.camera_param,
+                          fit_cy='cy' in args.camera_param,
+                          fit_p1='p1' in args.camera_param,
+                          fit_p2='p2' in args.camera_param,
+                          fit_b1='b1' in args.camera_param,
+                          fit_b2='b2' in args.camera_param,
+                          adaptive_fitting=args.adaptive_fitting_optimize,
+                          tiepoint_covariance=False,
+                          fit_corrections=True)
+    doc.save()
 
-chunk.buildDepthMaps(downscale=4,filter_mode=Metashape.AggressiveFiltering,reuse_depth=True)
+chunk.buildDepthMaps(downscale=DOWNSCALE[args.depth_map_quality],
+                     filter_mode=Metashape.AggressiveFiltering,
+                     reuse_depth=True)
 doc.save()
 
 #chunk.buildModel(source_data=Metashape.DepthMapsData)
@@ -142,7 +159,7 @@ if has_transform:
     doc.save()
 
     proj = Metashape.OrthoProjection()
-    proj.crs = Metashape.CoordinateSystem('EPSG::32748')
+    proj.crs = Metashape.CoordinateSystem('EPSG::{}'.format(args.epsg))
     chunk.buildDem(source_data=Metashape.DenseCloudData,projection=proj,interpolation=Metashape.EnabledInterpolation)
     doc.save()
 
@@ -150,18 +167,18 @@ if has_transform:
     doc.save()
 
 # export results
-chunk.exportReport(output_folder+'/report.pdf')
+chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 
 #if chunk.model:
-#    chunk.exportModel(output_folder+'/model.obj')
+#    chunk.exportModel(os.path.join(args.out_dnam,'model.obj'))
 
 #if chunk.dense_cloud:
-#    chunk.exportPoints(output_folder+'/dense_cloud.las',source_data=Metashape.DenseCloudData)
+#    chunk.exportPoints(os.path.join(args.out_dnam,'dense_cloud.las'),source_data=Metashape.DenseCloudData)
 
 #if chunk.elevation:
-#    chunk.exportRaster(output_folder+'/dem.tif',source_data=Metashape.ElevationData)
+#    chunk.exportRaster(os.path.join(args.out_dnam,'dem.tif'),source_data=Metashape.ElevationData)
 
 if chunk.orthomosaic:
-    chunk.exportRaster(output_folder+'/orthomosaic.tif',source_data=Metashape.OrthomosaicData)
+    chunk.exportRaster(os.path.join(args.out_dnam,'orthomosaic.tif'),source_data=Metashape.OrthomosaicData)
 
-sys.stderr.write('Processing finished, results saved to '+output_folder+'.\n')
+sys.stderr.write('Processing finished, results saved to '+args.out_dnam+'.\n')
