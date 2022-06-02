@@ -25,7 +25,8 @@ gis_fnam = os.path.join(top_dir,'Shapefile','All_area_polygon_20210914','All_are
 ref_fnam = os.path.join(top_dir,'WorldView','wv2_180629_pan.tif')
 
 # Set defaults
-config_defaults = {
+config_defaults = dict(os.environ)
+config_defaults.update({
 #----------- main -----------
 'main.blocks'                         : ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B','8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15'],
 'main.date_format'                    : 'yyyy-mm&mmm-dd',
@@ -161,7 +162,7 @@ config_defaults = {
 'estimate.buffer'                     : 1.0,
 'estimate.region_size'                : 1.0,
 'estimate.middle_left_frame_width'    : 750,
-}
+})
 config = configparser.ConfigParser(config_defaults)
 
 # Read configuration
