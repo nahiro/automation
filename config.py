@@ -213,7 +213,7 @@ for proc in pnams:
         elif modules[proc].param_types[pnam] in ['boolean','boolean_select']:
             modules[proc].values[pnam] = config[proc].getboolean('{}.{}'.format(proc,pnam))
         elif modules[proc].param_types[pnam] in ['float_list','float_select_list']:
-            modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).replace('nan','np.nan'))
+            modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).lower().replace('nan','np.nan'))
         else:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))
     modules[proc].middle_left_frame_width = config[proc].getint('{}.middle_left_frame_width'.format(proc))
