@@ -64,8 +64,15 @@ class Process:
             dnam = self.inidir
         files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
         if len(files) > 0:
-            path = ';'.join(files)
-            self.center_var[pnam].set(path)
+            lines = self.center_inp[pnam].get(1.0,tk.END)
+            if (len(lines) > 1) and (lines[-2] != '\n'):
+                path = '\n'+'\n'.join(files)+'\n'
+            else:
+                path = '\n'.join(files)+'\n'
+            self.center_inp[pnam].insert(tk.END,path)
+            lines = self.center_inp[pnam].get(1.0,tk.END)
+            if self.check_err(pnam,lines):
+                self.center_var[pnam].set(lines)
         return
 
     def ask_folder(self,pnam,dnam=None):
@@ -109,6 +116,11 @@ class Process:
                 for j in range(self.list_sizes[pnam]):
                     if self.values[pnam][j] is not None:
                         self.center_var[pnam][j].set(self.values[pnam][j])
+            elif self.input_types[pnam] in ['ask_files','ask_folders']:
+                if self.values[pnam] is not None:
+                    self.center_inp[pnam].delete(1.0,tk.END)
+                    self.center_inp[pnam].insert(1.0,self.values[pnam])
+                    self.center_var[pnam].set(self.values[pnam])
             else:
                 if self.values[pnam] is not None:
                     self.center_var[pnam].set(self.values[pnam])
@@ -154,7 +166,7 @@ class Process:
             return self.center_var[pnam].get()
         elif self.param_types[pnam] == 'boolean_list':
             return self.center_var[pnam][indx].get()
-        elif self.input_types[pnam] in ['ask_folders']:
+        elif self.input_types[pnam] in ['ask_files','ask_folders']:
             if indx is not None:
                 return self.center_inp[pnam][indx].get(1.0,tk.END)
             else:
@@ -208,7 +220,7 @@ class Process:
             if ret:
                 self.right_lbl[pnam].pack_forget()
             else:
-                if self.input_types[pnam] in ['ask_folders']:
+                if self.input_types[pnam] in ['ask_files','ask_folders']:
                     self.right_lbl[pnam].pack(anchor=tk.N,side=tk.LEFT)
                 else:
                     self.right_lbl[pnam].pack(side=tk.LEFT)
@@ -272,7 +284,7 @@ class Process:
                         self.right_lbl[pnam].pack_forget()
                 else:
                     if check_errors[pnam]:
-                        if self.input_types[pnam] in ['ask_folders']:
+                        if self.input_types[pnam] in ['ask_files','ask_folders']:
                             self.right_lbl[pnam].pack(anchor=tk.N,side=tk.LEFT)
                         else:
                             self.right_lbl[pnam].pack(side=tk.LEFT)
@@ -291,6 +303,7 @@ class Process:
         self.root.geometry('{}x{}'.format(self.middle_left_frame_width,
                                           self.top_frame_height
                                           +self.bottom_frame_height+len(self.pnams)*(self.center_cnv_height+2)
+                                          +list(self.input_types.values()).count('ask_files')*(self.center_cnv_height*(self.text_height-1))
                                           +list(self.input_types.values()).count('ask_folders')*(self.center_cnv_height*(self.text_height-1))))
         self.top_frame = tk.Frame(self.root,width=10,height=self.top_frame_height,background=None)
         self.middle_frame = tk.Frame(self.root,width=10,height=20,background=None)
@@ -406,7 +419,7 @@ class Process:
             else:
                 if self.values[pnam] is not None:
                     self.center_var[pnam].set(self.values[pnam])
-            if self.input_types[pnam] in ['ask_folders']:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
                 self.center_cnv[pnam] = tk.Canvas(self.center_frame,width=self.center_frame_width,height=self.center_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
             else:
                 self.center_cnv[pnam] = tk.Canvas(self.center_frame,width=self.center_frame_width,height=self.center_cnv_height,background=bgs[i%2],highlightthickness=0)
@@ -422,11 +435,14 @@ class Process:
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_files':
-                self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
+                #self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
+                self.center_inp[pnam] = tk.Text(self.center_cnv[pnam],background=bgs[i%2],width=1)
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                self.center_inp[pnam].insert(1.0,self.center_var[pnam].get())
                 self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_files("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
-                self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                #self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.N,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folder':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
@@ -482,23 +498,23 @@ class Process:
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
             else:
                 raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,self.input_types[pnam]))
-            if self.input_types[pnam] in ['ask_folders']:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
                 self.left_cnv[pnam] = tk.Canvas(self.left_frame,width=self.left_frame_width,height=self.left_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
             else:
                 self.left_cnv[pnam] = tk.Canvas(self.left_frame,width=self.left_frame_width,height=self.left_cnv_height,background=bgs[i%2],highlightthickness=0)
             self.left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
             self.left_lbl[pnam] = ttk.Label(self.left_cnv[pnam],text=self.params[pnam])
-            if self.input_types[pnam] in ['ask_folders']:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
                 self.left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,anchor=tk.N,side=tk.LEFT)
             else:
                 self.left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
             self.left_sep[pnam] = ttk.Separator(self.left_cnv[pnam],orient='horizontal')
-            if self.input_types[pnam] in ['ask_folders']:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
                 self.left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=(self.left_cnv_height*0.4,0),anchor=tk.N,fill=tk.X,side=tk.LEFT,expand=True)
             else:
                 self.left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=(self.left_cnv_height*0.1,0),fill=tk.X,side=tk.LEFT,expand=True)
             self.left_cnv[pnam].pack_propagate(False)
-            if self.input_types[pnam] in ['ask_folders']:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
                 self.right_cnv[pnam] = tk.Canvas(self.right_frame,width=self.right_frame_width,height=self.right_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
             else:
                 self.right_cnv[pnam] = tk.Canvas(self.right_frame,width=self.right_frame_width,height=self.right_cnv_height,background=bgs[i%2],highlightthickness=0)
@@ -508,7 +524,7 @@ class Process:
         for pnam in self.pnams:
             if self.param_types[pnam] == 'boolean' or self.param_types[pnam] == 'boolean_list':
                 pass
-            elif self.input_types[pnam] == 'ask_folders':
+            elif self.input_types[pnam] in ['ask_files','ask_folders']:
                 pass
             elif '_select' in self.param_types[pnam]:
                 pass

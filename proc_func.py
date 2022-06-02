@@ -6,9 +6,11 @@ def check_file(s,t,flag=True):
     try:
         if not flag:
             return True
-        elif not os.path.exists(t):
-            raise IOError('Error in {}, no such file >>> {}'.format(s,t))
-        return True
+        else:
+            fnam = t.strip()
+            if not os.path.exists(fnam):
+                raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
+            return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
@@ -18,9 +20,14 @@ def check_files(s,t,flag=True):
         if not flag:
             return True
         else:
-            for item in t.split(';'):
-                if not os.path.isdir(item):
-                    raise IOError('Error in {}, no such file >>> {}'.format(s,item))
+            for item in t.split('\n'):
+                fnam = item.strip()
+                if len(fnam) < 1:
+                    continue
+                if os.path.isdir(fnam):
+                    raise IOError('Error in {}, no such file but folder >>> {}'.format(s,fnam))
+                elif not os.path.exists(fnam):
+                    raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
@@ -28,10 +35,11 @@ def check_files(s,t,flag=True):
 
 def check_folder(s,t,make=False):
     try:
-        if make and not os.path.exists(t):
-            os.makedirs(t)
-        if not os.path.isdir(t):
-            raise IOError('Error in {}, no such folder >>> {}'.format(s,t))
+        dnam = t.strip()
+        if make and not os.path.exists(dnam):
+            os.makedirs(dnam)
+        if not os.path.isdir(dnam):
+            raise IOError('Error in {}, no such folder >>> {}'.format(s,dnam))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
