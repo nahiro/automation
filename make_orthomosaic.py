@@ -32,7 +32,7 @@ OUTPUT_TYPE = 'Float32'
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
-parser.add_argument('-I','--inp_dnam',default=None,help='Input folder name (%(default)s)')
+parser.add_argument('-I','--inp_dnam',default=None,action='append',help='Input folder name (%(default)s)')
 parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(default)s)')
 parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
 parser.add_argument('-q','--qmin',default=QMIN,type=float,help='Min image quality (%(default)s)')
@@ -82,10 +82,11 @@ if found_major_version != compatible_major_version:
 def find_files(folder,types):
     return [entry.path for entry in os.scandir(folder) if (entry.is_file() and os.path.splitext(entry.name)[1].lower() in types)]
 
-image_folder = sys.argv[1]
-output_folder = sys.argv[2]
-
-photos = find_files(image_folder,['.jpg','.jpeg','.tif','.tiff'])
+photos = []
+for dnam in args.inp_dnam:
+    photos.extend(find_files(dnam,['.tif','.tiff']))
+if len(photos) < 1:
+    raise IOError('Error, no input image.')
 
 doc = Metashape.Document()
 Metashape.app.gpu_mask = 1
