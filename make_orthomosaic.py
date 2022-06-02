@@ -55,6 +55,7 @@ parser.add_argument('--ignore_xmp_antenna',default=False,action='store_true',hel
 parser.add_argument('--disable_generic_preselection',default=False,action='store_true',help='Disable generic preselection (%(default)s)')
 parser.add_argument('--disable_reference_preselection',default=False,action='store_true',help='Disable reference preselection (%(default)s)')
 parser.add_argument('--disable_camera_optimization',default=False,action='store_true',help='Disable camera optimization (%(default)s)')
+parser.add_argument('--disable_fit_correction',default=False,action='store_true',help='Disable optimization of additional corrections (%(default)s)')
 parser.add_argument('--adaptive_fitting_align',default=False,action='store_true',help='Adaptive fitting during align cameras (%(default)s)')
 parser.add_argument('--adaptive_fitting_optimize',default=False,action='store_true',help='Adaptive fitting during optimize cameras (%(default)s)')
 args = parser.parse_args()
@@ -159,7 +160,7 @@ if not args.disable_camera_optimization:
                           fit_b2='b2' in args.camera_param,
                           adaptive_fitting=args.adaptive_fitting_optimize,
                           tiepoint_covariance=False,
-                          fit_corrections=True)
+                          fit_corrections=not args.disable_fit_corrections)
     doc.save()
 
 chunk.buildDepthMaps(downscale=DOWNSCALE[args.depth_map_quality],
