@@ -7,7 +7,13 @@ from custom_calendar import CustomDateEntry
 from config import *
 
 def set_title(pnam):
-    top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
+    block = top_cmb.get()
+    dstr = top_cde.get()
+    field_dir = top_var['field_data'].get()
+    drone_dir = top_var['drone_data'].get()
+    analysis_dir = top_var['drone_analysis'].get()
+    #print('block={}, dstr={}, field_dir={}, drone_dir={}, analysis_dir={}'.format(block,dstr,field_dir,drone_dir,analysis_dir))
+    #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
 def ask_folder(pnam,dnam=None):
@@ -66,8 +72,7 @@ bottom_frame = tk.Frame(root,width=10,height=40,background=None)
 left_frame = tk.Frame(middle_frame,width=left_frame_width,height=10,background=None)
 center_canvas = tk.Canvas(middle_frame,width=30,height=10,background=None)
 right_frame = tk.Frame(middle_frame,width=right_frame_width,height=10,background=None)
-#top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
-top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP)
+top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
 middle_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,expand=True)
 bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.BOTTOM)
 left_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
