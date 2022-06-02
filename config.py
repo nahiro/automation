@@ -172,7 +172,8 @@ if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
 
 # Configure parameters
 #----------- main -----------
-config['main'] = {}
+if not 'main' in config:
+    config['main'] = {}
 blocks = eval(config['main'].get('main.blocks'))
 date_format = config['main'].get('main.date_format')
 field_data = config['main'].get('main.field_data')
@@ -202,7 +203,8 @@ for proc in pnams:
     modules[proc] = eval('proc_{}'.format(proc))
     titles[proc] = modules[proc].proc_title
     defaults[proc] = config['main'].getboolean('main.{}'.format(proc))
-    config[proc] = {}
+    if not proc in config:
+        config[proc] = {}
     for pnam in modules[proc].pnams:
         if modules[proc].param_types[pnam] in ['string','string_select']:
             modules[proc].values[pnam] = config[proc].get('{}.{}'.format(proc,pnam))
