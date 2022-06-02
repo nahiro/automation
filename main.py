@@ -23,8 +23,11 @@ def set_title(pnam):
         proc_orthomosaic.values['inpdirs'] = dnam
     if proc_orthomosaic.center_var is not None:
         pnam = 'inpdirs'
-        proc_orthomosaic.center_inp[pnam].delete(1.0,tk.END)
-        proc_orthomosaic.center_inp[pnam].insert(1.0,proc_orthomosaic.values[pnam])
+        try:
+            proc_orthomosaic.center_inp[pnam].delete(1.0,tk.END)
+            proc_orthomosaic.center_inp[pnam].insert(1.0,proc_orthomosaic.values[pnam])
+        except Exception:
+            pass
         proc_orthomosaic.center_var[pnam].set(proc_orthomosaic.values[pnam])
     proc_geocor.values['trg_fnam'] = os.path.join(analysis_dir,block,dstr,'orthomosaic','{}_{}.tif'.format(block,dstr))
     if proc_geocor.center_var is not None:
