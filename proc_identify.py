@@ -23,8 +23,8 @@ proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
 proc_identify.pnams.append('data_range')
 proc_identify.pnams.append('neighbor_size')
-proc_identify.params['inp_fnam'] = 'Input File'
-proc_identify.params['i_sheet'] = 'Input Sheet Number'
+proc_identify.params['inp_fnam'] = 'Observation File'
+proc_identify.params['i_sheet'] = 'Observation Sheet Number'
 proc_identify.params['gcp_fnam'] = 'GCP File'
 proc_identify.params['geocor_order'] = 'Order of Geom. Correction'
 proc_identify.params['epsg'] = 'EPSG'
