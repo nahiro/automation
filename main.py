@@ -60,14 +60,15 @@ def exit():
 
 root = tk.Tk()
 root.title('BLB Damage Estimation')
-root.geometry('{}x{}'.format(window_width,50+40+30*len(pnams)))
+root.geometry('{}x{}'.format(window_width,60+40*2+30*len(pnams)))
 top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
 middle_frame = tk.Frame(root,width=10,height=20,background=None)
 bottom_frame = tk.Frame(root,width=10,height=40,background=None)
 left_frame = tk.Frame(middle_frame,width=left_frame_width,height=10,background=None)
 center_canvas = tk.Canvas(middle_frame,width=30,height=10,background=None)
 right_frame = tk.Frame(middle_frame,width=right_frame_width,height=10,background=None)
-top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+#top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
+top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,side=tk.TOP)
 middle_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.BOTH,expand=True)
 bottom_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.BOTTOM)
 left_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.Y,side=tk.LEFT)
@@ -103,6 +104,9 @@ top_right_top_frame.pack_propagate(False)
 
 top_lbl = {}
 top_btn = {}
+top_img = {}
+top_sep = {}
+top_var = {}
 pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
@@ -115,21 +119,36 @@ pnam = 'set'
 top_btn[pnam] = tk.Button(top_right_top_frame,text=pnam.capitalize(),width=4,command=set_title)
 top_btn[pnam].pack(padx=(1,0),pady=(2,0),side=tk.LEFT)
 top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
-pnam = 'topdir'
-top_lbl[pnam] = tk.Label(top_center_bottom_frame,text='Top Folder')
-top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(3,3),anchor=tk.W,side=tk.LEFT)
-top_var = tk.StringVar()
-top_var.set(os.path.join(inidir,'Current'))
-top_box = tk.Entry(top_center_bottom_frame,textvariable=top_var)
-top_box.pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+top_center_bottom_cnv = {}
+top_center_left_cnv = {}
+top_center_right_cnv = {}
+top_right_bottom_cnv = {}
 browse_img = tk.PhotoImage(file=browse_image)
-top_btn[pnam] = tk.Button(top_center_bottom_frame,image=browse_img,width=center_btn_width,bg='white',bd=1,command=ask_folder)
-top_btn[pnam].image = browse_img
-top_btn[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
-pnam = 'set'
-top_btn[pnam] = tk.Button(top_right_bottom_frame,text=pnam.capitalize(),width=4,command=set_title)
-top_btn[pnam].pack(padx=(1,0),pady=(0,2.2),side=tk.LEFT)
-top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
+for pnam,title in zip(['field_data','drone_data','drone_analysis'],['Field Data','Drone Data','Drone Analysis']):
+    top_center_bottom_cnv[pnam] = tk.Canvas(top_center_bottom_frame,width=10,height=25)
+    top_center_bottom_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,expand=True)
+    top_center_left_cnv[pnam] = tk.Canvas(top_center_bottom_cnv[pnam],width=100,height=25)
+    top_center_left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.LEFT)
+    top_center_left_cnv[pnam].pack_propagate(False)
+    top_center_right_cnv[pnam] = tk.Canvas(top_center_bottom_cnv[pnam],width=10,height=25)
+    top_center_right_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.LEFT,expand=True)
+    top_lbl[pnam] = tk.Label(top_center_left_cnv[pnam],text=title)
+    top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(3,3),anchor=tk.W,side=tk.LEFT,expand=False)
+    top_sep[pnam] = ttk.Separator(top_center_left_cnv[pnam],orient='horizontal')
+    top_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
+    top_var[pnam] = tk.StringVar()
+    top_var[pnam].set(os.path.join(inidir,'Current'))
+    top_box = tk.Entry(top_center_right_cnv[pnam],textvariable=top_var[pnam])
+    top_box.pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+    top_img[pnam] = tk.Button(top_center_right_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=ask_folder)
+    top_img[pnam].image = browse_img
+    top_img[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
+    top_right_bottom_cnv[pnam] = tk.Canvas(top_right_bottom_frame,width=10,height=25)
+    top_right_bottom_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,expand=True)
+    btn_pnam = 'set'
+    top_btn[pnam] = tk.Button(top_right_bottom_cnv[pnam],text=btn_pnam.capitalize(),width=4,command=set_title)
+    top_btn[pnam].pack(padx=(1,0),pady=(0,2.2),side=tk.LEFT)
+    top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
 
 bottom_lbl = {}
 bottom_btn = {}

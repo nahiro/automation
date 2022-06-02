@@ -34,7 +34,7 @@ config_defaults = {
 'main.formula'              : False,
 'main.estimate'             : True,
 'main.window_width'         : 500,
-'main.top_frame_height'     : 60,
+'main.top_frame_height'     : 120,
 'main.left_frame_width'     : 30,
 'main.right_frame_width'    : 100,
 'main.left_cnv_height'      : 21,
