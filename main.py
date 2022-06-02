@@ -6,9 +6,8 @@ import tkfilebrowser
 from custom_calendar import CustomDateEntry
 from config import *
 
-def set_title():
-    pnam = 'set'
-    #top_lbl[pnam].pack(pady=(0,3),side=tk.LEFT)
+def set_title(pnam):
+    top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
 def ask_folder(pnam,dnam=None):
@@ -104,9 +103,11 @@ top_right_top_frame.pack_propagate(False)
 
 top_lbl = {}
 top_btn = {}
+top_err = {}
 top_img = {}
 top_sep = {}
 top_var = {}
+btn_pnam = 'set'
 pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
@@ -115,10 +116,9 @@ top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format)
 top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
-pnam = 'set'
-top_btn[pnam] = tk.Button(top_right_top_frame,text=pnam.capitalize(),width=4,command=set_title)
+top_btn[pnam] = tk.Button(top_right_top_frame,text=btn_pnam.capitalize(),width=4,command=eval('lambda:set_title("{}")'.format(pnam)))
 top_btn[pnam].pack(padx=(1,0),pady=(2,0),side=tk.LEFT)
-top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
+top_err[pnam] = ttk.Label(top_right_top_frame,text='ERROR',foreground='red')
 top_center_bottom_cnv = {}
 top_center_left_cnv = {}
 top_center_right_cnv = {}
@@ -145,10 +145,9 @@ for pnam,title in zip(['field_data','drone_data','drone_analysis'],['Field Data'
     top_img[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
     top_right_bottom_cnv[pnam] = tk.Canvas(top_right_bottom_frame,width=10,height=25)
     top_right_bottom_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,expand=True)
-    btn_pnam = 'set'
-    top_btn[pnam] = tk.Button(top_right_bottom_cnv[pnam],text=btn_pnam.capitalize(),width=4,command=set_title)
+    top_btn[pnam] = tk.Button(top_right_bottom_cnv[pnam],text=btn_pnam.capitalize(),width=4,command=eval('lambda:set_title("{}")'.format(pnam)))
     top_btn[pnam].pack(padx=(1,0),pady=(0,2.2),side=tk.LEFT)
-    top_lbl[pnam] = ttk.Label(top_right_bottom_frame,text='ERROR',foreground='red')
+    top_err[pnam] = ttk.Label(top_right_bottom_cnv[pnam],text='ERROR',foreground='red')
 
 bottom_lbl = {}
 bottom_btn = {}
