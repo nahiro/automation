@@ -114,5 +114,6 @@ proc_orthomosaic.input_types['pixel_size'] = 'box'
 proc_orthomosaic.input_types['scale_factor'] = 'box'
 proc_orthomosaic.input_types['output_type'] = 'string_select'
 proc_orthomosaic.flag_check['outdir'] = False
+proc_orthomosaic.flag_check['panel_fnam'] = False
 for pnam in proc_orthomosaic.pnams:
     proc_orthomosaic.values[pnam] = proc_orthomosaic.defaults[pnam]

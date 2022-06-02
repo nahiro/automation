@@ -129,6 +129,7 @@ proc_identify.input_types['rthr'] = 'float_list'
 proc_identify.input_types['sthr'] = 'box'
 proc_identify.input_types['data_range'] = 'float_list'
 proc_identify.input_types['neighbor_size'] = 'float_list'
+proc_identify.flag_check['gcp_fnam'] = False
 for pnam in proc_identify.pnams:
     proc_identify.values[pnam] = proc_identify.defaults[pnam]
 proc_identify.left_frame_width = 250
