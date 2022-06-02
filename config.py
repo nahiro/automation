@@ -169,6 +169,11 @@ config = configparser.ConfigParser(config_defaults)
 if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
     fnam = sys.argv[1]
     config.read(fnam,encoding='utf-8')
+else:
+    scrdir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    fnam = os.path.join(scrdir,'config.ini')
+    if os.path.exists(fnam):
+        config.read(fnam,encoding='utf-8')
 
 # Configure parameters
 #----------- main -----------
