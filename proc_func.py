@@ -39,11 +39,14 @@ def check_folder(s,t,make=False):
 
 def check_folders(s,t,make=False):
     try:
-        for item in t.split(';'):
-            if make and not os.path.exists(item):
-                os.makedirs(item)
-            if not os.path.isdir(item):
-                raise IOError('Error in {}, no such folder >>> {}'.format(s,item))
+        for item in t.split('\n'):
+            dnam = item.strip()
+            if len(dnam) < 1:
+                continue
+            if make and not os.path.exists(dnam):
+                os.makedirs(dnam)
+            if not os.path.isdir(dnam):
+                raise IOError('Error in {}, no such folder >>> {}'.format(s,dnam))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')

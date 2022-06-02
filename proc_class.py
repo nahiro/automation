@@ -36,6 +36,7 @@ class Process:
         self.center_cnv_height = 25
         self.right_cnv_height = 25
         self.center_btn_width = 20
+        self.text_height = 3
         self.inidir = os.path.join(HOME,'Work','Drone')
         if not os.path.isdir(self.inidir):
             self.inidir = os.path.join(HOME,'Documents')
@@ -80,8 +81,15 @@ class Process:
             dnam = self.inidir
         dirs = list(tkfilebrowser.askopendirnames(initialdir=dnam))
         if len(dirs) > 0:
-            path = ';'.join(dirs)
-            self.center_var[pnam].set(path)
+            lines = self.center_inp[pnam].get(1.0,tk.END)
+            if (len(lines) > 1) and (lines[-2] != '\n'):
+                path = '\n'+'\n'.join(dirs)+'\n'
+            else:
+                path = '\n'.join(dirs)+'\n'
+            self.center_inp[pnam].insert(tk.END,path)
+            lines = self.center_inp[pnam].get(1.0,tk.END)
+            if self.check_err(pnam,lines):
+                self.center_var[pnam].set(lines)
         return
 
     def on_mousewheel(self,event):
@@ -146,6 +154,11 @@ class Process:
             return self.center_var[pnam].get()
         elif self.param_types[pnam] == 'boolean_list':
             return self.center_var[pnam][indx].get()
+        elif self.input_types[pnam] in ['ask_folders']:
+            if indx is not None:
+                return self.center_inp[pnam][indx].get(1.0,tk.END)
+            else:
+                return self.center_inp[pnam].get(1.0,tk.END)
         else:
             if indx is not None:
                 return self.center_inp[pnam][indx].get()
@@ -195,7 +208,10 @@ class Process:
             if ret:
                 self.right_lbl[pnam].pack_forget()
             else:
-                self.right_lbl[pnam].pack(side=tk.LEFT)
+                if self.input_types[pnam] in ['ask_folders']:
+                    self.right_lbl[pnam].pack(anchor=tk.N,side=tk.LEFT)
+                else:
+                    self.right_lbl[pnam].pack(side=tk.LEFT)
         return ret
 
     def check_all(self,source='input'):
@@ -256,7 +272,10 @@ class Process:
                         self.right_lbl[pnam].pack_forget()
                 else:
                     if check_errors[pnam]:
-                        self.right_lbl[pnam].pack(side=tk.LEFT)
+                        if self.input_types[pnam] in ['ask_folders']:
+                            self.right_lbl[pnam].pack(anchor=tk.N,side=tk.LEFT)
+                        else:
+                            self.right_lbl[pnam].pack(side=tk.LEFT)
                     else:
                         self.right_lbl[pnam].pack_forget()
         return check_values,check_errors
@@ -269,11 +288,17 @@ class Process:
                 self.chk_btn = x
         self.root = tk.Toplevel(parent)
         self.root.title(self.proc_title)
-        self.root.geometry('{}x{}'.format(self.middle_left_frame_width,self.top_frame_height+self.bottom_frame_height+len(self.pnams)*(self.center_cnv_height+2)))
+        self.root.geometry('{}x{}'.format(self.middle_left_frame_width,
+                                          self.top_frame_height
+                                          +self.bottom_frame_height+len(self.pnams)*(self.center_cnv_height+2)
+                                          +list(self.input_types.values()).count('ask_folders')*(self.center_cnv_height*(self.text_height-1))))
         self.top_frame = tk.Frame(self.root,width=10,height=self.top_frame_height,background=None)
         self.middle_frame = tk.Frame(self.root,width=10,height=20,background=None)
         self.bottom_frame = tk.Frame(self.root,width=10,height=self.bottom_frame_height,background=None)
-        self.middle_left_canvas = tk.Canvas(self.middle_frame,width=30,height=10,scrollregion=(0,0,self.middle_left_frame_width,self.top_frame_height+self.bottom_frame_height+len(self.pnams)*(self.center_cnv_height+2)),background=None)
+        self.middle_left_canvas = tk.Canvas(self.middle_frame,width=30,height=10,scrollregion=(0,0,
+                                            self.middle_left_frame_width,
+                                            self.top_frame_height+self.bottom_frame_height+len(self.pnams)*(self.center_cnv_height+2)),
+                                            background=None)
         self.middle_left_canvas.bind_all('<MouseWheel>',self.on_mousewheel)
         self.middle_right_scr = tk.Scrollbar(self.middle_frame,orient=tk.VERTICAL,command=self.middle_left_canvas.yview)
         self.top_frame.pack(ipadx=0,ipady=0,padx=0,pady=0,fill=tk.X,side=tk.TOP)
@@ -381,7 +406,10 @@ class Process:
             else:
                 if self.values[pnam] is not None:
                     self.center_var[pnam].set(self.values[pnam])
-            self.center_cnv[pnam] = tk.Canvas(self.center_frame,width=self.center_frame_width,height=self.center_cnv_height,background=bgs[i%2],highlightthickness=0)
+            if self.input_types[pnam] in ['ask_folders']:
+                self.center_cnv[pnam] = tk.Canvas(self.center_frame,width=self.center_frame_width,height=self.center_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
+            else:
+                self.center_cnv[pnam] = tk.Canvas(self.center_frame,width=self.center_frame_width,height=self.center_cnv_height,background=bgs[i%2],highlightthickness=0)
             self.center_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
             self.center_cnv[pnam].pack_propagate(False)
             if self.input_types[pnam] == 'box':
@@ -406,11 +434,14 @@ class Process:
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folders':
-                self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
+                #self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
+                self.center_inp[pnam] = tk.Text(self.center_cnv[pnam],background=bgs[i%2],width=1)
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+                self.center_inp[pnam].insert(1.0,self.center_var[pnam].get())
                 self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_folders("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
-                self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                #self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
+                self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.N,side=tk.LEFT)
             elif self.input_types[pnam] == 'boolean':
                 self.center_inp[pnam] = tk.Checkbutton(self.center_cnv[pnam],background=bgs[i%2],variable=self.center_var[pnam])
                 if pnam in self.flag_fill and self.flag_fill[pnam]:
@@ -451,19 +482,33 @@ class Process:
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
             else:
                 raise ValueError('Error, unsupported input type ({}) >>> {}'.format(pnam,self.input_types[pnam]))
-            self.left_cnv[pnam] = tk.Canvas(self.left_frame,width=self.left_frame_width,height=self.left_cnv_height,background=bgs[i%2],highlightthickness=0)
+            if self.input_types[pnam] in ['ask_folders']:
+                self.left_cnv[pnam] = tk.Canvas(self.left_frame,width=self.left_frame_width,height=self.left_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
+            else:
+                self.left_cnv[pnam] = tk.Canvas(self.left_frame,width=self.left_frame_width,height=self.left_cnv_height,background=bgs[i%2],highlightthickness=0)
             self.left_cnv[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(0,2))
             self.left_lbl[pnam] = ttk.Label(self.left_cnv[pnam],text=self.params[pnam])
-            self.left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
+            if self.input_types[pnam] in ['ask_folders']:
+                self.left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,anchor=tk.N,side=tk.LEFT)
+            else:
+                self.left_lbl[pnam].pack(ipadx=0,ipady=0,padx=(20,2),pady=0,side=tk.LEFT)
             self.left_sep[pnam] = ttk.Separator(self.left_cnv[pnam],orient='horizontal')
-            self.left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
+            if self.input_types[pnam] in ['ask_folders']:
+                self.left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=(self.left_cnv_height*0.4,0),anchor=tk.N,fill=tk.X,side=tk.LEFT,expand=True)
+            else:
+                self.left_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=(self.left_cnv_height*0.1,0),fill=tk.X,side=tk.LEFT,expand=True)
             self.left_cnv[pnam].pack_propagate(False)
-            self.right_cnv[pnam] = tk.Canvas(self.right_frame,width=self.right_frame_width,height=self.right_cnv_height,background=bgs[i%2],highlightthickness=0)
+            if self.input_types[pnam] in ['ask_folders']:
+                self.right_cnv[pnam] = tk.Canvas(self.right_frame,width=self.right_frame_width,height=self.right_cnv_height*self.text_height,background=bgs[i%2],highlightthickness=0)
+            else:
+                self.right_cnv[pnam] = tk.Canvas(self.right_frame,width=self.right_frame_width,height=self.right_cnv_height,background=bgs[i%2],highlightthickness=0)
             self.right_cnv[pnam].pack(ipadx=0,ipady=0,padx=(0,20),pady=(0,2))
             self.right_cnv[pnam].pack_propagate(False)
             self.right_lbl[pnam] = ttk.Label(self.right_cnv[pnam],text='ERROR',foreground='red')
         for pnam in self.pnams:
             if self.param_types[pnam] == 'boolean' or self.param_types[pnam] == 'boolean_list':
+                pass
+            elif self.input_types[pnam] == 'ask_folders':
                 pass
             elif '_select' in self.param_types[pnam]:
                 pass
