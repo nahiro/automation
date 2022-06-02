@@ -148,6 +148,7 @@ class Process:
                     if error:
                         err = True
                     else:
+                        self.center_var[pnam][j].set(value)
                         self.values[pnam][j] = value
             else:
                 value = check_values[pnam]
@@ -155,6 +156,7 @@ class Process:
                 if error:
                     err = True
                 else:
+                    self.center_var[pnam].set(value)
                     self.values[pnam] = value
         if not err:
             self.chk_btn.invoke()
@@ -246,7 +248,7 @@ class Process:
                     for j in range(self.list_sizes[pnam]):
                         t = get(pnam,j)
                         ret = self.check_par(pnam,t)
-                        if ret:
+                        if ret: # Use values or center_var to skip type conversion
                             if self.center_var is None:
                                 check_values[pnam][j] = self.values[pnam][j]
                             else:
@@ -262,8 +264,10 @@ class Process:
                 try:
                     t = get(pnam)
                     ret = self.check_par(pnam,t)
-                    if ret:
-                        if self.center_var is None:
+                    if ret: # Use values or center_var to skip type conversion
+                        if self.param_types[pnam] in ['string']: # center_var maybe None in case ask_files/ask_folders
+                            check_values[pnam] = t
+                        elif self.center_var is None:
                             check_values[pnam] = self.values[pnam]
                         else:
                             check_values[pnam] = self.center_var[pnam].get()
