@@ -157,15 +157,15 @@ p_param = []
 if args.amin is not None or args.amax is not None:
     p_param.append('Age')
 for param in OBJECTS:
-    if param in y_threshold.keys():
+    if param in y_threshold:
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
         p_param.append(param)
 for y_param in args.y_param:
-    if not y_param in y_max.keys():
+    if not y_param in y_max:
         if not 'Tiller' in p_param:
             p_param.append('Tiller')
-    for param in y_factor[y_param].keys():
+    for param in y_factor[y_param]:
         if not param in p_param:
             p_param.append(param)
 for param in args.x_param:
@@ -232,15 +232,15 @@ if args.use_average:
 
 # Convert objective variable to damage intensity
 for y_param in args.y_param:
-    if y_param in y_max.keys():
+    if y_param in y_max:
         Y[y_param] = Y[y_param]/y_max[y_param]
     else:
         Y[y_param] = Y[y_param]/P['Tiller']
 
 # Add equivalent values to objective variables
 for y_param in args.y_param:
-    for param in y_factor[y_param].keys():
-        if param in y_max.keys():
+    for param in y_factor[y_param]:
+        if param in y_max:
             Y[y_param] += P[param]/y_max[param]*y_factor[y_param][param]
         else:
             Y[y_param] += P[param]/P['Tiller']*y_factor[y_param][param]
@@ -276,10 +276,10 @@ with open(args.out_fnam,'w') as fp:
     fp.write('\n')
 for y_param in args.y_param:
     cnd = np.full((len(X_inp),),False)
-    for param in y_threshold.keys():
+    for param in y_threshold:
         if param in [y_param]:
             continue
-        elif param in y_max.keys():
+        elif param in y_max:
             cnd |= (P_inp[param]/y_max[param] > y_threshold[param]).values
         else:
             cnd |= (P_inp[param]/P_inp['Tiller'] > y_threshold[param]).values
@@ -408,7 +408,7 @@ for y_param in args.y_param:
                 fig.clear()
                 ax1 = plt.subplot(111)
                 ax1.minorticks_on()
-                if y_param in y_max.keys():
+                if y_param in y_max:
                     ax1.plot(Y*y_max[y_param],Y_pred*y_max[y_param],'bo')
                     xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
                     xmax = max(Y.max(),Y_pred.max())*y_max[y_param]

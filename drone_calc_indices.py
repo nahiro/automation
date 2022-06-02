@@ -37,12 +37,12 @@ parser.add_argument('-M','--mask_geotiff',default=None,help='Mask GeoTIFF name (
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter ({})'.format(PARAM))
 parser.add_argument('-N','--norm_band',default=None,action='append',help='Wavelength band for normalization ({})'.format(NORM_BAND))
 parser.add_argument('-r','--rgi_red_band',default=RGI_RED_BAND,help='Wavelength band for RGI (%(default)s)')
-parser.add_argument('--data_min',default=None,type='float',help='Minimum data value (%(default)s)')
-parser.add_argument('--data_max',default=None,type='float',help='Maximum data value (%(default)s)')
+parser.add_argument('--data_min',default=None,type=float,help='Minimum data value (%(default)s)')
+parser.add_argument('--data_max',default=None,type=float,help='Maximum data value (%(default)s)')
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
-parser.add_argument('-z','--ax1_zmin',default=None,type='float',action='append',help='Axis1 Z min for debug (%(default)s)')
-parser.add_argument('-Z','--ax1_zmax',default=None,type='float',action='append',help='Axis1 Z max for debug (%(default)s)')
-parser.add_argument('-s','--ax1_zstp',default=None,type='float',action='append',help='Axis1 Z stp for debug (%(default)s)')
+parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
+parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
+parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',help='Axis1 Z stp for debug (%(default)s)')
 parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
 parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
@@ -55,9 +55,9 @@ for param in args.param:
 if args.norm_band is None:
     args.norm_band = NORM_BAND
 for band in args.norm_band:
-    if not band in bands.keys():
+    if not band in bands:
         raise ValueError('Error, unknown band for normalization >>> {}'.format(band))
-if not args.rgi_red_band in bands.keys():
+if not args.rgi_red_band in bands:
     raise ValueError('Error, unknown band for rgi >>> {}'.format(args.rgi_red_band))
 if args.ax1_zmin is not None:
     while len(args.ax1_zmin) < len(args.param):
@@ -68,7 +68,9 @@ if args.ax1_zmax is not None:
 if args.ax1_zstp is not None:
     while len(args.ax1_zstp) < len(args.param):
         args.ax1_zstp.append(args.ax1_zstp[-1])
-if args.dst_geotiff is None or args.fignam is None:
+if args.src_geotiff is None:
+    raise ValueError('Error, src_geotiff is not specified.')
+elif args.dst_geotiff is None or args.fignam is None:
     bnam,enam = os.path.splitext(args.src_geotiff)
     if args.dst_geotiff is None:
         args.dst_geotiff = bnam+'_indices'+enam
@@ -131,7 +133,7 @@ if args.mask_geotiff is not None:
 fnam = args.src_geotiff
 norm = 0.0
 value_pix = {}
-for band in bands.keys():
+for band in bands:
     value_pix[band] = calc_vpix(src_data,band)
     if band in args.norm_band:
         norm += value_pix[band]

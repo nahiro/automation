@@ -180,7 +180,7 @@ with open(args.out_csv,'w') as fp:
         fp.write(', {:>13s}'.format(y_param))
     fp.write('\n')
     for object_id in object_ids:
-        if object_id in out_data.keys():
+        if object_id in out_data:
             fp.write('{:8d}'.format(object_id))
             for y_param in args.y_param:
                 fp.write(', {:>13.6e}'.format(out_data[object_id][dst_band_index[y_param]]))

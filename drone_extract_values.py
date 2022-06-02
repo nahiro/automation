@@ -20,7 +20,7 @@ bands['r'] = 'Red'
 bands['e'] = 'RedEdge'
 bands['n'] = 'NIR'
 pnams = {}
-for band in bands.keys():
+for band in bands:
     pnams['S'+band] = bands[band]
     pnams['N'+band] = 'Normalized '+bands[band]
 for param in ['NDVI','GNDVI','RGI','NRGI']:

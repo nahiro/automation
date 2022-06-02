@@ -2,32 +2,28 @@ import os
 import sys
 import numpy as np
 
-def check_file(s,t,flag=True):
+def check_file(s,t):
     try:
-        if not flag:
-            return True
-        else:
-            fnam = t.strip()
-            if not os.path.exists(fnam):
-                raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
-            return True
+        fnam = t.strip()
+        if os.path.isdir(fnam):
+            raise IOError('Error in {}, no such file but folder >>> {}'.format(s,fnam))
+        elif not os.path.exists(fnam):
+            raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
+        return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')
         return False
 
-def check_files(s,t,flag=True):
+def check_files(s,t):
     try:
-        if not flag:
-            return True
-        else:
-            for item in t.split('\n'):
-                fnam = item.strip()
-                if len(fnam) < 1:
-                    continue
-                if os.path.isdir(fnam):
-                    raise IOError('Error in {}, no such file but folder >>> {}'.format(s,fnam))
-                elif not os.path.exists(fnam):
-                    raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
+        for item in t.split('\n'):
+            fnam = item.strip()
+            if len(fnam) < 1:
+                continue
+            if os.path.isdir(fnam):
+                raise IOError('Error in {}, no such file but folder >>> {}'.format(s,fnam))
+            elif not os.path.exists(fnam):
+                raise IOError('Error in {}, no such file >>> {}'.format(s,fnam))
         return True
     except Exception as e:
         sys.stderr.write(str(e)+'\n')

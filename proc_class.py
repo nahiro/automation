@@ -25,6 +25,7 @@ class Process:
         self.list_labels = {}
         self.values = {}
         self.input_types = {}
+        self.flag_check = {}
         self.flag_fill = {}
 
         self.top_frame_height = 5
@@ -186,7 +187,9 @@ class Process:
             return self.values[pnam]
 
     def check_par(self,pnam,t):
-        if self.input_types[pnam] == 'box':
+        if (pnam in self.flag_check) and (not self.flag_check[pnam]):
+            return True
+        elif self.input_types[pnam] == 'box':
             if self.param_types[pnam] == 'string':
                 return True
             elif self.param_types[pnam] == 'int':
