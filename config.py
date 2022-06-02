@@ -14,9 +14,15 @@ from proc_estimate import proc_estimate
 HOME = os.environ.get('USERPROFILE')
 if HOME is None:
     HOME = os.environ.get('HOME')
-main_inidir = os.path.join(HOME,'Work','Drone')
-if not os.path.isdir(main_inidir):
-    main_inidir = os.path.join(HOME,'Documents')
+main_field_data = os.path.join(HOME,'Work','Field_Data')
+main_drone_data = os.path.join(HOME,'Work','Drone_Data')
+main_drone_analysis = os.path.join(HOME,'Work','Drone_Analysis')
+if not os.path.isdir(main_field_data):
+    main_field_data = os.path.join(HOME,'Documents','Field_Data')
+if not os.path.isdir(main_drone_data):
+    main_drone_data = os.path.join(HOME,'Documents','Drone_Data')
+if not os.path.isdir(main_drone_analysis):
+    main_drone_analysis = os.path.join(HOME,'Documents','Drone_Analysis')
 main_browse_image = os.path.join(HOME,'Pictures','browse.png')
 
 # Set defaults
@@ -24,7 +30,9 @@ config_defaults = {
 #----------- main -----------
 'main.blocks'               : ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B','8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15'],
 'main.date_format'          : 'yyyy-mm&mmm-dd',
-'main.inidir'               : main_inidir,
+'main.field_data'           : main_field_data,
+'main.drone_data'           : main_drone_data,
+'main.drone_analysis'       : main_drone_analysis,
 'main.browse_image'         : main_browse_image,
 'main.orthomosaic'          : True,
 'main.geocor'               : True,
@@ -33,7 +41,7 @@ config_defaults = {
 'main.extract'              : False,
 'main.formula'              : False,
 'main.estimate'             : True,
-'main.window_width'         : 500,
+'main.window_width'         : 600,
 'main.top_frame_height'     : 120,
 'main.left_frame_width'     : 30,
 'main.right_frame_width'    : 100,
@@ -158,7 +166,9 @@ if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
 config['main'] = {}
 blocks = eval(config['main'].get('main.blocks'))
 date_format = config['main'].get('main.date_format')
-inidir = config['main'].get('main.inidir')
+field_data = config['main'].get('main.field_data')
+drone_data = config['main'].get('main.drone_data')
+drone_analysis = config['main'].get('main.drone_analysis')
 browse_image = config['main'].get('main.browse_image')
 window_width = config['main'].getint('main.window_width')
 top_frame_height = config['main'].getint('main.top_frame_height')

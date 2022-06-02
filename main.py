@@ -11,12 +11,12 @@ def set_title():
     #top_lbl[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
-def ask_folder(dnam=None):
+def ask_folder(pnam,dnam=None):
     if dnam is None:
-        dnam = inidir
+        dnam = eval(pnam)
     path = tkfilebrowser.askopendirname(initialdir=dnam)
     if len(path) > 0:
-        top_var.set(path)
+        top_var[pnam].set(path)
     return
 
 def run_all():
@@ -137,10 +137,10 @@ for pnam,title in zip(['field_data','drone_data','drone_analysis'],['Field Data'
     top_sep[pnam] = ttk.Separator(top_center_left_cnv[pnam],orient='horizontal')
     top_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
     top_var[pnam] = tk.StringVar()
-    top_var[pnam].set(os.path.join(inidir,'Current'))
+    top_var[pnam].set(os.path.join(eval(pnam),'Current'))
     top_box = tk.Entry(top_center_right_cnv[pnam],textvariable=top_var[pnam])
     top_box.pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
-    top_img[pnam] = tk.Button(top_center_right_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=ask_folder)
+    top_img[pnam] = tk.Button(top_center_right_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
     top_img[pnam].image = browse_img
     top_img[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
     top_right_bottom_cnv[pnam] = tk.Canvas(top_right_bottom_frame,width=10,height=25)
