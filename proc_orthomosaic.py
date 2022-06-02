@@ -5,7 +5,6 @@ proc_orthomosaic = Process()
 proc_orthomosaic.proc_name = 'orthomosaic'
 proc_orthomosaic.proc_title = 'Make Orthomosaic'
 proc_orthomosaic.pnams.append('inpdirs')
-proc_orthomosaic.pnams.append('outdir')
 proc_orthomosaic.pnams.append('qmin')
 proc_orthomosaic.pnams.append('xmp_flag')
 proc_orthomosaic.pnams.append('calib_flag')
@@ -22,7 +21,6 @@ proc_orthomosaic.pnams.append('pixel_size')
 proc_orthomosaic.pnams.append('scale_factor')
 proc_orthomosaic.pnams.append('output_type')
 proc_orthomosaic.params['inpdirs'] = 'Input Folders'
-proc_orthomosaic.params['outdir'] = 'Output Folder'
 proc_orthomosaic.params['qmin'] = 'Min Image Quality'
 proc_orthomosaic.params['xmp_flag'] = 'Load XMP Meta Data'
 proc_orthomosaic.params['calib_flag'] = 'Reflectance Calibration'
@@ -39,7 +37,6 @@ proc_orthomosaic.params['pixel_size'] = 'Pixel Size (m)'
 proc_orthomosaic.params['scale_factor'] = 'Scale Factor'
 proc_orthomosaic.params['output_type'] = 'Output type'
 proc_orthomosaic.param_types['inpdirs'] = 'string'
-proc_orthomosaic.param_types['outdir'] = 'string'
 proc_orthomosaic.param_types['qmin'] = 'float'
 proc_orthomosaic.param_types['xmp_flag'] = 'boolean_list'
 proc_orthomosaic.param_types['calib_flag'] = 'boolean_list'
@@ -61,7 +58,6 @@ proc_orthomosaic.param_range['epsg'] = (1,100000)
 proc_orthomosaic.param_range['pixel_size'] = (1.0e-6,1.0e6)
 proc_orthomosaic.param_range['scale_factor'] = (1.0e-50,1.0e50)
 proc_orthomosaic.defaults['inpdirs'] = 'input'
-proc_orthomosaic.defaults['outdir'] = 'output'
 proc_orthomosaic.defaults['qmin'] = 0.5
 proc_orthomosaic.defaults['xmp_flag'] = [True,True,True,True]
 proc_orthomosaic.defaults['calib_flag'] = [False,True]
@@ -97,7 +93,6 @@ proc_orthomosaic.list_labels['depth_map'] = [('Quality :',['High','Medium','Low'
 proc_orthomosaic.list_labels['output_type'] = ['UInt16','Int16','Float32']
 proc_orthomosaic.input_types = {}
 proc_orthomosaic.input_types['inpdirs'] = 'ask_folders'
-proc_orthomosaic.input_types['outdir'] = 'ask_folder'
 proc_orthomosaic.input_types['qmin'] = 'box'
 proc_orthomosaic.input_types['xmp_flag'] = 'boolean_list'
 proc_orthomosaic.input_types['calib_flag'] = 'boolean_list'
@@ -113,7 +108,6 @@ proc_orthomosaic.input_types['epsg'] = 'box'
 proc_orthomosaic.input_types['pixel_size'] = 'box'
 proc_orthomosaic.input_types['scale_factor'] = 'box'
 proc_orthomosaic.input_types['output_type'] = 'string_select'
-proc_orthomosaic.flag_check['outdir'] = False
 proc_orthomosaic.flag_check['panel_fnam'] = False
 for pnam in proc_orthomosaic.pnams:
     proc_orthomosaic.values[pnam] = proc_orthomosaic.defaults[pnam]
