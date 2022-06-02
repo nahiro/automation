@@ -176,7 +176,7 @@ doc.save()
 #chunk.buildTexture(size=4096,ghosting_filter=True)
 #doc.save()
 
-has_transform=chunk.transform.scale and chunk.transform.rotation and chunk.transform.translation
+has_transform = chunk.transform.scale and chunk.transform.rotation and chunk.transform.translation
 
 if has_transform:
     chunk.buildDenseCloud(point_colors=True,point_confidence=True)
@@ -208,6 +208,8 @@ chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 #    chunk.exportRaster(os.path.join(args.out_dnam,'dem.tif'),source_data=Metashape.ElevationData)
 
 if chunk.orthomosaic:
-    chunk.exportRaster(os.path.join(args.out_dnam,'orthomosaic.tif'),source_data=Metashape.OrthomosaicData)
+    chunk.exportRaster(os.path.join(args.out_dnam,'orthomosaic.tif'),
+                       source_data=Metashape.OrthomosaicData,
+                       save_alpha=False)
 
 sys.stderr.write('Processing finished, results saved to '+args.out_dnam+'.\n')
