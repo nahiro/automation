@@ -14,16 +14,15 @@ from proc_estimate import proc_estimate
 HOME = os.environ.get('USERPROFILE')
 if HOME is None:
     HOME = os.environ.get('HOME')
-main_field_data = os.path.join(HOME,'Work','Field_Data')
-main_drone_data = os.path.join(HOME,'Work','Drone_Data')
-main_drone_analysis = os.path.join(HOME,'Work','Drone_Analysis')
-if not os.path.isdir(main_field_data):
-    main_field_data = os.path.join(HOME,'Documents','Field_Data')
-if not os.path.isdir(main_drone_data):
-    main_drone_data = os.path.join(HOME,'Documents','Drone_Data')
-if not os.path.isdir(main_drone_analysis):
-    main_drone_analysis = os.path.join(HOME,'Documents','Drone_Analysis')
+top_dir = os.path.join(HOME,'Work')
+if not os.path.isdir(top_dir):
+    top_dir = os.path.join(HOME,'Documents')
+main_field_data = os.path.join(top_dir,'Field_Data')
+main_drone_data = os.path.join(top_dir,'Drone_Data')
+main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
 main_browse_image = os.path.join(HOME,'Pictures','browse.png')
+gis_fnam = os.path.join(top_dir,'Shapefile','All_area_polygon_20210914','All_area_polygon_20210914.shp')
+ref_fnam = os.path.join(top_dir,'WorldView','wv2_180629_pan.tif')
 
 # Set defaults
 config_defaults = {
@@ -49,8 +48,7 @@ config_defaults = {
 'main.right_cnv_height'               : 21,
 'main.center_btn_width'               : 20,
 #----------- orthomosaic -----------
-'orthomosaic.inpdirs'                 : 'input',
-'orthomosaic.outdir'                  : 'output',
+'orthomosaic.inpdirs'                 : os.path.join(main_drone_data,'Current'),
 'orthomosaic.qmin'                    : 0.5,
 'orthomosaic.xmp_flag'                : [True,True,True,True],
 'orthomosaic.calib_flag'              : [False,True],
@@ -68,12 +66,12 @@ config_defaults = {
 'orthomosaic.output_type'             : 'Int16',
 'orthomosaic.middle_left_frame_width' : 700,
 #----------- geocor -----------
-'geocor.gis_fnam'                     : 'All_area_polygon_20210914.shp',
-'geocor.ref_fnam'                     : 'wv2_180629_pan.tif',
+'geocor.gis_fnam'                     : gis_fnam,
+'geocor.ref_fnam'                     : ref_fnam,
 'geocor.ref_bands'                    : [-1,-9999],
 'geocor.ref_pixel'                    : 0.2,
 'geocor.ref_range'                    : [180.0,320.0],
-'geocor.trg_fnam'                     : 'test.tif',
+'geocor.trg_fnam'                     : os.path.join(main_drone_analysis,'Current','orthomosaic','orthomosaic.tif'),
 'geocor.trg_bands'                    : [2,4],
 'geocor.trg_ndvi'                     : True,
 'geocor.trg_binning'                  : 0.2,
@@ -93,16 +91,16 @@ config_defaults = {
 'geocor.boundary_emaxs'               : [3.0,2.0,1.5],
 'geocor.middle_left_frame_width'      : 600,
 #----------- indices -----------
-'indices.inp_fnam'                    : 'input.tif',
+'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
 'indices.out_params'                  : [False,False,False,False,False,True,True,True,True,True,True,True,False,True],
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
 'indices.data_range'                  : [np.nan,np.nan],
 'indices.middle_left_frame_width'     : 900,
 #----------- identify -----------
-'identify.inp_fnam'                   : 'input.xls',
+'identify.inp_fnam'                   : os.path.join(main_field_data,'Current','observation.xls'),
 'identify.i_sheet'                    : 1,
-'identify.gcp_fnam'                   : 'gcp.dat',
+'identify.gcp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_utm2utm.dat'),
 'identify.geocor_order'               : '2nd',
 'identify.epsg'                       : 32748,
 'identify.buffer'                     : 5.0,
@@ -121,8 +119,8 @@ config_defaults = {
 'identify.neighbor_size'              : [0.78,0.95],
 'identify.middle_left_frame_width'    : 600,
 #----------- extract -----------
-'extract.inp_fnams'                   : 'input.tif',
-'extract.gps_fnam'                    : 'gps.csv',
+'extract.inp_fnams'                   : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
+'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
 'extract.middle_left_frame_width'     : 450,
 #----------- formula -----------
@@ -156,7 +154,7 @@ config_defaults = {
 'estimate.y_params'                   : [True,False,False,False,False,False],
 'estimate.score_max'                  : [9,9,1,1,1,9],
 'estimate.score_step'                 : [2,2,1,1,1,2],
-'estimate.gis_fnam'                   : 'All_area_polygon_20210914.shp',
+'estimate.gis_fnam'                   : gis_fnam,
 'estimate.buffer'                     : 1.0,
 'estimate.region_size'                : 1.0,
 'estimate.middle_left_frame_width'    : 750,
