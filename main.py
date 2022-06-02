@@ -12,6 +12,17 @@ def set_title(pnam):
     field_dir = top_var['field_data'].get()
     drone_dir = top_var['drone_data'].get()
     analysis_dir = top_var['drone_analysis'].get()
+    proc_orthomosaic.values['inpdirs'] = os.path.join(drone_dir,block,dstr)
+    proc_orthomosaic.values['outdir'] = os.path.join(analysis_dir,block,dstr,'orthomosaic')
+    if proc_orthomosaic.center_var is not None:
+        pnam = 'inpdirs'
+        proc_orthomosaic.center_inp[pnam].delete(1.0,tk.END)
+        proc_orthomosaic.center_inp[pnam].insert(1.0,proc_orthomosaic.values[pnam])
+        proc_orthomosaic.center_var[pnam].set(proc_orthomosaic.values[pnam])
+        pnam = 'outdir'
+        proc_orthomosaic.center_var[pnam].set(proc_orthomosaic.values[pnam])
+
+
     #print('block={}, dstr={}, field_dir={}, drone_dir={}, analysis_dir={}'.format(block,dstr,field_dir,drone_dir,analysis_dir))
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
