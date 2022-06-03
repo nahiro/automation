@@ -53,8 +53,18 @@ df.columns = df.columns.str.strip()
 number_bunch = df['BunchNumber'].values
 indx_bunch = np.arange(len(number_bunch))
 plot_bunch = df['PlotPaddy'].values
-x_bunch = df['Easting'].values
-y_bunch = df['Northing'].values
+if 'EastingI' in df.columns and 'NorthingI' in df.columns:
+    x_bunch = df['EastingI'].values
+    y_bunch = df['NorthingI'].values
+elif 'EastingG' in df.columns and 'NorthingG' in df.columns:
+    x_bunch = df['EastingG'].values
+    y_bunch = df['NorthingG'].values
+elif 'EastingO' in df.columns and 'NorthingO' in df.columns:
+    x_bunch = df['EastingO'].values
+    y_bunch = df['NorthingO'].values
+else:
+    x_bunch = df['Easting'].values
+    y_bunch = df['Northing'].values
 
 plots = np.unique(plot_bunch)
 inside_plot = {}
