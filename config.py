@@ -63,7 +63,8 @@ config_defaults.update({
 'orthomosaic.depth_map'               : ['Medium','Aggressive'],
 'orthomosaic.epsg'                    : 32748,
 'orthomosaic.pixel_size'              : 0.025,
-'orthomosaic.scale_factor'            : 10.0,
+'orthomosaic.scale_factor'            : [1.0,1.0,1.0,1.0,1.0],
+'orthomosaic.nodata_value'            : -32767.0,
 'orthomosaic.output_type'             : 'Int16',
 'orthomosaic.middle_left_frame_width' : 700,
 #----------- geocor -----------
