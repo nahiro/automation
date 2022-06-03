@@ -213,7 +213,18 @@ for proc in pnams:
     if not proc in config:
         config[proc] = {}
     for pnam in modules[proc].pnams:
-        if modules[proc].param_types[pnam] in ['string','string_select']:
+        if modules[proc].input_types[pnam] in ['ask_file','ask_folder']:
+            modules[proc].values[pnam] = os.path.normpath(config[proc].get('{}.{}'.format(proc,pnam)))
+        elif modules[proc].input_types[pnam] in ['ask_files','ask_folders']:
+            lines = config[proc].get('{}.{}'.format(proc,pnam))
+            if len(lines) < 1:
+                modules[proc].values[pnam] = lines
+            else:
+                fnams = []
+                for line in lines.splitlines():
+                    fnams.append(os.path.normpath(line))
+                modules[proc].values[pnam] = '\n'.join(fnams)
+        elif modules[proc].param_types[pnam] in ['string','string_select']:
             modules[proc].values[pnam] = config[proc].get('{}.{}'.format(proc,pnam))
         elif modules[proc].param_types[pnam] in ['int','int_select']:
             modules[proc].values[pnam] = config[proc].getint('{}.{}'.format(proc,pnam))
