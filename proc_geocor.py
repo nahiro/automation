@@ -167,4 +167,4 @@ proc_geocor.input_types['boundary_emaxs'] = 'float_list'
 proc_geocor.flag_check['trg_fnam'] = False
 for pnam in proc_geocor.pnams:
     proc_geocor.values[pnam] = proc_geocor.defaults[pnam]
-proc_geocor.middle_left_frame_width = 700
+proc_geocor.middle_left_frame_width = 1000

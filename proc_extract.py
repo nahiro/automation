@@ -35,4 +35,4 @@ proc_extract.input_types['region_size'] = 'float_list'
 proc_extract.flag_check['inp_fnam'] = False
 for pnam in proc_extract.pnams:
     proc_extract.values[pnam] = proc_extract.defaults[pnam]
-proc_extract.middle_left_frame_width = 450
+proc_extract.middle_left_frame_width = 1000

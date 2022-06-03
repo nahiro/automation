@@ -139,4 +139,4 @@ proc_identify.flag_check['gcp_fnam'] = False
 for pnam in proc_identify.pnams:
     proc_identify.values[pnam] = proc_identify.defaults[pnam]
 proc_identify.left_frame_width = 250
-proc_identify.middle_left_frame_width = 600
+proc_identify.middle_left_frame_width = 1000

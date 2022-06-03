@@ -66,7 +66,7 @@ config_defaults.update({
 'orthomosaic.scale_factor'            : [1.0,1.0,1.0,1.0,1.0],
 'orthomosaic.nodata_value'            : -32767.0,
 'orthomosaic.output_type'             : 'Int16',
-'orthomosaic.middle_left_frame_width' : 700,
+'orthomosaic.middle_left_frame_width' : 1000,
 #----------- geocor -----------
 'geocor.gis_fnam'                     : gis_fnam,
 'geocor.ref_fnam'                     : ref_fnam,
@@ -91,14 +91,14 @@ config_defaults.update({
 'geocor.boundary_cmins'               : [0.01,1.3],
 'geocor.boundary_rmax'                : 1.0,
 'geocor.boundary_emaxs'               : [3.0,2.0,1.5],
-'geocor.middle_left_frame_width'      : 700,
+'geocor.middle_left_frame_width'      : 1000,
 #----------- indices -----------
 'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
 'indices.out_params'                  : [False,False,False,False,False,True,True,True,True,True,True,True,False,True],
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
 'indices.data_range'                  : [np.nan,np.nan],
-'indices.middle_left_frame_width'     : 900,
+'indices.middle_left_frame_width'     : 1000,
 #----------- identify -----------
 'identify.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
 'identify.obs_fnam'                   : os.path.join(main_field_data,'Current','observation.xls'),
@@ -120,14 +120,14 @@ config_defaults.update({
 'identify.sthr'                       : 1.0,
 'identify.data_range'                 : [np.nan,np.nan],
 'identify.neighbor_size'              : [0.78,0.95],
-'identify.middle_left_frame_width'    : 700,
+'identify.middle_left_frame_width'    : 1000,
 #----------- extract -----------
 'extract.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
 'extract.obs_fnam'                    : os.path.join(main_field_data,'Current','observation.xls'),
 'extract.i_sheet'                     : 1,
 'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
-'extract.middle_left_frame_width'     : 700,
+'extract.middle_left_frame_width'     : 1000,
 #----------- formula -----------
 'formula.inp_fnams'                   : os.path.join(main_drone_analysis,'Current','extract','orthomosaic_indices.csv'),
 'formula.age_range'                   : [-100.0,150.0],
@@ -164,7 +164,7 @@ config_defaults.update({
 'estimate.gis_fnam'                   : gis_fnam,
 'estimate.buffer'                     : 1.0,
 'estimate.region_size'                : 1.0,
-'estimate.middle_left_frame_width'    : 750,
+'estimate.middle_left_frame_width'    : 1000,
 })
 config = configparser.ConfigParser(config_defaults)
 

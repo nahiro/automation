@@ -41,4 +41,4 @@ proc_indices.input_types['data_range'] = 'float_list'
 proc_indices.flag_check['inp_fnam'] = False
 for pnam in proc_indices.pnams:
     proc_indices.values[pnam] = proc_indices.defaults[pnam]
-proc_indices.middle_left_frame_width = 900
+proc_indices.middle_left_frame_width = 1000

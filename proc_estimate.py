@@ -77,4 +77,4 @@ proc_estimate.input_types['buffer'] = 'box'
 proc_estimate.input_types['region_size'] = 'box'
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
-proc_estimate.middle_left_frame_width = 750
+proc_estimate.middle_left_frame_width = 1000
