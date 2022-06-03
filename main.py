@@ -52,6 +52,20 @@ def set_title(pnam):
         for proc_pnam in ['inp_fnam','obs_fnam','gcp_fnam']:
             proc_identify.center_var[proc_pnam].set(proc_identify.values[proc_pnam])
     # extract
+    proc_pnam = 'inp_fnam'
+    proc_extract.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
+    proc_pnam = 'obs_fnam'
+    proc_extract.values[proc_pnam] = os.path.join(field_dir,block,dstr,'{}_{}.xls'.format(block,dstr))
+    proc_pnam = 'gps_fnam'
+    dnam = os.path.join(analysis_dir,block,'identify')
+    fnams = glob(os.path.join(dnam,'*_identify.csv'))
+    if len(fnams) > 0:
+        proc_extract.values[proc_pnam] = fnams[0]
+    else:
+        proc_extract.values[proc_pnam] = os.path.join(dnam,'{}_{}_identify.csv'.format(block,dstr))
+    if proc_extract.center_var is not None:
+        for proc_pnam in ['inp_fnam','obs_fnam','gps_fnam']:
+            proc_extract.center_var[proc_pnam].set(proc_extract.values[proc_pnam])
     # formula
     # estimate
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
