@@ -90,6 +90,8 @@ if args.ext_fnam is None:
 
 comments = ''
 header = None
+easting = None
+northing = None
 loc_bunch = []
 number_bunch = []
 plot_bunch = []
@@ -97,7 +99,7 @@ x_bunch = []
 y_bunch = []
 rest_bunch = []
 with open(args.csv_fnam,'r') as fp:
-    #Location, BunchNumber, PlotPaddy, Easting, Northing, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
+    #Location, BunchNumber, PlotPaddy, EastingG, NorthingG, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
     #           15,   1,   1,  750949.8273,  9242821.0756, 2022-01-08,    55,  27,   1,   0,   5,   0,   0,   0
     for line in fp:
         if len(line) < 1:
@@ -110,8 +112,12 @@ with open(args.csv_fnam,'r') as fp:
             item = [s.strip() for s in header.split(',')]
             if len(item) < 6:
                 raise ValueError('Error in header ({}) >>> {}'.format(args.csv_fnam,header))
-            if item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or item[3] != 'Easting' or item[4] != 'Northing':
+            if (item[0] != 'Location' or item[1] != 'BunchNumber' or item[2] != 'PlotPaddy' or
+                not item[3] in ['Easting','EastingO','EastingG','EastingI'] or
+                not item[4] in ['Northing','NorthingO','NorthingG','NorthingI']):
                 raise ValueError('Error in header ({}) >>> {}'.format(args.csv_fnam,header))
+            easting = item[3]
+            northing = item[4]
             continue
         m = re.search('^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),(.*)',line)
         if not m:
@@ -174,7 +180,7 @@ with open(args.ext_fnam,'w') as fp:
     if len(comments) > 0:
         fp.write(comments)
     if header is not None:
-        fp.write(header)
+        fp.write(header.replace(easting,'EastingI').replace(northing,'NorthingI'))
 bnam,enam = os.path.splitext(args.src_geotiff)
 for plot in plots:
     # Read redness ratio image
