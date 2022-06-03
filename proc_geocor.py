@@ -1,3 +1,4 @@
+import numpy as np
 from proc_class import Process
 
 proc_geocor = Process()
@@ -93,7 +94,7 @@ proc_geocor.defaults['gis_fnam'] = 'All_area_polygon_20210914.shp'
 proc_geocor.defaults['ref_fnam'] = 'wv2_180629_pan.tif'
 proc_geocor.defaults['ref_bands'] = [-1,-9999]
 proc_geocor.defaults['ref_pixel'] = 0.2
-proc_geocor.defaults['ref_range'] = [180.0,320.0]
+proc_geocor.defaults['ref_range'] = [np.nan,np.nan]
 proc_geocor.defaults['trg_fnam'] = 'test.tif'
 proc_geocor.defaults['trg_bands'] = [2,4]
 proc_geocor.defaults['trg_ndvi'] = True
