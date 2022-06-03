@@ -222,6 +222,8 @@ for proc in pnams:
             else:
                 fnams = []
                 for line in lines.splitlines():
+                    if len(line) < 1:
+                        continue
                     fnams.append(os.path.normpath(line))
                 modules[proc].values[pnam] = '\n'.join(fnams)
         elif modules[proc].param_types[pnam] in ['string','string_select']:
