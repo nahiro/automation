@@ -382,6 +382,7 @@ for plot in plots:
     raise ValueError('Error, failed in finding Plant Date for Plot{} >>> {}'.format(plot,trans_date))
 plant_bunch = [plant_plot[plot] for plot in plot_bunch]
 
+geocor_flag = False
 if args.geocor_fnam is not None and args.geocor_geotiff is not None:
     bnam,enam = os.path.splitext(args.out_fnam)
     tmp_fnam = bnam+'_tmp'+enam
@@ -447,15 +448,19 @@ if args.geocor_fnam is not None and args.geocor_geotiff is not None:
     y_bunch = y
     if os.path.exists(tmp_fnam):
         os.remove(tmp_fnam)
+    geocor_flag = True
 
+identify_flag = False
 if args.ref_fnam is not None:
     df = pd.read_csv(args.ref_fnam,comment='#')
     df.columns = df.columns.str.strip()
+    if 'EastingI' in df.columns or not 'NorthingI' in df.columns:
+        raise ValueError('Error, identified coordinates not found >>> {}'.format(args.ref_fnam))
     loc_ref = df['Location'].astype(str).str.lower().values
     number_ref = df['BunchNumber'].values
     plot_ref = df['PlotPaddy'].values
-    x_ref = df['Easting'].values
-    y_ref = df['Northing'].values
+    x_ref = df['EastingI'].values
+    y_ref = df['NorthingI'].values
     plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
     if not np.all(loc_ref == location.lower()):
         raise ValueError('Error, different Location >>> {}'.format(args.ref_fnam))
@@ -472,6 +477,7 @@ if args.ref_fnam is not None:
         raise ValueError('Error, too few points near reference >>> {}'.format(rcnd.size))
     x_bunch = list(x_ref)
     y_bunch = list(y_ref)
+    identify_flag = True
 
 with open(args.out_fnam,'w') as fp:
     fp.write('# Location: {}\n'.format(location))
@@ -484,7 +490,12 @@ with open(args.out_fnam,'w') as fp:
     fp.write('# Variety: {}\n'.format(variety))
     fp.write('# Date: {:%Y-%m-%d}\n'.format(dtim))
     fp.write('#------------------------\n')
-    fp.write('Location, BunchNumber, PlotPaddy, Easting, Northing, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    if identify_flag:
+        fp.write('Location, BunchNumber, PlotPaddy, EastingI, NorthingI, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    elif geocor_flag:
+        fp.write('Location, BunchNumber, PlotPaddy, EastingG, NorthingG, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
+    else:
+        fp.write('Location, BunchNumber, PlotPaddy, EastingO, NorthingO, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought\n')
     for i in range(len(plot_bunch)):
         fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f}, {:10s}, {:5.0f}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}, {:3d}\n'.format(
                  location,number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],plant_bunch[i].strftime('%Y-%m-%d'),date2num(dtim)-date2num(plant_bunch[i]),
