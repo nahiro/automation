@@ -13,31 +13,34 @@ def set_title(pnam):
     field_dir = top_var['field_data'].get()
     drone_dir = top_var['drone_data'].get()
     analysis_dir = top_var['drone_analysis'].get()
+    # orthomosaic
+    proc_pnam = 'inpdirs'
     dnam = os.path.join(drone_dir,block,dstr)
     dnams = glob(os.path.join(dnam,'*FPLAN'))
     if proc_orthomosaic.values['calib_flag'][0]:
         dnams.extend(glob(os.path.join(dnam,'*MEDIA')))
     if len(dnams) > 0:
-        proc_orthomosaic.values['inpdirs'] = '\n'.join(sorted(dnams))
+        proc_orthomosaic.values[proc_pnam] = '\n'.join(sorted(dnams))
     else:
-        proc_orthomosaic.values['inpdirs'] = dnam
+        proc_orthomosaic.values[proc_pnam] = dnam
     if proc_orthomosaic.center_var is not None:
-        pnam = 'inpdirs'
         try:
-            proc_orthomosaic.center_inp[pnam].delete(1.0,tk.END)
-            proc_orthomosaic.center_inp[pnam].insert(1.0,proc_orthomosaic.values[pnam])
+            proc_orthomosaic.center_inp[proc_pnam].delete(1.0,tk.END)
+            proc_orthomosaic.center_inp[proc_pnam].insert(1.0,proc_orthomosaic.values[proc_pnam])
         except Exception:
             pass
-        proc_orthomosaic.center_var[pnam].set(proc_orthomosaic.values[pnam])
-    proc_geocor.values['trg_fnam'] = os.path.join(analysis_dir,block,dstr,'orthomosaic','{}_{}.tif'.format(block,dstr))
+        proc_orthomosaic.center_var[proc_pnam].set(proc_orthomosaic.values[proc_pnam])
+    # geocor
+    proc_pnam = 'trg_fnam'
+    proc_geocor.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'orthomosaic','{}_{}.tif'.format(block,dstr))
     if proc_geocor.center_var is not None:
-        pnam = 'trg_fnam'
-        proc_geocor.center_var[pnam].set(proc_geocor.values[pnam])
+        proc_geocor.center_var[proc_pnam].set(proc_geocor.values[proc_pnam])
+    # indices
+    proc_pnam = 'inp_fnam'
     geocor_order = {'0th':'np0','1st':'np1','2nd':'np2','3rd':'np3'}
-    proc_indices.values['inp_fnam'] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
+    proc_indices.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
     if proc_indices.center_var is not None:
-        pnam = 'inp_fnam'
-        proc_indices.center_var[pnam].set(proc_indices.values[pnam])
+        proc_indices.center_var[proc_pnam].set(proc_indices.values[proc_pnam])
 
 
     #print('block={}, dstr={}, field_dir={}, drone_dir={}, analysis_dir={}'.format(block,dstr,field_dir,drone_dir,analysis_dir))
@@ -227,4 +230,5 @@ for i,pnam in enumerate(pnams):
     right_btn[pnam].pack(side=tk.LEFT)
     right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
     check_child(pnam)
+set_title('block')
 root.mainloop()
