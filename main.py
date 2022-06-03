@@ -31,19 +31,29 @@ def set_title(pnam):
             pass
         proc_orthomosaic.center_var[proc_pnam].set(proc_orthomosaic.values[proc_pnam])
     # geocor
+    geocor_order = {'0th':'np0','1st':'np1','2nd':'np2','3rd':'np3'}
     proc_pnam = 'trg_fnam'
     proc_geocor.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'orthomosaic','{}_{}.tif'.format(block,dstr))
     if proc_geocor.center_var is not None:
         proc_geocor.center_var[proc_pnam].set(proc_geocor.values[proc_pnam])
     # indices
     proc_pnam = 'inp_fnam'
-    geocor_order = {'0th':'np0','1st':'np1','2nd':'np2','3rd':'np3'}
     proc_indices.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
     if proc_indices.center_var is not None:
         proc_indices.center_var[proc_pnam].set(proc_indices.values[proc_pnam])
-
-
-    #print('block={}, dstr={}, field_dir={}, drone_dir={}, analysis_dir={}'.format(block,dstr,field_dir,drone_dir,analysis_dir))
+    # identify
+    proc_pnam = 'inp_fnam'
+    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
+    proc_pnam = 'obs_fnam'
+    proc_identify.values[proc_pnam] = os.path.join(field_dir,block,dstr,'{}_{}.xls'.format(block,dstr))
+    proc_pnam = 'gcp_fnam'
+    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
+    if proc_identify.center_var is not None:
+        for proc_pnam in ['inp_fnam','obs_fnam','gcp_fnam']:
+            proc_identify.center_var[proc_pnam].set(proc_identify.values[proc_pnam])
+    # extract
+    # formula
+    # estimate
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
