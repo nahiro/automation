@@ -82,6 +82,10 @@ def set_title(pnam):
             pass
         proc_formula.center_var[proc_pnam].set(proc_formula.values[proc_pnam])
     # estimate
+    proc_pnam = 'inp_fnam'
+    proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
+    if proc_estimate.center_var is not None:
+        proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
