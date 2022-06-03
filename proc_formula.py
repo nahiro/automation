@@ -11,6 +11,7 @@ proc_formula.pnams.append('x_params')
 proc_formula.pnams.append('q_params')
 proc_formula.pnams.append('y_params')
 proc_formula.pnams.append('score_max')
+proc_formula.pnams.append('score_step')
 proc_formula.pnams.append('ythr')
 proc_formula.pnams.append('yfac1')
 proc_formula.pnams.append('yfac2')
@@ -18,6 +19,7 @@ proc_formula.pnams.append('yfac3')
 proc_formula.pnams.append('yfac4')
 proc_formula.pnams.append('yfac5')
 proc_formula.pnams.append('yfac6')
+proc_formula.pnams.append('mean_fitting')
 proc_formula.pnams.append('criteria')
 proc_formula.pnams.append('n_multi')
 proc_formula.pnams.append('vif_max')
@@ -30,6 +32,7 @@ proc_formula.params['x_params'] = 'Explanatory Variable Candidate'
 proc_formula.params['q_params'] = 'Identification Parameter'
 proc_formula.params['y_params'] = 'Objective Variable'
 proc_formula.params['score_max'] = 'Max Input Score'
+proc_formula.params['score_step'] = 'Digitize Score Step'
 proc_formula.params['ythr'] = 'Threshold for Training Data'
 proc_formula.params['yfac1'] = 'Conversion Factor for BLB'
 proc_formula.params['yfac2'] = 'Conversion Factor for Blast'
@@ -37,6 +40,7 @@ proc_formula.params['yfac3'] = 'Conversion Factor for StemBorer'
 proc_formula.params['yfac4'] = 'Conversion Factor for Rat'
 proc_formula.params['yfac5'] = 'Conversion Factor for Hopper'
 proc_formula.params['yfac6'] = 'Conversion Factor for Drought'
+proc_formula.params['mean_fitting'] = 'Mean Value Fitting'
 proc_formula.params['criteria'] = 'Selection Criteria'
 proc_formula.params['n_multi'] = 'Min Multicollinearity Number'
 proc_formula.params['vif_max'] = 'Max Variance Inflation Factor'
@@ -49,6 +53,7 @@ proc_formula.param_types['x_params'] = 'boolean_list'
 proc_formula.param_types['q_params'] = 'boolean_list'
 proc_formula.param_types['y_params'] = 'boolean_list'
 proc_formula.param_types['score_max'] = 'int_list'
+proc_formula.param_types['score_step'] = 'int_list'
 proc_formula.param_types['ythr'] = 'float_list'
 proc_formula.param_types['yfac1'] = 'float_list'
 proc_formula.param_types['yfac2'] = 'float_list'
@@ -56,6 +61,7 @@ proc_formula.param_types['yfac3'] = 'float_list'
 proc_formula.param_types['yfac4'] = 'float_list'
 proc_formula.param_types['yfac5'] = 'float_list'
 proc_formula.param_types['yfac6'] = 'float_list'
+proc_formula.param_types['mean_fitting'] = 'boolean'
 proc_formula.param_types['criteria'] = 'string_select'
 proc_formula.param_types['n_multi'] = 'int'
 proc_formula.param_types['vif_max'] = 'float'
@@ -64,6 +70,7 @@ proc_formula.param_types['n_formula'] = 'int'
 #proc_formula.param_range['n_x'] = (1,14)
 proc_formula.param_range['age_range'] = (-1000.0,1000.0)
 proc_formula.param_range['score_max'] = (1,65535)
+proc_formula.param_range['score_step'] = (1,65535)
 proc_formula.param_range['ythr'] = (0.0,1.0e3)
 proc_formula.param_range['yfac1'] = (0.0,1.0e5)
 proc_formula.param_range['yfac2'] = (0.0,1.0e5)
@@ -82,6 +89,7 @@ proc_formula.defaults['x_params'] = [False,False,False,False,False,True,True,Tru
 proc_formula.defaults['q_params'] = [True,True,True,True]
 proc_formula.defaults['y_params'] = [True,False,False,False,False,False]
 proc_formula.defaults['score_max'] = [9,9,1,1,1,9]
+proc_formula.defaults['score_step'] = [2,2,1,1,1,2]
 proc_formula.defaults['ythr'] = [0.2,0.2,0.2,0.2,0.2,0.2]
 proc_formula.defaults['yfac1'] = [1.0,np.nan,np.nan,np.nan,np.nan,np.nan]
 proc_formula.defaults['yfac2'] = [np.nan,1.0,np.nan,np.nan,np.nan,np.nan]
@@ -89,6 +97,7 @@ proc_formula.defaults['yfac3'] = [np.nan,np.nan,1.0,np.nan,np.nan,np.nan]
 proc_formula.defaults['yfac4'] = [np.nan,np.nan,np.nan,1.0,np.nan,np.nan]
 proc_formula.defaults['yfac5'] = [np.nan,np.nan,np.nan,np.nan,1.0,np.nan]
 proc_formula.defaults['yfac6'] = [np.nan,np.nan,np.nan,np.nan,np.nan,1.0]
+proc_formula.defaults['mean_fitting'] = False
 proc_formula.defaults['criteria'] = 'RMSE_test'
 proc_formula.defaults['n_multi'] = 1
 proc_formula.defaults['vif_max'] = 5.0
@@ -100,6 +109,7 @@ proc_formula.list_sizes['x_params'] = 14
 proc_formula.list_sizes['q_params'] = 4
 proc_formula.list_sizes['y_params'] = 6
 proc_formula.list_sizes['score_max'] = 6
+proc_formula.list_sizes['score_step'] = 6
 proc_formula.list_sizes['ythr'] = 6
 proc_formula.list_sizes['yfac1'] = 6
 proc_formula.list_sizes['yfac2'] = 6
@@ -114,6 +124,7 @@ proc_formula.list_labels['x_params'] = ['b','g','r','e','n','Nb','Ng','Nr','Ne',
 proc_formula.list_labels['q_params'] = ['Location','PlotPaddy','PlantDate','Age']
 proc_formula.list_labels['y_params'] = ['BLB','Blast','StemBorer','Rat','Hopper','Drought']
 proc_formula.list_labels['score_max'] = ['BLB :',' Blast :',' StemBorer :',' Rat :',' Hopper :',' Drought :']
+proc_formula.list_labels['score_step'] = ['BLB :',' Blast :',' StemBorer :',' Rat :',' Hopper :',' Drought :']
 proc_formula.list_labels['ythr'] = ['BLB :',' Blast :',' StemBorer :',' Rat :',' Hopper :',' Drought :']
 proc_formula.list_labels['yfac1'] = ['','','','','','']
 proc_formula.list_labels['yfac2'] = ['','','','','','']
@@ -129,6 +140,7 @@ proc_formula.input_types['x_params'] = 'boolean_list'
 proc_formula.input_types['q_params'] = 'boolean_list'
 proc_formula.input_types['y_params'] = 'boolean_list'
 proc_formula.input_types['score_max'] = 'int_list'
+proc_formula.input_types['score_step'] = 'int_list'
 proc_formula.input_types['ythr'] = 'float_list'
 proc_formula.input_types['yfac1'] = 'float_list'
 proc_formula.input_types['yfac2'] = 'float_list'
@@ -136,6 +148,7 @@ proc_formula.input_types['yfac3'] = 'float_list'
 proc_formula.input_types['yfac4'] = 'float_list'
 proc_formula.input_types['yfac5'] = 'float_list'
 proc_formula.input_types['yfac6'] = 'float_list'
+proc_formula.input_types['mean_fitting'] = 'boolean'
 proc_formula.input_types['criteria'] = 'string_select'
 proc_formula.input_types['n_multi'] = 'box'
 proc_formula.input_types['vif_max'] = 'box'
