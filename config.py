@@ -90,7 +90,7 @@ config_defaults.update({
 'geocor.boundary_cmins'               : [0.01,1.3],
 'geocor.boundary_rmax'                : 1.0,
 'geocor.boundary_emaxs'               : [3.0,2.0,1.5],
-'geocor.middle_left_frame_width'      : 600,
+'geocor.middle_left_frame_width'      : 700,
 #----------- indices -----------
 'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
 'indices.out_params'                  : [False,False,False,False,False,True,True,True,True,True,True,True,False,True],
