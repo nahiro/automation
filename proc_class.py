@@ -101,7 +101,8 @@ class Process:
         return
 
     def on_mousewheel(self,event):
-        self.middle_left_canvas.yview_scroll(-1*(event.delta//20),'units')
+        if self.root is not None and self.root.winfo_exists():
+            self.middle_left_canvas.yview_scroll(-1*(event.delta//20),'units')
 
     def on_frame_configure(self,event):
         self.root_width = self.root.winfo_width()
