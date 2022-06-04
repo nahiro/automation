@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import numpy as np
+import os
 from subprocess import call
 from proc_orthomosaic import proc_orthomosaic
 from argparse import ArgumentParser,MetavarTypeHelpFormatter
@@ -23,7 +23,6 @@ for pnam in process.pnams:
     else:
         parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
 args = parser.parse_args()
-
 for pnam in process.pnams:
     if process.input_types[pnam] in ['ask_files','ask_folders']:
         process.values[pnam] = getattr(args,pnam)
@@ -39,4 +38,5 @@ for pnam in process.pnams:
         process.values[pnam] = eval(getattr(args,pnam).replace('nan','np.nan'))
     else:
         process.values[pnam] = eval(getattr(args,pnam))
-    print('pnam={}, value={}'.format(pnam,process.values[pnam]))
+
+command = proccess.values['metashape_path']

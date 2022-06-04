@@ -52,6 +52,7 @@ config_defaults.update({
 'main.right_cnv_height'               : 21,
 'main.center_btn_width'               : 20,
 #----------- orthomosaic -----------
+'orthomosaic.metashape_path'          : os.path.join(os.environ.get('PROGRAMFILES'),'Agisoft','Metashape Pro','metashape.exe'),
 'orthomosaic.inpdirs'                 : os.path.join(main_drone_data,'Current'),
 'orthomosaic.qmin'                    : 0.5,
 'orthomosaic.xmp_flag'                : [True,True,True,True],
