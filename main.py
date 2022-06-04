@@ -90,8 +90,15 @@ def set_title(pnam):
     # estimate
     proc_pnam = 'inp_fnam'
     proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
+    # change color
     if proc_estimate.center_var is not None:
         proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
+    if pnam == 'date':
+        top_cmb.config(foreground='black')
+        style = ttk.Style()
+        style.configure('top_cde.DateEntry',foreground='black')
+    elif pnam in top_box:
+        top_box[pnam].config(foreground='black')
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
@@ -101,6 +108,8 @@ def change_color(pnam):
     elif pnam == 'date':
         style = ttk.Style()
         style.configure('top_cde.DateEntry',foreground='red')
+    elif pnam in top_box:
+        top_box[pnam].config(foreground='red')
     return
 
 def ask_folder(pnam,dnam=None):
@@ -198,6 +207,7 @@ top_btn = {}
 top_err = {}
 top_img = {}
 top_sep = {}
+top_box = {}
 top_var = {}
 btn_pnam = 'set'
 pnam = 'block'
@@ -239,8 +249,9 @@ for pnam,title in zip(['field_data','drone_data','drone_analysis'],['Field Data'
     top_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
     top_var[pnam] = tk.StringVar()
     top_var[pnam].set(os.path.join(eval(pnam),'Current'))
-    top_box = tk.Entry(top_center_right_cnv[pnam],textvariable=top_var[pnam])
-    top_box.pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+    top_box[pnam] = tk.Entry(top_center_right_cnv[pnam],textvariable=top_var[pnam])
+    top_box[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
+    top_box[pnam].config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
     top_img[pnam] = tk.Button(top_center_right_cnv[pnam],image=browse_img,width=center_btn_width,bg='white',bd=1,command=eval('lambda:ask_folder("{}")'.format(pnam)))
     top_img[pnam].image = browse_img
     top_img[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=0,anchor=tk.W,side=tk.LEFT)
