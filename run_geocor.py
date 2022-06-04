@@ -30,6 +30,8 @@ for pnam in process.pnams:
         parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
     else:
         parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+parser.add_argument('--python_path',default=None,type=str,help='Python Path (%(default)s)')
+parser.add_argument('--scr_dir',default=None,type=str,help='Script Folder (%(default)s)')
 args = parser.parse_args()
 for pnam in process.pnams:
     if process.input_types[pnam] in ['ask_files','ask_folders']:
@@ -66,6 +68,23 @@ def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
             break
     return x_center,y_center,rmse,x_selected.size,i_selected
 
+if not os.path.exists(process.values['gis_fnam']):
+    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['gis_fnam']))
+if not os.path.exists(process.values['ref_fnam']):
+    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['ref_fnam']))
+if not os.path.exists(process.values['trg_fnam']):
+    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['trg_fnam']))
+
+
+ds = gdal.Open(process.values['trg_fnam'])
+trans = ds.GetGeoTransform()
+ds = None
+xstp = trg_trans[1]
+ystp = trg_trans[5]
+istp = int(abs(process.values['trg_pixel']/xstp)+0.5)
+jstp = int(abs(process.values['trg_pixel']/ystp)+0.5)
+command = process.python_path
+
 """
 sizes = [250,250,120,120,80]
 steps = [125,125,60,60,40]
@@ -75,8 +94,6 @@ margins = [60,40,18,12,12]
 
 scrdir = os.curdir
 datdir = os.curdir
-#scndir = 'dat'
-#npzdir = 'npz'
 ref_fnam = 'wv2_180629_pan.tif'
 ref_bnam = os.path.splitext(os.path.basename(ref_fnam))[0]
 

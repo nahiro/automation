@@ -153,6 +153,8 @@ class Process:
                 command += ' --{} "{}"'.format(pnam,str(self.values[pnam]))
             else:
                 command += ' --{} "{}"'.format(pnam,str(self.values[pnam]))
+        command += ' --python_path "{}"'.format(self.python_path)
+        command += ' --scr_dir "{}"'.format(self.scr_dir)
         call(command,shell=True)
         return
 

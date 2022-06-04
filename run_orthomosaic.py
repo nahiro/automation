@@ -22,6 +22,8 @@ for pnam in process.pnams:
         parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
     else:
         parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+parser.add_argument('--python_path',default=None,type=str,help='Python Path (%(default)s)')
+parser.add_argument('--scr_dir',default=None,type=str,help='Script Folder (%(default)s)')
 args = parser.parse_args()
 for pnam in process.pnams:
     if process.input_types[pnam] in ['ask_files','ask_folders']:
