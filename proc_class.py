@@ -135,7 +135,7 @@ class Process:
     def run(self):
         sys.stderr.write('Running process {}.\n'.format(self.proc_name))
         command = 'python'
-        command += ' {}'.format(os.path.join(self.scrdir,'func.py'))
+        command += ' {}'.format(os.path.join(self.scrdir,'run_{}.py'.format(self.proc_name)))
         call(command,shell=True)
         return
 
