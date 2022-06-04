@@ -1,6 +1,7 @@
 import os
 import sys
 from glob import glob
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
 import tkfilebrowser
@@ -190,9 +191,14 @@ pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
 top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Block-'+block for block in blocks])
-top_cmb.current(0)
+if current_block != '':
+    top_cmb.set(current_block)
+else:
+    top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format)
+if current_date != '':
+    top_cde.set_date(current_date)
 top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_btn[pnam] = tk.Button(top_right_top_frame,text=btn_pnam.capitalize(),width=4,command=eval('lambda:set_title("{}")'.format(pnam)))
 top_btn[pnam].pack(padx=(1,0),pady=(2,0),side=tk.LEFT)
