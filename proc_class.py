@@ -44,6 +44,11 @@ class Process:
 
         self.python_path = sys.executable
         self.scr_dir = os.path.join(HOME,'Script')
+        self.current_block = None
+        self.current_date = None
+        self.field_data = None
+        self.drone_data = None
+        self.drone_analysis = None
         self.browse_image = os.path.join(HOME,'Pictures','browse.png')
         self.root = None
         self.chk_btn = None
