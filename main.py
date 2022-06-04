@@ -13,6 +13,12 @@ def set_title(pnam):
     field_dir = top_var['field_data'].get()
     drone_dir = top_var['drone_data'].get()
     analysis_dir = top_var['drone_analysis'].get()
+    for proc in pnams:
+        modules[proc].current_block = block
+        modules[proc].current_date = dstr
+        modules[proc].field_data = field_dir
+        modules[proc].drone_data =  drone_dir
+        modules[proc].drone_analysis = analysis_dir
     # orthomosaic
     proc_pnam = 'inpdirs'
     dnam = os.path.join(drone_dir,block,dstr)
