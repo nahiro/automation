@@ -1,7 +1,7 @@
 import numpy as np
-from proc_class import Process
+from run_formula import Formula
 
-proc_formula = Process()
+proc_formula = Formula()
 proc_formula.proc_name = 'formula'
 proc_formula.proc_title = 'Make Formula'
 proc_formula.pnams.append('inp_fnams')

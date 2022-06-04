@@ -1,6 +1,6 @@
-from proc_class import Process
+from run_estimate import Estimate
 
-proc_estimate = Process()
+proc_estimate = Estimate()
 proc_estimate.proc_name = 'estimate'
 proc_estimate.proc_title = 'Estimate Damage'
 proc_estimate.pnams.append('inp_fnam')

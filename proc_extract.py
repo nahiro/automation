@@ -1,6 +1,6 @@
-from proc_class import Process
+from run_extract import Extract
 
-proc_extract = Process()
+proc_extract = Extract()
 proc_extract.proc_name = 'extract'
 proc_extract.proc_title = 'Extract Indices'
 proc_extract.pnams.append('inp_fnam')

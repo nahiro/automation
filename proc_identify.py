@@ -1,7 +1,7 @@
 import numpy as np
-from proc_class import Process
+from run_identify import Identify
 
-proc_identify = Process()
+proc_identify = Identify()
 proc_identify.proc_name = 'identify'
 proc_identify.proc_title = 'Identify Points'
 proc_identify.pnams.append('inp_fnam')
