@@ -41,6 +41,8 @@ class Process:
         self.inidir = os.path.join(HOME,'Work','Drone')
         if not os.path.isdir(self.inidir):
             self.inidir = os.path.join(HOME,'Documents')
+
+        self.python_path = sys.executable
         self.scr_dir = os.path.join(HOME,'Script')
         self.browse_image = os.path.join(HOME,'Pictures','browse.png')
         self.root = None

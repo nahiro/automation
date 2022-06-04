@@ -18,6 +18,7 @@ top_dir = os.path.join(HOME,'Work')
 if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
 scr_dir = os.path.join(HOME,'Script')
+python_path = sys.executable
 main_field_data = os.path.join(top_dir,'Field_Data')
 main_drone_data = os.path.join(top_dir,'Drone_Data')
 main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
@@ -70,6 +71,7 @@ config_defaults.update({
 'orthomosaic.scale_factor'            : [1.0,1.0,1.0,1.0,1.0],
 'orthomosaic.nodata_value'            : -32767.0,
 'orthomosaic.output_type'             : 'Int16',
+'orthomosaic.python_path'             : python_path,
 'orthomosaic.scr_dir'                 : scr_dir,
 'orthomosaic.middle_left_frame_width' : 1000,
 #----------- geocor -----------
@@ -96,6 +98,7 @@ config_defaults.update({
 'geocor.boundary_cmins'               : [0.01,1.3],
 'geocor.boundary_rmax'                : 1.0,
 'geocor.boundary_emaxs'               : [3.0,2.0,1.5],
+'geocor.python_path'                  : python_path,
 'geocor.scr_dir'                      : scr_dir,
 'geocor.middle_left_frame_width'      : 1000,
 #----------- indices -----------
@@ -104,6 +107,7 @@ config_defaults.update({
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
 'indices.data_range'                  : [np.nan,np.nan],
+'indices.python_path'                 : python_path,
 'indices.scr_dir'                     : scr_dir,
 'indices.middle_left_frame_width'     : 1000,
 #----------- identify -----------
@@ -127,6 +131,7 @@ config_defaults.update({
 'identify.sthr'                       : 1.0,
 'identify.data_range'                 : [np.nan,np.nan],
 'identify.neighbor_size'              : [0.78,0.95],
+'identify.python_path'                : python_path,
 'identify.scr_dir'                    : scr_dir,
 'identify.middle_left_frame_width'    : 1000,
 #----------- extract -----------
@@ -135,6 +140,7 @@ config_defaults.update({
 'extract.i_sheet'                     : 1,
 'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
+'extract.python_path'                 : python_path,
 'extract.scr_dir'                     : scr_dir,
 'extract.middle_left_frame_width'     : 1000,
 #----------- formula -----------
@@ -159,6 +165,7 @@ config_defaults.update({
 'formula.vif_max'                     : 5.0,
 'formula.n_cros'                      : 5,
 'formula.n_formula'                   : 3,
+'formula.python_path'                 : python_path,
 'formula.scr_dir'                     : scr_dir,
 'formula.middle_left_frame_width'     : 1000,
 #----------- estimate -----------
@@ -174,6 +181,7 @@ config_defaults.update({
 'estimate.gis_fnam'                   : gis_fnam,
 'estimate.buffer'                     : 1.0,
 'estimate.region_size'                : 1.0,
+'estimate.python_path'                : python_path,
 'estimate.scr_dir'                    : scr_dir,
 'estimate.middle_left_frame_width'    : 1000,
 })
@@ -256,5 +264,6 @@ for proc in pnams:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).lower().replace('nan','np.nan'))
         else:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))
+    modules[proc].python_path = config[proc].get('{}.python_path'.format(proc))
     modules[proc].scr_dir = config[proc].get('{}.scr_dir'.format(proc))
     modules[proc].middle_left_frame_width = config[proc].getint('{}.middle_left_frame_width'.format(proc))
