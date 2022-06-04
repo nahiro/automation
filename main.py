@@ -95,6 +95,14 @@ def set_title(pnam):
     #top_err[pnam].pack(pady=(0,3),side=tk.LEFT)
     return
 
+def change_color(pnam):
+    if pnam == 'block':
+        top_cmb.config(foreground='red')
+    elif pnam == 'date':
+        style = ttk.Style()
+        style.configure('top_cde.DateEntry',foreground='red')
+    return
+
 def ask_folder(pnam,dnam=None):
     if dnam is None:
         dnam = eval(pnam)
@@ -201,10 +209,14 @@ if current_block != '':
 else:
     top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
-top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format)
+top_cmb.config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
+pnam = 'date'
+style = ttk.Style()
+top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format,style='top_cde.DateEntry')
 if current_date != '':
     top_cde.set_date(current_date)
 top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
+top_cde.config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
 top_btn[pnam] = tk.Button(top_right_top_frame,text=btn_pnam.capitalize(),width=4,command=eval('lambda:set_title("{}")'.format(pnam)))
 top_btn[pnam].pack(padx=(1,0),pady=(2,0),side=tk.LEFT)
 top_err[pnam] = ttk.Label(top_right_top_frame,text='ERROR',foreground='red')
