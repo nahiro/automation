@@ -1,7 +1,7 @@
 import numpy as np
-from proc_class import Process
+from run_geocor import Geocor
 
-proc_geocor = Process()
+proc_geocor = Geocor()
 proc_geocor.proc_name = 'geocor'
 proc_geocor.proc_title = 'Geometric Correction'
 proc_geocor.pnams.append('gis_fnam')

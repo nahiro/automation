@@ -9,65 +9,33 @@ except Exception:
 from glob import glob
 import numpy as np
 from subprocess import call
-from proc_geocor import proc_geocor
-from argparse import ArgumentParser,MetavarTypeHelpFormatter
+from proc_class import Process
 
-# Read options
-process = proc_geocor
-parser = ArgumentParser(formatter_class=lambda prog:MetavarTypeHelpFormatter(prog,max_help_position=200,width=200))
-for pnam in process.pnams:
-    if process.input_types[pnam] in ['ask_files','ask_folders']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
-    elif process.param_types[pnam] in ['string','string_select']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
-    elif process.param_types[pnam] in ['int','int_select']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=int,help='{} (%(default)s)'.format(process.params[pnam]))
-    elif process.param_types[pnam] in ['float','float_select']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=float,help='{} (%(default)s)'.format(process.params[pnam]))
-    elif process.param_types[pnam] in ['boolean','boolean_select']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=int,help='{} (%(default)s)'.format(process.params[pnam]))
-    elif process.param_types[pnam] in ['float_list','float_select_list']:
-        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
-    else:
-        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
-parser.add_argument('--python_path',default=None,type=str,help='Python Path (%(default)s)')
-parser.add_argument('--scr_dir',default=None,type=str,help='Script Folder (%(default)s)')
-args = parser.parse_args()
-for pnam in process.pnams:
-    if process.input_types[pnam] in ['ask_files','ask_folders']:
-        process.values[pnam] = getattr(args,pnam)
-    elif process.param_types[pnam] in ['string','string_select']:
-        process.values[pnam] = getattr(args,pnam)
-    elif process.param_types[pnam] in ['int','int_select']:
-        process.values[pnam] = getattr(args,pnam)
-    elif process.param_types[pnam] in ['float','float_select']:
-        process.values[pnam] = getattr(args,pnam)
-    elif process.param_types[pnam] in ['boolean','boolean_select']:
-        process.values[pnam] = bool(getattr(args,pnam))
-    elif process.param_types[pnam] in ['float_list','float_select_list']:
-        process.values[pnam] = eval(getattr(args,pnam).replace('nan','np.nan'))
-    else:
-        process.values[pnam] = eval(getattr(args,pnam))
+class Geocor(Process):
 
-def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
-    if selected is not None:
-        indx = selected.copy()
-    else:
-        indx = np.where(np.isfinite(x+y))[0]
-    for n in range(nrpt):
-        x_selected = x[indx]
-        y_selected = y[indx]
-        i_selected = indx.copy()
-        x_center = x_selected.mean()
-        y_center = y_selected.mean()
-        r_selected = np.sqrt(np.square(x_selected-x_center)+np.square(y_selected-y_center))
-        rmse = np.sqrt(np.mean(np.square(x_selected-x_center)+np.square(y_selected-y_center)))
-        cnd = (r_selected < rmse*emax)
-        indx = indx[cnd]
-        if (indx.size == x_selected.size) or (indx.size < nmin):
-            break
-    return x_center,y_center,rmse,x_selected.size,i_selected
+    def run(self):
+        return
 
+    def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
+        if selected is not None:
+            indx = selected.copy()
+        else:
+            indx = np.where(np.isfinite(x+y))[0]
+        for n in range(nrpt):
+            x_selected = x[indx]
+            y_selected = y[indx]
+            i_selected = indx.copy()
+            x_center = x_selected.mean()
+            y_center = y_selected.mean()
+            r_selected = np.sqrt(np.square(x_selected-x_center)+np.square(y_selected-y_center))
+            rmse = np.sqrt(np.mean(np.square(x_selected-x_center)+np.square(y_selected-y_center)))
+            cnd = (r_selected < rmse*emax)
+            indx = indx[cnd]
+            if (indx.size == x_selected.size) or (indx.size < nmin):
+                break
+        return x_center,y_center,rmse,x_selected.size,i_selected
+
+"""
 if not os.path.exists(process.values['gis_fnam']):
     raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['gis_fnam']))
 if not os.path.exists(process.values['ref_fnam']):
@@ -84,6 +52,8 @@ ystp = trg_trans[5]
 istp = int(abs(process.values['trg_pixel']/xstp)+0.5)
 jstp = int(abs(process.values['trg_pixel']/ystp)+0.5)
 command = process.python_path
+"""
+
 
 """
 sizes = [250,250,120,120,80]

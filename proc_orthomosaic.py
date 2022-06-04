@@ -1,9 +1,9 @@
 import os
 import sys
 import numpy as np
-from proc_class import Process
+from run_orthomosaic import Orthomosaic
 
-proc_orthomosaic = Process()
+proc_orthomosaic = Orthomosaic()
 proc_orthomosaic.proc_name = 'orthomosaic'
 proc_orthomosaic.proc_title = 'Make Orthomosaic'
 proc_orthomosaic.pnams.append('metashape_path')

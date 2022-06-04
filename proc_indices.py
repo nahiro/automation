@@ -1,7 +1,7 @@
 import numpy as np
-from proc_class import Process
+from run_indices import Indices
 
-proc_indices = Process()
+proc_indices = Indices()
 proc_indices.proc_name = 'indices'
 proc_indices.proc_title = 'Calculate Indices'
 proc_indices.pnams.append('inp_fnam')
