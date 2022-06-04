@@ -110,7 +110,7 @@ def change_color(pnam):
         style.configure('top_cde.DateEntry',foreground='red')
     elif pnam in top_box:
         top_box[pnam].config(foreground='red')
-    return
+    return True
 
 def ask_folder(pnam,dnam=None):
     if dnam is None:
@@ -118,6 +118,8 @@ def ask_folder(pnam,dnam=None):
     path = tkfilebrowser.askopendirname(initialdir=dnam)
     if len(path) > 0:
         top_var[pnam].set(path)
+    if pnam in top_box:
+        top_box[pnam].config(foreground='red')
     return
 
 def run_all():
