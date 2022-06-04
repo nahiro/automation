@@ -41,7 +41,7 @@ class Process:
         self.inidir = os.path.join(HOME,'Work','Drone')
         if not os.path.isdir(self.inidir):
             self.inidir = os.path.join(HOME,'Documents')
-        self.scrdir = os.path.join(HOME,'Script')
+        self.scr_dir = os.path.join(HOME,'Script')
         self.browse_image = os.path.join(HOME,'Pictures','browse.png')
         self.root = None
         self.chk_btn = None
@@ -135,12 +135,12 @@ class Process:
     def run(self):
         sys.stderr.write('Running process {}.\n'.format(self.proc_name))
         command = 'python'
-        command += ' {}'.format(os.path.join(self.scrdir,'run_{}.py'.format(self.proc_name)))
+        command += ' {}'.format(os.path.join(self.scr_dir,'run_{}.py'.format(self.proc_name)))
         for pnam in self.pnams:
             if self.input_types[pnam] in ['ask_files','ask_folders']:
-                command += ' --{} {}'.format(pnam,self.values[pnam].replace('\n',';'))
+                command += ' --{} "{}"'.format(pnam,self.values[pnam].replace('\n',';'))
             elif self.param_types[pnam] in ['string','string_select']:
-                command += ' --{} {}'.format(pnam,self.values[pnam])
+                command += ' --{} "{}"'.format(pnam,self.values[pnam])
             elif self.param_types[pnam] in ['int','int_select']:
                 command += ' --{} {}'.format(pnam,self.values[pnam])
             elif self.param_types[pnam] in ['float','float_select']:
@@ -148,9 +148,9 @@ class Process:
             elif self.param_types[pnam] in ['boolean','boolean_select']:
                 command += ' --{} {}'.format(pnam,int(self.values[pnam]))
             elif self.param_types[pnam] in ['float_list','float_select_list']:
-                command += ' --{} {}'.format(pnam,str(self.values[pnam]))
+                command += ' --{} "{}"'.format(pnam,str(self.values[pnam]))
             else:
-                command += ' --{} {}'.format(pnam,str(self.values[pnam]))
+                command += ' --{} "{}"'.format(pnam,str(self.values[pnam]))
         call(command,shell=True)
         return
 

@@ -17,6 +17,7 @@ if HOME is None:
 top_dir = os.path.join(HOME,'Work')
 if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
+scr_dir = os.path.join(HOME,'Script')
 main_field_data = os.path.join(top_dir,'Field_Data')
 main_drone_data = os.path.join(top_dir,'Drone_Data')
 main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
@@ -68,6 +69,7 @@ config_defaults.update({
 'orthomosaic.scale_factor'            : [1.0,1.0,1.0,1.0,1.0],
 'orthomosaic.nodata_value'            : -32767.0,
 'orthomosaic.output_type'             : 'Int16',
+'orthomosaic.scr_dir'                 : scr_dir,
 'orthomosaic.middle_left_frame_width' : 1000,
 #----------- geocor -----------
 'geocor.gis_fnam'                     : gis_fnam,
@@ -93,6 +95,7 @@ config_defaults.update({
 'geocor.boundary_cmins'               : [0.01,1.3],
 'geocor.boundary_rmax'                : 1.0,
 'geocor.boundary_emaxs'               : [3.0,2.0,1.5],
+'geocor.scr_dir'                      : scr_dir,
 'geocor.middle_left_frame_width'      : 1000,
 #----------- indices -----------
 'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
@@ -100,6 +103,7 @@ config_defaults.update({
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
 'indices.data_range'                  : [np.nan,np.nan],
+'indices.scr_dir'                     : scr_dir,
 'indices.middle_left_frame_width'     : 1000,
 #----------- identify -----------
 'identify.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
@@ -122,6 +126,7 @@ config_defaults.update({
 'identify.sthr'                       : 1.0,
 'identify.data_range'                 : [np.nan,np.nan],
 'identify.neighbor_size'              : [0.78,0.95],
+'identify.scr_dir'                    : scr_dir,
 'identify.middle_left_frame_width'    : 1000,
 #----------- extract -----------
 'extract.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
@@ -129,6 +134,7 @@ config_defaults.update({
 'extract.i_sheet'                     : 1,
 'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
+'extract.scr_dir'                     : scr_dir,
 'extract.middle_left_frame_width'     : 1000,
 #----------- formula -----------
 'formula.inp_fnams'                   : os.path.join(main_drone_analysis,'Current','extract','orthomosaic_indices.csv'),
@@ -152,6 +158,7 @@ config_defaults.update({
 'formula.vif_max'                     : 5.0,
 'formula.n_cros'                      : 5,
 'formula.n_formula'                   : 3,
+'formula.scr_dir'                     : scr_dir,
 'formula.middle_left_frame_width'     : 1000,
 #----------- estimate -----------
 'estimate.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
@@ -166,6 +173,7 @@ config_defaults.update({
 'estimate.gis_fnam'                   : gis_fnam,
 'estimate.buffer'                     : 1.0,
 'estimate.region_size'                : 1.0,
+'estimate.scr_dir'                    : scr_dir,
 'estimate.middle_left_frame_width'    : 1000,
 })
 config = configparser.ConfigParser(config_defaults)
@@ -175,8 +183,8 @@ if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
     fnam = sys.argv[1]
     config.read(fnam,encoding='utf-8')
 else:
-    scrdir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    fnam = os.path.join(scrdir,'config.ini')
+    cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    fnam = os.path.join(cnf_dir,'config.ini')
     if os.path.exists(fnam):
         config.read(fnam,encoding='utf-8')
 
@@ -247,4 +255,5 @@ for proc in pnams:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)).lower().replace('nan','np.nan'))
         else:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))
+    modules[proc].scr_dir = config[proc].get('{}.scr_dir'.format(proc))
     modules[proc].middle_left_frame_width = config[proc].getint('{}.middle_left_frame_width'.format(proc))
