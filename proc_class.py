@@ -442,13 +442,11 @@ class Process:
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_files':
-                #self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam] = tk.Text(self.center_cnv[pnam],background=bgs[i%2],width=1)
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
                 self.center_inp[pnam].insert(1.0,self.center_var[pnam].get())
                 self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_files("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
-                #self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.N,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folder':
                 self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
@@ -457,13 +455,11 @@ class Process:
                 self.center_btn[pnam].image = browse_img
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
             elif self.input_types[pnam] == 'ask_folders':
-                #self.center_inp[pnam] = tk.Entry(self.center_cnv[pnam],background=bgs[i%2],textvariable=self.center_var[pnam])
                 self.center_inp[pnam] = tk.Text(self.center_cnv[pnam],background=bgs[i%2],width=1)
                 self.center_inp[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
                 self.center_inp[pnam].insert(1.0,self.center_var[pnam].get())
                 self.center_btn[pnam] = tk.Button(self.center_cnv[pnam],image=browse_img,width=self.center_btn_width,bg='white',bd=1,command=eval('lambda self=self:self.ask_folders("{}")'.format(pnam)))
                 self.center_btn[pnam].image = browse_img
-                #self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.W,side=tk.LEFT)
                 self.center_btn[pnam].pack(ipadx=0,ipady=0,padx=0,pady=0,anchor=tk.N,side=tk.LEFT)
             elif self.input_types[pnam] == 'boolean':
                 self.center_inp[pnam] = tk.Checkbutton(self.center_cnv[pnam],background=bgs[i%2],variable=self.center_var[pnam])

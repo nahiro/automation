@@ -17,8 +17,8 @@ if HOME is None:
 top_dir = os.path.join(HOME,'Work')
 if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
-scr_dir = os.path.join(HOME,'Script')
 python_path = sys.executable
+scr_dir = os.path.join(HOME,'Script')
 main_field_data = os.path.join(top_dir,'Field_Data')
 main_drone_data = os.path.join(top_dir,'Drone_Data')
 main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
