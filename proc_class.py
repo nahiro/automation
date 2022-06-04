@@ -136,6 +136,21 @@ class Process:
         sys.stderr.write('Running process {}.\n'.format(self.proc_name))
         command = 'python'
         command += ' {}'.format(os.path.join(self.scrdir,'run_{}.py'.format(self.proc_name)))
+        for pnam in self.pnams:
+            if self.input_types[pnam] in ['ask_files','ask_folders']:
+                command += ' --{} {}'.format(pnam,self.values[pnam].replace('\n',';'))
+            elif self.param_types[pnam] in ['string','string_select']:
+                command += ' --{} {}'.format(pnam,self.values[pnam])
+            elif self.param_types[pnam] in ['int','int_select']:
+                command += ' --{} {}'.format(pnam,self.values[pnam])
+            elif self.param_types[pnam] in ['float','float_select']:
+                command += ' --{} {}'.format(pnam,self.values[pnam])
+            elif self.param_types[pnam] in ['boolean','boolean_select']:
+                command += ' --{} {}'.format(pnam,int(self.values[pnam]))
+            elif self.param_types[pnam] in ['float_list','float_select_list']:
+                command += ' --{} {}'.format(pnam,str(self.values[pnam]))
+            else:
+                command += ' --{} {}'.format(pnam,str(self.values[pnam]))
         call(command,shell=True)
         return
 

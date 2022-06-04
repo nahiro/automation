@@ -9,6 +9,28 @@ except Exception:
 from glob import glob
 import numpy as np
 from subprocess import call
+from proc_geocor import proc_geocor
+from argparse import ArgumentParser,MetavarTypeHelpFormatter
+
+# Read options
+process = proc_geocor
+parser = ArgumentParser(formatter_class=lambda prog:MetavarTypeHelpFormatter(prog,max_help_position=200,width=200))
+for pnam in process.pnams:
+    if process.input_types[pnam] in ['ask_files','ask_folders']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+    elif process.param_types[pnam] in ['string','string_select']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+    elif process.param_types[pnam] in ['int','int_select']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=int,help='{} (%(default)s)'.format(process.params[pnam]))
+    elif process.param_types[pnam] in ['float','float_select']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=float,help='{} (%(default)s)'.format(process.params[pnam]))
+    elif process.param_types[pnam] in ['boolean','boolean_select']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=int,help='{} (%(default)s)'.format(process.params[pnam]))
+    elif process.param_types[pnam] in ['float_list','float_select_list']:
+        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+    else:
+        parser.add_argument('--{}'.format(pnam),default=None,type=str,help='{} (%(default)s)'.format(process.params[pnam]))
+args = parser.parse_args()
 
 def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
     if selected is not None:
@@ -29,6 +51,7 @@ def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
             break
     return x_center,y_center,rmse,x_selected.size,i_selected
 
+"""
 sizes = [250,250,120,120,80]
 steps = [125,125,60,60,40]
 trials = ['1st','2nd','3rd','4th','5th']
@@ -218,3 +241,4 @@ for f in sorted(glob(os.path.join(datdir,'P4M_*_????????.tif'))):
                 call(command,shell=True)
 
     #break
+"""
