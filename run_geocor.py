@@ -13,9 +13,6 @@ from proc_class import Process
 
 class Geocor(Process):
 
-    def run(self):
-        return
-
     def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
         if selected is not None:
             indx = selected.copy()
@@ -35,24 +32,31 @@ class Geocor(Process):
                 break
         return x_center,y_center,rmse,x_selected.size,i_selected
 
-"""
-if not os.path.exists(process.values['gis_fnam']):
-    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['gis_fnam']))
-if not os.path.exists(process.values['ref_fnam']):
-    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['ref_fnam']))
-if not os.path.exists(process.values['trg_fnam']):
-    raise IOError('{}: error, no such file >>> {}'.format(process.proc_title,process.values['trg_fnam']))
+    def run(self):
+        # Check files
+        if not os.path.exists(self.values['gis_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['gis_fnam']))
+        if not os.path.exists(self.values['ref_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['ref_fnam']))
+        if not os.path.exists(self.values['trg_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['trg_fnam']))
+        # Rebin target
+        ds = gdal.Open(self.values['trg_fnam'])
+        trans = ds.GetGeoTransform()
+        ds = None
+        xstp = trg_trans[1]
+        ystp = trg_trans[5]
+        istp = int(abs(self.values['trg_pixel']/xstp)+0.5)
+        jstp = int(abs(self.values['trg_pixel']/ystp)+0.5)
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
+        command += ' --istp {}'.format(istp)
+        command += ' --jstp {}'.format(jstp)
+        #command += ' --src_geotiff {}'.format(target)
+        #command += ' --dst_geotiff {}_resized.tif'.format(target)
+        #call(command,shell=True)
+        return
 
-
-ds = gdal.Open(process.values['trg_fnam'])
-trans = ds.GetGeoTransform()
-ds = None
-xstp = trg_trans[1]
-ystp = trg_trans[5]
-istp = int(abs(process.values['trg_pixel']/xstp)+0.5)
-jstp = int(abs(process.values['trg_pixel']/ystp)+0.5)
-command = process.python_path
-"""
 
 
 """
