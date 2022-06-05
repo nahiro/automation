@@ -12,35 +12,47 @@ import cartopy.io.shapereader as shpreader
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.backends.backend_pdf import PdfPages
+from argparse import ArgumentParser,RawTextHelpFormatter
 
-shpdir = 'All_area_polygon_20210914'
-shp_fnam = 'All_area_polygon_20210914.shp'
+# Constants
+ORDER_DICT = {0:'0th',1:'1st',2:'2nd',3:'3rd'}
 
-block_shp = list(shpreader.Reader(os.path.join(shpdir,shp_fnam)).geometries())
+# Default values
+ORDER = [0,1,2,3]
+FIGNAM = 'geocor_resized.pdf'
 
-targets = sorted(glob('P4M_*_resized_geocor_np3.tif'))
-titles = []
-for target in targets:
-    m = re.search('(\S+)_resized_geocor_np3.tif',target)
-    titles.append(m.group(1))
+# Read options
+parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-f','--img_fnam',default=None,action='append',help='Image file name (%(default)s)')
+parser.add_argument('-t','--title',default=None,action='append',help='Figure title (%(default)s)')
+parser.add_argument('-o','--order',default=None,type=int,action='append',help='Geocor order ({})'.format(ORDER))
+parser.add_argument('-s','--shp_fnam',default=None,help='Shape file name (%(default)s)')
+parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name (%(default)s)')
+parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
+args = parser.parse_args()
+if args.order is None:
+    args.order = ORDER
+
+block_shp = list(shpreader.Reader(args.shp_fnam).geometries())
 
 prj = ccrs.UTM(zone=48,southern_hemisphere=True)
 
-#plt.interactive(True)
+if not opts.batch:
+    plt.interactive(True)
 fig = plt.figure(1,facecolor='w',figsize=(6,6))
 plt.subplots_adjust(top=0.85,bottom=0.002,left=0.002,right=0.998,wspace=0.01)
-pdf = PdfPages('resized_geocor.pdf')
+pdf = PdfPages(args.fignam)
 
-for itarg in range(len(targets)):
+for itarg in range(len(args.img_fnam)):
     fig_xmin = None
     fig_xmax = None
     fig_ymin = None
     fig_ymax = None
-    for t in [targets[itarg].replace('np3','5th'),targets[itarg].replace('np3','np1'),targets[itarg].replace('np3','np2'),targets[itarg]]:
-        ds = gdal.Open('{}'.format(t))
+    for order in args.order:
+        ds = gdal.Open('{}_np{}.tif'.format(os.path.splitext(args.img_fnam[itarg])[0],order))
         data = ds.ReadAsArray()
         data_trans = ds.GetGeoTransform()
-        data_shape = data[0].shape
+        data_shape = (ds.RasterYSize,ds.RasterXSize)
         ds = None
         data_xmin = data_trans[0]
         data_xstp = data_trans[1]
@@ -91,17 +103,11 @@ for itarg in range(len(targets)):
                 axs.add_geometries([shp],prj,edgecolor='k',facecolor='none',linestyle='-',alpha=1.0,linewidth=0.02)
         axs.set_xlim(fig_xmin,fig_xmax)
         axs.set_ylim(fig_ymin,fig_ymax)
-        if '5th' in t:
-            axs.set_title(titles[itarg].replace('P4M_','')+' (0th)',size=12)
-        elif 'np2' in t:
-            axs.set_title(titles[itarg].replace('P4M_','')+' (2nd)',size=12)
-        elif 'np3' in t:
-            axs.set_title(titles[itarg].replace('P4M_','')+' (3rd)',size=12)
-        else:
-            axs.set_title(titles[itarg].replace('P4M_','')+' (1st)',size=12)
+        axs.set_title('{} ({})'.format(args.title[itarg],ORDER_DICT[order]))
         plt.savefig(pdf,format='pdf')
-        #plt.draw()
-        #plt.pause(0.1)
+        if not opts.batch:
+            plt.draw()
+            plt.pause(0.1)
         #break
     #break
 

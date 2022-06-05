@@ -287,6 +287,7 @@ class Geocor(Process):
             yorg = y_diff3
             #---------
             if trials[itry] == trials[-1]:
+                figure_orders = []
                 # 0th order correction of resized image
                 order = 0
                 if self.values['resized_flags'][order]:
@@ -301,6 +302,7 @@ class Geocor(Process):
                     sys.stderr.write(command+'\n')
                     sys.stderr.flush()
                     call(command,shell=True)
+                    figure_orders.append(order)
                 # Higher order correction of resized image
                 gnam = os.path.join(wrk_dir,'{}_resized_geocor_pix2utm.dat'.format(trg_bnam))
                 with open(fnam,'r') as fp:
@@ -351,6 +353,19 @@ class Geocor(Process):
                     sys.stderr.write(command+'\n')
                     sys.stderr.flush()
                     call(command,shell=True)
+                    figure_orders.append(order)
+                if len(figure_orders) > 0:
+                    command = self.python_path
+                    command += ' {}'.format(os.path.join(self.scr_dir,'draw_resized_geocor.py'))
+                    command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+                    command += ' --img_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor.tif'.format(trg_bnam)))
+                    for order in figure_orders:
+                        command += ' --order {}'.format(order)
+                    command += ' --title {}'.format(trg_bnam)
+                    command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_resized.pdf'.format(trg_bnam)))
+                    command += ' --batch'
+                    call(command,shell=True)
+
                 # 0th order correction at full resolution
                 order = 0
                 if self.values['geocor_order'] == orders[order]:
