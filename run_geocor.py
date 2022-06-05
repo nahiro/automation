@@ -39,18 +39,18 @@ class Geocor(Process):
 
         # Check files
         if not os.path.exists(self.values['gis_fnam']):
-            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['gis_fnam']))
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['gis_fnam']))
         if not os.path.exists(self.values['ref_fnam']):
-            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['ref_fnam']))
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['ref_fnam']))
         if not os.path.exists(self.values['trg_fnam']):
-            raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['trg_fnam']))
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['trg_fnam']))
         ref_bnam,ref_enam = os.path.splitext(os.path.basename(self.values['ref_fnam']))
         trg_bnam,trg_enam = os.path.splitext(os.path.basename(self.values['trg_fnam']))
         wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,'geocor')
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
         if not os.path.isdir(wrk_dir):
-            raise ValueError('Error, no such folder >>> {}'.format(wrk_dir))
+            raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Rebin target
         ds = gdal.Open(self.values['trg_fnam'])
@@ -65,6 +65,8 @@ class Geocor(Process):
         trg_ymin = trg_ymax+trg_ystp*trg_shape[0]
         istp = int(abs(self.values['trg_binning']/trg_xstp)+0.5)
         jstp = int(abs(self.values['trg_binning']/trg_ystp)+0.5)
+        if istp != jstp:
+            raise ValueError('{}: error, istp={}, jstp={}'.format(self.proc_name,istp,jstp))
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
         command += ' --istp {}'.format(istp)
@@ -98,7 +100,7 @@ class Geocor(Process):
         xsize = int((out_xmax-out_xmin)/np.abs(ref_xstp)+0.5)
         ysize = int((out_ymax-out_ymin)/np.abs(ref_ystp)+0.5)
         if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
-            raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
+            raise ValueError('{}: error, xoff={}, yoff={}, xsize={}, ysize={}'.format(self.proc_name,xoff,yoff,xsize,ysize))
         command = 'gdal_translate'
         command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
         command += ' -tr 0.2 0.2'
@@ -116,8 +118,8 @@ class Geocor(Process):
         # Inside
         buffer1 = -0.5*self.values['boundary_width']
         fnam1 = os.path.join(wrk_dir,'mask1.tif')
-        if os.path.exists(fnam1):
-            os.remove(fnam1)
+        #if os.path.exists(fnam1):
+        #    os.remove(fnam1)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -128,7 +130,7 @@ class Geocor(Process):
         sys.stderr.write('Inside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
         ds = gdal.Open(fnam1)
         mask_nx = ds.RasterXSize
         mask_ny = ds.RasterYSize
@@ -143,8 +145,8 @@ class Geocor(Process):
         # Outside
         buffer2 = 0.5*self.values['boundary_width']
         fnam2 = os.path.join(wrk_dir,'mask2.tif')
-        if os.path.exists(fnam2):
-            os.remove(fnam2)
+        #if os.path.exists(fnam2):
+        #    os.remove(fnam2)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -155,7 +157,7 @@ class Geocor(Process):
         sys.stderr.write('Outside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
         ds = gdal.Open(fnam2)
         mask2 = ds.ReadAsArray()
         ds = None
@@ -196,32 +198,23 @@ class Geocor(Process):
         sys.stderr.write('Make area map\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
         sys.stderr.write('{}\n'.format(datetime.now()))
 
-        # Finish process
-        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
-        sys.stderr.flush()
-        return
+        trials = ['1st','2nd','3rd','4th','5th']
+        trg_pixel_size = abs(trg_xstp*istp)
+        sizes = np.int64(np.array(self.values['part_sizes'])/trg_pixel_size+0.5) #[250,250,120,120,80]
+        steps = np.int64(np.array(self.values['gcp_intervals'])/trg_pixel_size+0.5) #[125,125,60,60,40]
+        shifts = np.int64(np.array(self.values['max_shifts'])/trg_pixel_size+0.5) #[40,25,12,8,8]
+        margins = np.int64(np.array(self.values['margins'])/trg_pixel_size+0.5) #[60,40,18,12,12]
+        print('trg_pixel_size=',trg_pixel_size)
+        print('sizes=',sizes)
+        print('steps=',steps)
+        print('shiftss=',shifts)
+        print('margins=',margins)
 
 """
-sizes = [250,250,120,120,80]
-steps = [125,125,60,60,40]
-trials = ['1st','2nd','3rd','4th','5th']
-shifts = [40,25,12,8,8]
-margins = [60,40,18,12,12]
 
-scrdir = os.curdir
-datdir = os.curdir
-ref_fnam = 'wv2_180629_pan.tif'
-ref_bnam = os.path.splitext(os.path.basename(ref_fnam))[0]
-
-for f in sorted(glob(os.path.join(datdir,'P4M_*_????????.tif'))):
-    m = re.search('P4M_(.*)_(\d\d\d\d\d\d\d\d)\.tif',f)
-    if not m:
-        continue
-    field = m.group(1)
-    dstr = m.group(2)
     target = 'P4M_{}_{}'.format(field,dstr)
 
     shift_dat = '{}_resized_geocor_shift.dat'.format(target)
@@ -393,3 +386,8 @@ for f in sorted(glob(os.path.join(datdir,'P4M_*_????????.tif'))):
 
     #break
 """
+
+        # Finish process
+        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
+        sys.stderr.flush()
+        return
