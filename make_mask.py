@@ -111,7 +111,7 @@ elif args.select_outside:
     dst_data = mask
 
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Int32)
+ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Float32)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)

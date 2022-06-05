@@ -164,8 +164,8 @@ class Geocor(Process):
         # Make area mask
         buffer3 = 0.0
         fnam3 = os.path.join(wrk_dir,'mask3.tif')
-        if os.path.exists(fnam3):
-            os.remove(fnam3)
+        #if os.path.exists(fnam3):
+        #    os.remove(fnam3)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -176,19 +176,19 @@ class Geocor(Process):
         sys.stderr.write('Make area map\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
         ds = gdal.Open(fnam3)
         mask3 = ds.ReadAsArray()
         ds = None
         sys.stderr.write('{}\n'.format(datetime.now()))
         # Make mask
         mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
-        cnd = (mask1 < 0.5) & (mask2 > -0.5)
+        cnd = (mask1 < 0.5) & (mask2 > 0.5)
         mask[cnd] = -1.0
         cnd = (mask3 < 0.5)
         mask[cnd] = np.nan
         drv = gdal.GetDriverByName('GTiff')
-        ds = drv.Create(os.path.join(wrk_dir,'{}_{}_resized_mask.tif'.format(ref_bnam,trg_bnam)),mask_nx,mask_ny,1,gdal.GDT_Int32)
+        ds = drv.Create(os.path.join(wrk_dir,'{}_{}_resized_mask.tif'.format(ref_bnam,trg_bnam)),mask_nx,mask_ny,1,gdal.GDT_Float32)
         ds.SetProjection(mask_prj)
         ds.SetGeoTransform(mask_trans)
         ds.SetMetadata(mask_meta)
@@ -204,6 +204,7 @@ class Geocor(Process):
         #    os.remove(fnam2)
         #if os.path.exists(fnam3):
         #    os.remove(fnam3)
+        sys.exit()
 
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
