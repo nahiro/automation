@@ -2,6 +2,7 @@
 import os
 import sys
 import re
+from datetime import datetime
 try:
     import gdal
 except Exception:
@@ -111,6 +112,7 @@ class Geocor(Process):
         # Make dist mask
         sys.stderr.write('Make dist mask\n')
         sys.stderr.flush()
+        print(datetime.now())
         # Inside
         buffer1 = -0.5*self.values['boundary_width']
         fnam1 = os.path.join(wrk_dir,'mask1.tif')
@@ -122,7 +124,7 @@ class Geocor(Process):
         command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         command += ' --dst_geotiff {}'.format(fnam1)
         command += ' --use_index'
-        command += ' --buffer "{:22.15e} "'.format(buffer1)
+        command += ' --buffer="{:22.15e}"'.format(buffer1)
         sys.stderr.write('Inside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -137,6 +139,7 @@ class Geocor(Process):
         mask1 = ds.ReadAsArray()
         mask_nodata = -1.0
         ds = None
+        print(datetime.now())
         # Outside
         buffer2 = 0.5*self.values['boundary_width']
         fnam2 = os.path.join(wrk_dir,'mask2.tif')
@@ -148,7 +151,7 @@ class Geocor(Process):
         command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         command += ' --dst_geotiff {}'.format(fnam2)
         command += ' --use_index'
-        command += ' --buffer "{:22.15e}"'.format(buffer2)
+        command += ' --buffer="{:22.15e}"'.format(buffer2)
         sys.stderr.write('Outside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -156,6 +159,7 @@ class Geocor(Process):
         ds = gdal.Open(fnam2)
         mask2 = ds.ReadAsArray()
         ds = None
+        print(datetime.now())
         # Both side
         mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
         cnd = (mask1 < 0.5) & (mask2 > -0.5)
@@ -177,6 +181,7 @@ class Geocor(Process):
             os.remove(fnam1)
         if os.path.exists(fnam2):
             os.remove(fnam2)
+        print(datetime.now())
 
 
         # Finish process
@@ -198,7 +203,7 @@ ref_bnam = os.path.splitext(os.path.basename(ref_fnam))[0]
 
 for f in sorted(glob(os.path.join(datdir,'P4M_*_????????.tif'))):
     m = re.search('P4M_(.*)_(\d\d\d\d\d\d\d\d)\.tif',f)
-    if not m: 
+    if not m:
         continue
     field = m.group(1)
     dstr = m.group(2)
