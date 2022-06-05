@@ -77,7 +77,7 @@ config_defaults.update({
 #----------- geocor -----------
 'geocor.gis_fnam'                     : gis_fnam,
 'geocor.ref_fnam'                     : ref_fnam,
-'geocor.ref_bands'                    : [-1,-9999],
+'geocor.ref_band'                     : -1,
 'geocor.ref_pixel'                    : 0.2,
 'geocor.ref_range'                    : [np.nan,np.nan],
 'geocor.trg_fnam'                     : os.path.join(main_drone_analysis,'Current','orthomosaic','orthomosaic.tif'),

@@ -236,7 +236,7 @@ class Geocor(Process):
             command += ' --scan_indx_step {}'.format(self.values['scan_steps'][itry])
             command += ' --scan_indy_step {}'.format(self.values['scan_steps'][itry])
             #    command += ' --interp nearest'
-            if self.values['ref_bands'][0] == -1: # panchromatic
+            if self.values['ref_band'] == -1: # panchromatic
             else: # multiband
             command += ' --ref_band -1'
             command += ' --trg_ndvi'
