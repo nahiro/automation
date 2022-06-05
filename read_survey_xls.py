@@ -30,6 +30,7 @@ parser.add_argument('-E','--epsg',default=EPSG,help='Output EPSG (%(default)s)')
 parser.add_argument('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%(default)s)')
 parser.add_argument('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%(default)s)')
 parser.add_argument('-N','--geocor_npoly',default=None,type=int,help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
+parser.add_argument('-o','--optfile',default=None,help='Option file name for ogr2ogr (%(default)s)')
 args = parser.parse_args()
 
 def read_gps(s):
@@ -427,8 +428,15 @@ if args.geocor_fnam is not None and args.geocor_geotiff is not None:
     command += ' -lco STRING_QUOTING=IF_NEEDED'
     if args.geocor_npoly is not None:
         command += ' -order {}'.format(args.geocor_npoly)
+    line = ''
     for xi,yi,xp,yp in zip(dst_xi,dst_yi,src_xp,src_yp):
-        command += ' -gcp {:22.15e} {:22.15e} {:22.15e} {:22.15e}'.format(xi,yi,xp,yp)
+        line += ' -gcp {:22.15e} {:22.15e} {:22.15e} {:22.15e}'.format(xi,yi,xp,yp)
+    if args.optfile is not None:
+        with open(args.optfile,'w') as fp:
+            fp.write(line)
+        command += ' --optfile {}'.format(args.optfile)
+    else:
+        command += line
     command += ' {}'.format(tmp_fnam)
     command += ' {}'.format(args.out_fnam)
     #command += ' 2>err'
@@ -439,6 +447,9 @@ if args.geocor_fnam is not None and args.geocor_geotiff is not None:
         for i in range(len(plot_bunch)):
             fp.write('{:12.4f}, {:13.4f}\n'.format(x_bunch[i],y_bunch[i]))
     call(command,shell=True)
+    if args.optfile is not None:
+        if os.path.exists(args.optfile):
+            os.remove(args.optfile)
     df = pd.read_csv(tmp_fnam)
     x = list(df['X'])
     y = list(df['Y'])
