@@ -95,8 +95,10 @@ def set_title(pnam):
     if proc_estimate.center_var is not None:
         proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
     if pnam == 'date':
-        top_cmb.config(foreground='black')
         style = ttk.Style()
+        style.map('top_cmb.TCombobox',
+                  foreground=[('!readonly','!focus','black'),('!readonly','focus','black')],
+                  selectforeground=[('!readonly','!focus','black'),('!readonly','focus','black')],)
         style.configure('top_cde.DateEntry',foreground='black')
     elif pnam in top_box:
         top_box[pnam].config(foreground='black')
@@ -105,7 +107,10 @@ def set_title(pnam):
 
 def change_color(pnam):
     if pnam == 'block':
-        top_cmb.config(foreground='red')
+        style = ttk.Style()
+        style.map('top_cmb.TCombobox',
+                  foreground=[('!readonly','!focus','red'),('!readonly','focus','red')],
+                  selectforeground=[('!readonly','!focus','red'),('!readonly','focus','red')],)
     elif pnam == 'date':
         style = ttk.Style()
         style.configure('top_cde.DateEntry',foreground='red')
@@ -216,7 +221,11 @@ btn_pnam = 'set'
 pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
-top_cmb = ttk.Combobox(top_center_top_frame,width=10,values=['Block-'+block for block in blocks])
+top_cmb = ttk.Combobox(top_center_top_frame,width=10,style='top_cmb.TCombobox',values=['Block-'+block for block in blocks])
+style = ttk.Style()
+style.map('top_cmb.TCombobox',
+          fieldbackground=[('!readonly','!focus','white'),('!readonly','focus','white')],
+          selectbackground=[('!readonly','!focus','white'),('!readonly','focus','white')],)
 if current_block != '':
     top_cmb.set(current_block)
 else:
