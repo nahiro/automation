@@ -46,7 +46,7 @@ class Geocor(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['trg_fnam']))
         ref_bnam,ref_enam = os.path.splitext(os.path.basename(self.values['ref_fnam']))
         trg_bnam,trg_enam = os.path.splitext(os.path.basename(self.values['trg_fnam']))
-        wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,'geocor')
+        wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
         if not os.path.isdir(wrk_dir):
