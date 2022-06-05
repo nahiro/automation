@@ -3,6 +3,7 @@ import sys
 from glob import glob
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as font
 import tkfilebrowser
 from custom_calendar import CustomDateEntry
 from config import *
@@ -221,6 +222,8 @@ btn_pnam = 'set'
 pnam = 'block'
 top_lbl[pnam] = tk.Label(top_center_top_frame,text='Block/Date')
 top_lbl[pnam].pack(ipadx=0,ipady=0,padx=0,pady=(2,0),anchor=tk.W,side=tk.LEFT)
+myfont = font.Font(root,family='',size=9,weight='normal')
+#top_cmb = ttk.Combobox(top_center_top_frame,width=10,style='top_cmb.TCombobox',font=myfont,values=['Block-'+block for block in blocks])
 top_cmb = ttk.Combobox(top_center_top_frame,width=10,style='top_cmb.TCombobox',values=['Block-'+block for block in blocks])
 style = ttk.Style()
 style.map('top_cmb.TCombobox',
