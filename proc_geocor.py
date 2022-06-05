@@ -8,6 +8,7 @@ proc_geocor.pnams.append('gis_fnam')
 proc_geocor.pnams.append('ref_fnam')
 proc_geocor.pnams.append('ref_band')
 proc_geocor.pnams.append('ref_pixel')
+proc_geocor.pnams.append('ref_margin')
 proc_geocor.pnams.append('ref_range')
 proc_geocor.pnams.append('trg_fnam')
 proc_geocor.pnams.append('trg_bands')
@@ -31,6 +32,7 @@ proc_geocor.params['gis_fnam'] = 'Polygon File'
 proc_geocor.params['ref_fnam'] = 'Reference Image'
 proc_geocor.params['ref_band'] = 'Reference Band'
 proc_geocor.params['ref_pixel'] = 'Reference Resample Size (m)'
+proc_geocor.params['ref_margin'] = 'Reference Margin (m)'
 proc_geocor.params['ref_range'] = 'Reference DN Range'
 proc_geocor.params['trg_fnam'] = 'Target Image'
 proc_geocor.params['trg_bands'] = 'Target Band'
@@ -54,6 +56,7 @@ proc_geocor.param_types['gis_fnam'] = 'string'
 proc_geocor.param_types['ref_fnam'] = 'string'
 proc_geocor.param_types['ref_band'] = 'int'
 proc_geocor.param_types['ref_pixel'] = 'float'
+proc_geocor.param_types['ref_margin'] = 'float'
 proc_geocor.param_types['ref_range'] = 'float_list'
 proc_geocor.param_types['trg_fnam'] = 'string'
 proc_geocor.param_types['trg_bands'] = 'int_list'
@@ -75,6 +78,7 @@ proc_geocor.param_types['boundary_rmax'] = 'float'
 proc_geocor.param_types['boundary_emaxs'] = 'float_list'
 proc_geocor.param_range['ref_band'] = (-10000,10000)
 proc_geocor.param_range['ref_pixel'] = (0.01,50.0)
+proc_geocor.param_range['ref_margin'] = (0.0,1.0e50)
 proc_geocor.param_range['ref_range'] = (-1.0e50,1.0e50)
 proc_geocor.param_range['trg_bands'] = (-10000,10000)
 proc_geocor.param_range['trg_binning'] = (0.0,1.0e50)
@@ -94,6 +98,7 @@ proc_geocor.defaults['gis_fnam'] = 'All_area_polygon_20210914.shp'
 proc_geocor.defaults['ref_fnam'] = 'wv2_180629_pan.tif'
 proc_geocor.defaults['ref_band'] = -1
 proc_geocor.defaults['ref_pixel'] = 0.2
+proc_geocor.defaults['ref_margin'] = 10.0
 proc_geocor.defaults['ref_range'] = [np.nan,np.nan]
 proc_geocor.defaults['trg_fnam'] = 'test.tif'
 proc_geocor.defaults['trg_bands'] = [2,4]
@@ -143,6 +148,7 @@ proc_geocor.input_types['gis_fnam'] = 'ask_file'
 proc_geocor.input_types['ref_fnam'] = 'ask_file'
 proc_geocor.input_types['ref_band'] = 'box'
 proc_geocor.input_types['ref_pixel'] = 'box'
+proc_geocor.input_types['ref_margin'] = 'box'
 proc_geocor.input_types['ref_range'] = 'float_list'
 proc_geocor.input_types['trg_fnam'] = 'ask_file'
 proc_geocor.input_types['trg_bands'] = 'int_list'
