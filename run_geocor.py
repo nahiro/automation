@@ -44,7 +44,7 @@ class Geocor(Process):
         if not os.path.exists(self.values['trg_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['trg_fnam']))
         ref_bnam,ref_enam = os.path.splitext(os.path.basename(self.values['ref_fnam']))
-        trg_bnam,trg_enam = os.path.splitext(os.path.basename(self.values['trg_fnam']))
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
@@ -207,7 +207,7 @@ class Geocor(Process):
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
         orders = {0:'0th',1:'1st',2:'2nd',3:'3rd'}
-        ds = gdal.Open('{}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam)))
+        ds = gdal.Open(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
         trg_resized_trans = ds.GetGeoTransform()
         trg_resized_shape = (ds.RasterYSize,ds.RasterXSize)
         ds = None
