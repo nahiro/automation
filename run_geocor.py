@@ -33,6 +33,8 @@ class Geocor(Process):
         return x_center,y_center,rmse,x_selected.size,i_selected
 
     def run(self):
+        # Start process
+        super().run()
         # Check files
         if not os.path.exists(self.values['gis_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['gis_fnam']))
@@ -49,22 +51,58 @@ class Geocor(Process):
             raise ValueError('Error, no such folder >>> {}'.format(wrk_dir))
         # Rebin target
         ds = gdal.Open(self.values['trg_fnam'])
-        trans = ds.GetGeoTransform()
+        trg_trans = ds.GetGeoTransform()
+        trg_shape = (ds.RasterYSize,ds.RasterXSize)
         ds = None
-        xstp = trans[1]
-        ystp = trans[5]
-        istp = int(abs(self.values['trg_binning']/xstp)+0.5)
-        jstp = int(abs(self.values['trg_binning']/ystp)+0.5)
+        trg_xmin = trg_trans[0]
+        trg_xstp = trg_trans[1]
+        trg_xmax = trg_xmin+trg_xstp*trg_shape[1]
+        trg_ymax = trg_trans[3]
+        trg_ystp = trg_trans[5]
+        trg_ymin = trg_ymax+trg_ystp*trg_shape[0]
+        istp = int(abs(self.values['trg_binning']/trg_xstp)+0.5)
+        jstp = int(abs(self.values['trg_binning']/trg_ystp)+0.5)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
         command += ' --istp {}'.format(istp)
         command += ' --jstp {}'.format(jstp)
         command += ' --src_geotiff {}'.format(self.values['trg_fnam'])
         command += ' --dst_geotiff {}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam))
+        sys.stderr.write(command+'\n')
         call(command,shell=True)
+        # Crop reference
+        ds = gdal.Open(self.values['ref_fnam'])
+        ref_trans = ds.GetGeoTransform()
+        ref_shape = (ds.RasterYSize,ds.RasterXSize)
+        ds = None
+        ref_xmin = ref_trans[0]
+        ref_xstp = ref_trans[1]
+        ref_xmax = ref_xmin+ref_xstp*ref_shape[1]
+        ref_ymax = ref_trans[3]
+        ref_ystp = ref_trans[5]
+        ref_ymin = ref_ymax+ref_ystp*ref_shape[0]
+        xmgn = 10.0
+        ymgn = 10.0
+        out_xmin = np.floor(trg_xmin-xmgn)
+        out_ymin = np.floor(trg_ymin-ymgn)
+        out_xmax = np.ceil(trg_xmax+xmgn)
+        out_ymax = np.ceil(trg_ymax+ymgn)
+        xoff = int((out_xmin-ref_xmin)/np.abs(ref_xstp)+0.5)
+        yoff = int((ref_ymax-out_ymax)/np.abs(ref_ystp)+0.5)
+        xsize = int((out_xmax-out_xmin)/np.abs(ref_xstp)+0.5)
+        ysize = int((out_ymax-out_ymin)/np.abs(ref_ystp)+0.5)
+        if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
+            raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
+        command = 'gdal_translate'
+        command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
+        command += ' -tr 0.2 0.2'
+        command += ' {}'.format(self.values['ref_fnam'])
+        command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        sys.stderr.write(command+'\n')
+        call(command,shell=True)
+        # Finish process
+        sys.stderr.write('Finished process {}.\n'.format(self.proc_name))
         return
-
-
 
 """
 sizes = [250,250,120,120,80]
