@@ -37,7 +37,7 @@ block_shp = list(shpreader.Reader(args.shp_fnam).geometries())
 
 prj = ccrs.UTM(zone=48,southern_hemisphere=True)
 
-if not opts.batch:
+if not args.batch:
     plt.interactive(True)
 fig = plt.figure(1,facecolor='w',figsize=(6,6))
 plt.subplots_adjust(top=0.85,bottom=0.002,left=0.002,right=0.998,wspace=0.01)
@@ -105,7 +105,7 @@ for itarg in range(len(args.img_fnam)):
         axs.set_ylim(fig_ymin,fig_ymax)
         axs.set_title('{} ({})'.format(args.title[itarg],ORDER_DICT[order]))
         plt.savefig(pdf,format='pdf')
-        if not opts.batch:
+        if not args.batch:
             plt.draw()
             plt.pause(0.1)
         #break
