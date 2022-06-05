@@ -318,6 +318,7 @@ class Geocor(Process):
                     command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
                     command += ' --scrdir {}'.format(self.scr_dir)
                     command += ' --use_gcps {}'.format(gnam) # use
+                    command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
                     command += ' --npoly {}'.format(order)
                     command += ' --refine_gcps 0.1'
                     command += ' --minimum_number 3'
@@ -355,6 +356,7 @@ class Geocor(Process):
                         command += ' --out_fnam {}_geocor_np{}.tif'.format(trg_bnam,order)
                         command += ' --scrdir {}'.format(self.scr_dir)
                         command += ' --use_gcps {}'.format(hnam) # use
+                        command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
                         command += ' --npoly {}'.format(order)
                         command += ' --refine_gcps 0.1'
                         command += ' --minimum_number 3'
