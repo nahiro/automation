@@ -61,14 +61,14 @@ class Identify(Process):
         command += ' --debug'
         command += ' --batch'
 
-"""
-    call('drone_subset.py -I /home/naohiro/Work/Drone/220316/orthomosaic/ndvi_rms_repeat/P4M_RTK_{}_{:%Y%m%d}_geocor.tif -O {}.tif -g {}.csv -dNi -G 1 -S 30'.format(block.lower(),date,target,target),shell=True)
-    call('drone_calc_rr.py -I {}_plot1.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
-    call('drone_calc_rr.py -I {}_plot2.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
-    call('drone_calc_rr.py -I {}_plot3.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
-    call('drone_extract_points.py -I {}.tif -g {}.csv -dn -z 0 -Z 0.3 -s 0.1'.format(target,target),shell=True)
-        return
-"""
+        """
+        call('drone_subset.py -I /home/naohiro/Work/Drone/220316/orthomosaic/ndvi_rms_repeat/P4M_RTK_{}_{:%Y%m%d}_geocor.tif -O {}.tif -g {}.csv -dNi -G 1 -S 30'.format(block.lower(),date,target,target),shell=True)
+        call('drone_calc_rr.py -I {}_plot1.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
+        call('drone_calc_rr.py -I {}_plot2.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
+        call('drone_calc_rr.py -I {}_plot3.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
+        call('drone_extract_points.py -I {}.tif -g {}.csv -dn -z 0 -Z 0.3 -s 0.1'.format(target,target),shell=True)
+            return
+        """
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
