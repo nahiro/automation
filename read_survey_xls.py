@@ -384,18 +384,7 @@ for plot in plots:
 plant_bunch = [plant_plot[plot] for plot in plot_bunch]
 
 geocor_flag = False
-if args.geocor_fnam is not None and args.geocor_geotiff is not None:
-    bnam,enam = os.path.splitext(args.out_fnam)
-    tmp_fnam = bnam+'_tmp'+enam
-    ds = gdal.Open(args.geocor_geotiff)
-    src_trans = ds.GetGeoTransform()
-    if src_trans[2] != 0.0 or src_trans[4] != 0.0:
-        raise ValueError('Error, src_trans={}'.format(src_trans))
-    src_xmin = src_trans[0]
-    src_xstp = src_trans[1]
-    src_ymax = src_trans[3]
-    src_ystp = src_trans[5]
-    ds = None
+if args.geocor_fnam is not None:
     src_xi = []
     src_yi = []
     src_xp = []
@@ -415,8 +404,23 @@ if args.geocor_fnam is not None and args.geocor_geotiff is not None:
     src_yi = np.array(src_yi)
     src_xp = np.array(src_xp)
     src_yp = np.array(src_yp)
-    dst_xi = src_xmin+src_xstp*src_xi
-    dst_yi = src_ymax+src_ystp*src_yi
+    if args.geocor_geotiff is not None:
+        ds = gdal.Open(args.geocor_geotiff)
+        src_trans = ds.GetGeoTransform()
+        if src_trans[2] != 0.0 or src_trans[4] != 0.0:
+            raise ValueError('Error, src_trans={}'.format(src_trans))
+        src_xmin = src_trans[0]
+        src_xstp = src_trans[1]
+        src_ymax = src_trans[3]
+        src_ystp = src_trans[5]
+        ds = None
+        dst_xi = src_xmin+src_xstp*src_xi
+        dst_yi = src_ymax+src_ystp*src_yi
+    else:
+        dst_xi = src_xi
+        dst_yi = src_yi
+    bnam,enam = os.path.splitext(args.out_fnam)
+    tmp_fnam = bnam+'_tmp'+enam
     command = 'ogr2ogr'
     command += ' -f CSV'
     command += ' -s_srs EPSG:{}'.format(args.epsg)
