@@ -325,9 +325,9 @@ class Geocor(Process):
                     sys.stderr.write(command+'\n')
                     sys.stderr.flush()
                     call(command,shell=True)
-                # Geometric correction at full resolution
-                if self.values['geocor_order'] == orders[0]:
-                    # 0th order correction at full resolution
+                # 0th order correction at full resolution
+                order = 0
+                if self.values['geocor_order'] == orders[order]:
                     ulx = trg_xmin+xorg
                     uly = trg_ymax+yorg
                     lrx = trg_xmax+xorg
@@ -335,7 +335,7 @@ class Geocor(Process):
                     command = 'gdal_translate'
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' {}'.format(self.values['trg_fnam'])
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,0)))
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,order)))
                     call(command,shell=True)
                 else:
                     # Higher order correction at full resolution
@@ -352,8 +352,8 @@ class Geocor(Process):
                             continue
                         command = self.python_path
                         command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
-                        command += ' {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-                        command += ' --out_fnam {}_geocor_np{}.tif'.format(trg_bnam,order)
+                        command += ' {}'.format(self.values['trg_fnam'])
+                        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,order)))
                         command += ' --scrdir {}'.format(self.scr_dir)
                         command += ' --use_gcps {}'.format(hnam) # use
                         command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
