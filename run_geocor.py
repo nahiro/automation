@@ -309,6 +309,32 @@ class Geocor(Process):
                     for i,line in enumerate(lines):
                         if i in indx2:
                             fp.write(line)
+                src_xi = []
+                src_yi = []
+                src_xp = []
+                src_yp = []
+                src_line = []
+                with open(gnam,'r') as fp:
+                    for line in fp:
+                        #660.5    120.5 751655.112266 9243156.957321  -0.009634  -0.003979    2.10494      0.824779      0.016902   3555      0.789201   1440
+                        #720.5    120.5 751667.515378 9243156.775077   0.393478  -0.186223    2.37634      0.832486      0.014921   5446      0.797028   1845
+                        m = re.search('^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+) (.*)$',line)
+                        if not m:
+                            raise ValueError('Error in reading '+args.geocor_fnam)
+                        src_xi.append(float(m.group(1)))
+                        src_yi.append(float(m.group(2)))
+                        src_xp.append(float(m.group(3)))
+                        src_yp.append(float(m.group(4)))
+                        src_line.append(m.group(5))
+                src_xi = np.array(src_xi)
+                src_yi = np.array(src_yi)
+                src_xp = np.array(src_xp)
+                src_yp = np.array(src_yp)
+                dst_xi = trg_resized_xmin+trg_resized_xstp*src_xi
+                dst_yi = trg_resized_ymax+trg_resized_ystp*src_yi
+                with open(os.path.join(wrk_dir,'{}_resized_geocor_utm2utm.dat'.format(trg_bnam)),'w') as fp:
+                    for xi,yi,xp,yp,line in zip(dst_xi,dst_yi,src_xp,src_yp,src_line):
+                        fp.write('{:22.15e} {:22.15e} {:22.15e} {:22.15e} {}\n'.format(xi,yi,xp,yp,line))
                 for order in [1,2,3]:
                     if not self.values['resized_flags'][order]:
                         continue
@@ -345,8 +371,34 @@ class Geocor(Process):
                     command += ' --src_fnam {}'.format(gnam)
                     command += ' --dst_fnam {}'.format(hnam)
                     command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+                    command += ' --dst_geotiff {}'.format(self.values['trg_fnam'])
                     call(command,shell=True)
+                    src_xi = []
+                    src_yi = []
+                    src_xp = []
+                    src_yp = []
+                    src_line = []
+                    with open(hnam,'r') as fp:
+                        for line in fp:
+                            #660.5    120.5 751655.112266 9243156.957321  -0.009634  -0.003979    2.10494      0.824779      0.016902   3555      0.789201   1440
+                            #720.5    120.5 751667.515378 9243156.775077   0.393478  -0.186223    2.37634      0.832486      0.014921   5446      0.797028   1845
+                            m = re.search('^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+) (.*)$',line)
+                            if not m:
+                                raise ValueError('Error in reading '+args.geocor_fnam)
+                            src_xi.append(float(m.group(1)))
+                            src_yi.append(float(m.group(2)))
+                            src_xp.append(float(m.group(3)))
+                            src_yp.append(float(m.group(4)))
+                            src_line.append(m.group(5))
+                    src_xi = np.array(src_xi)
+                    src_yi = np.array(src_yi)
+                    src_xp = np.array(src_xp)
+                    src_yp = np.array(src_yp)
+                    dst_xi = trg_xmin+trg_xstp*src_xi
+                    dst_yi = trg_ymax+trg_ystp*src_yi
+                    with open(os.path.join(wrk_dir,'{}_geocor_utm2utm.dat'.format(trg_bnam)),'w') as fp:
+                        for xi,yi,xp,yp,line in zip(dst_xi,dst_yi,src_xp,src_yp,src_line):
+                            fp.write('{:22.15e} {:22.15e} {:22.15e} {:22.15e} {}\n'.format(xi,yi,xp,yp,line))
                     for order in [1,2,3]:
                         if self.values['geocor_order'] != orders[order]:
                             continue
