@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 import pandas as pd
 from subprocess import call
 from proc_class import Process
@@ -47,19 +48,23 @@ class Identify(Process):
         # Subset image
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_subset.py'))
-        command += ' --src_geotiff {}'.format(self.values[''])
-        command += ' --dst_geotiff {}'.format(self.values[''])
-        command += ' --gps_fnam {}'.format(self.values[''])
-        command += ' --bunch_rmax {}'.format(self.values[''])
-        command += ' --bunch_emax {}'.format(self.values[''])
-        command += ' --bunch_nmin {}'.format(self.values[''])
-        command += ' --buffer {}'.format(self.values[''])
+        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
+        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+        command += ' --gps_fnam {}'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
+        command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
+        command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
+        command += ' --buffer {}'.format(self.values['buffer'])
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --interp_point'
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
+        sys.stderr.write('\nSubset image\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
 
         """
         call('drone_subset.py -I /home/naohiro/Work/Drone/220316/orthomosaic/ndvi_rms_repeat/P4M_RTK_{}_{:%Y%m%d}_geocor.tif -O {}.tif -g {}.csv -dNi -G 1 -S 30'.format(block.lower(),date,target,target),shell=True)

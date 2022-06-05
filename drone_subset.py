@@ -40,13 +40,14 @@ parser.add_argument('-n','--bunch_nmin',default=BUNCH_NMIN,type=int,help='Minimu
 parser.add_argument('-m','--xmgn',default=XMGN,type=float,help='X margin in m (%(default)s)')
 parser.add_argument('-M','--ymgn',default=None,type=float,help='Y margin in m (%(default)s)')
 parser.add_argument('-W','--ywid',default=YWID,type=float,help='Y width in m (%(default)s)')
-parser.add_argument('-b','--buffer',default=BUFFER,type=float,help='Buffer radius in m (%(default)s)')
+parser.add_argument('-B','--buffer',default=BUFFER,type=float,help='Buffer radius in m (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
 parser.add_argument('-S','--fact',default=FACT,type=float,help='Scale factor of output figure for debug (%(default)s)')
 parser.add_argument('-G','--gamma',default=GAMMA,type=float,help='Gamma factor of output figure for debug (%(default)s)')
 parser.add_argument('-i','--interp_point',default=False,action='store_true',help='Interpolate mode (%(default)s)')
 parser.add_argument('-N','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
 args = parser.parse_args()
 if args.ymgn is None:
     args.ymgn = args.xmgn
@@ -123,7 +124,8 @@ src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
 src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
 
 if args.debug:
-    plt.interactive(True)
+    if not args.batch:
+        plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     pdf = PdfPages(args.fignam)
 bnam,enam = os.path.splitext(args.dst_geotiff)
@@ -314,8 +316,9 @@ for plot in plots:
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
-        plt.draw()
-        plt.pause(0.1)
+        if not args.batch:
+            plt.draw()
+            plt.pause(0.1)
     #break
 if args.debug:
     pdf.close()

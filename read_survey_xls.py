@@ -78,7 +78,9 @@ def read_month(s):
     else:
         raise ValueError('Error, cannot read month >>> {}'.format(s))
 
-if int(pyproj.__version__[0]) > 1:
+print('PYPROJ VERSION: ',pyproj.__version__)
+#if int(pyproj.__version__[0]) > 1:
+if False:
     def transform_wgs84_to_utm(longitude,latitude):
         return pyproj.Transformer.from_crs(4326,args.epsg,always_xy=True).transform(longitude,latitude)
 else:
