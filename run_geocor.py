@@ -89,8 +89,8 @@ class Geocor(Process):
         ref_ymax = ref_trans[3]
         ref_ystp = ref_trans[5]
         ref_ymin = ref_ymax+ref_ystp*ref_shape[0]
-        xmgn = 10.0 # m
-        ymgn = 10.0 # m
+        xmgn = self.values['ref_margin'] # m
+        ymgn = self.values['ref_margin'] # m
         out_xmin = np.floor(trg_xmin-xmgn)
         out_ymin = np.floor(trg_ymin-ymgn)
         out_xmax = np.ceil(trg_xmax+xmgn)
@@ -139,7 +139,6 @@ class Geocor(Process):
         mask_trans = ds.GetGeoTransform()
         mask_meta = ds.GetMetadata()
         mask1 = ds.ReadAsArray()
-        mask_nodata = -1.0
         ds = None
         sys.stderr.write('{}\n'.format(datetime.now()))
         # Outside
@@ -162,44 +161,49 @@ class Geocor(Process):
         mask2 = ds.ReadAsArray()
         ds = None
         sys.stderr.write('{}\n'.format(datetime.now()))
-        # Both side
+        # Make area mask
+        buffer3 = 0.0
+        fnam3 = os.path.join(wrk_dir,'mask3.tif')
+        if os.path.exists(fnam3):
+            os.remove(fnam3)
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff {}'.format(fnam3)
+        command += ' --buffer="{:22.15e}"'.format(buffer3)
+        command += ' --use_index'
+        sys.stderr.write('Make area map\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+        ds = gdal.Open(fnam3)
+        mask3 = ds.ReadAsArray()
+        ds = None
+        sys.stderr.write('{}\n'.format(datetime.now()))
+        # Make mask
         mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
         cnd = (mask1 < 0.5) & (mask2 > -0.5)
-        mask[cnd] = mask_nodata
-        sys.stderr.write('Both side\n')
-        sys.stderr.flush()
+        mask[cnd] = -1.0
+        cnd = (mask3 < 0.5)
+        mask[cnd] = np.nan
         drv = gdal.GetDriverByName('GTiff')
-        ds = drv.Create(os.path.join(wrk_dir,'{}_dist_mask.tif'.format(trg_bnam)),mask_nx,mask_ny,1,gdal.GDT_Int32)
+        ds = drv.Create(os.path.join(wrk_dir,'{}_{}_resized_mask.tif'.format(ref_bnam,trg_bnam)),mask_nx,mask_ny,1,gdal.GDT_Int32)
         ds.SetProjection(mask_prj)
         ds.SetGeoTransform(mask_trans)
         ds.SetMetadata(mask_meta)
         band = ds.GetRasterBand(1)
         band.WriteArray(mask)
-        band.SetDescription('dist mask')
-        band.SetNoDataValue(mask_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
+        band.SetDescription('mask')
+        band.SetNoDataValue(np.nan) # The TIFFTAG_GDAL_NODATA only support one value per dataset
         ds.FlushCache()
         ds = None # close dataset
         #if os.path.exists(fnam1):
         #    os.remove(fnam1)
         #if os.path.exists(fnam2):
         #    os.remove(fnam2)
-        sys.stderr.write('{}\n'.format(datetime.now()))
-
-        # Make area mask
-        buffer3 = 0.0
-        command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
-        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_area_mask.tif'.format(trg_bnam)))
-        command += ' --buffer="{:22.15e}"'.format(buffer3)
-        command += ' --use_index'
-        command += ' --select_inside'
-        sys.stderr.write('Make area map\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        #call(command,shell=True)
-        sys.stderr.write('{}\n'.format(datetime.now()))
+        #if os.path.exists(fnam3):
+        #    os.remove(fnam3)
 
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
@@ -254,7 +258,7 @@ class Geocor(Process):
                 command += ' --trg_multi_band {}'.format(self.values['trg_bands'][1])
             else:
                 command += ' --trg_band {}'.format(self.values['trg_bands'][0])
-            command += ' --rthr {}'.self.values['boundary_cmins'][0]
+            command += ' --rthr {}'.format(self.values['boundary_cmins'][0])
             command += ' --feps 0.0001'
             if not np.isnan(self.values['trg_range'][0]):
                 command += ' --trg_data_min {}'.format(self.values['trg_range'][0])
@@ -269,7 +273,7 @@ class Geocor(Process):
             sys.stdout.write('Geometric correction ({})'.format(trials[itry]))
             sys.stdout.write(command+'\n')
             sys.stdout.flush()
-            #call(command,shell=True)
+            call(command,shell=True)
             sys.stderr.write('{}\n'.format(datetime.now()))
             #---------
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
@@ -296,7 +300,7 @@ class Geocor(Process):
                     command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
                     sys.stdout.write(command+'\n')
                     sys.stdout.flush()
-                    #call(command,shell=True)
+                    call(command,shell=True)
                 # Higher order correction of resized image
                 gnam = os.path.join(wrk_dir,'{}_resized_geocor.dat'.format(trg_bnam))
                 with open(fnam,'r') as fp:
@@ -319,7 +323,7 @@ class Geocor(Process):
                     command += ' --minimum_number 3'
                     sys.stdout.write(command+'\n')
                     sys.stdout.flush()
-                    #call(command,shell=True)
+                    call(command,shell=True)
                 # Geometric correction at full resolution
                 if self.values['geocor_order'] == orders[0]:
                     # 0th order correction at full resolution
@@ -341,7 +345,7 @@ class Geocor(Process):
                     command += ' --dst_fnam {}'.format(hnam)
                     command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
                     command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-                    #call(command,shell=True)
+                    call(command,shell=True)
                     for order in [1,2,3]:
                         if self.values['geocor_order'] != orders[order]:
                             continue
@@ -356,7 +360,7 @@ class Geocor(Process):
                         command += ' --minimum_number 3'
                         sys.stdout.write(command+'\n')
                         sys.stdout.flush()
-                        #call(command,shell=True)
+                        call(command,shell=True)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
