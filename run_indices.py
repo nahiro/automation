@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 from subprocess import call
 from proc_class import Process
 
@@ -36,7 +37,7 @@ class Indices(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nGeometric correction ({})\n'.format(trials[itry]))
+        sys.stderr.write('\nCalculate indices\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)

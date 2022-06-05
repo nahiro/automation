@@ -3,7 +3,10 @@ import os
 import sys
 import shutil
 import re
-import gdal
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 import numpy as np
 import pandas as pd
 from subprocess import call

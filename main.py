@@ -45,12 +45,12 @@ def set_title(pnam):
         proc_geocor.center_var[proc_pnam].set(proc_geocor.values[proc_pnam])
     # indices
     proc_pnam = 'inp_fnam'
-    proc_indices.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
+    proc_indices.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
     if proc_indices.center_var is not None:
         proc_indices.center_var[proc_pnam].set(proc_indices.values[proc_pnam])
     # identify
     proc_pnam = 'inp_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
+    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
     proc_pnam = 'gcp_fnam'
     proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
     proc_pnam = 'obs_fnam'

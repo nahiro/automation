@@ -3,7 +3,10 @@ import os
 import sys
 import shutil
 import re
-import gdal
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 import numpy as np
 from itertools import combinations
 from skimage.measure import label,regionprops

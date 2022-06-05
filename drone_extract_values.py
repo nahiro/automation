@@ -3,7 +3,10 @@ import os
 import sys
 import re
 import zlib # import zlib before gdal to prevent segmentation fault when saving pdf
-import gdal
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm

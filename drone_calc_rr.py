@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import os
 import zlib # import zlib before gdal to prevent segmentation fault when saving pdf
-import gdal
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 import numpy as np
 from scipy.signal import convolve2d
 import matplotlib.pyplot as plt

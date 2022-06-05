@@ -6,7 +6,10 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from matplotlib.dates import date2num,num2date
-import gdal
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 import pyproj
 from subprocess import call
 from io import StringIO
