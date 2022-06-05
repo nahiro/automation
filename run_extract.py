@@ -1,3 +1,8 @@
+import os
+import sys
+import numpy as np
+import pandas as pd
+from subprocess import call
 from proc_class import Process
 
 class Extract(Process):
@@ -13,7 +18,7 @@ class Extract(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['obs_fnam']))
         if not os.path.exists(self.values['gps_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['gps_fnam']))
-        wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
+        wrk_dir = os.path.join(self.drone_analysis,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
         if not os.path.isdir(wrk_dir):
@@ -39,10 +44,20 @@ class Extract(Process):
 
         # Extract indices
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
-
-
-        #call('drone_extract_values.py -I {}_plot1_indices.tif -I {}_plot2_indices.tif -I {}_plot3_indices.tif -g {}_extract.csv'.format(target,target,target,target),shell=True)
+        command += ' {}'.format(os.path.join(self.scr_dir,'drone_extract_values.py'))
+        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
+        command += ' --csv_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --ext_fnam {}'.format(os.path.join(wrk_dir,'{}_extract.csv'.format(trg_bnam)))
+        command += ' --inner_radius {}'.format(self.values['region_size'][0])
+        command += ' --outer_radius {}'.format(self.values['region_size'][1])
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_extract.pdf'.format(trg_bnam)))
+        command += ' --remove_nan'
+        command += ' --debug'
+        command += ' --batch'
+        sys.stderr.write('\nIdentify point\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))

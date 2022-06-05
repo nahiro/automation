@@ -139,6 +139,7 @@ config_defaults.update({
 'extract.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
 'extract.obs_fnam'                    : os.path.join(main_field_data,'Current','observation.xls'),
 'extract.i_sheet'                     : 1,
+'extract.epsg'                        : 32748,
 'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
 'extract.python_path'                 : python_path,
