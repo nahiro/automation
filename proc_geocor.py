@@ -21,7 +21,7 @@ proc_geocor.pnams.append('gcp_intervals')
 proc_geocor.pnams.append('max_shifts')
 proc_geocor.pnams.append('margins')
 proc_geocor.pnams.append('scan_steps')
-proc_geocor.pnams.append('higher_flags')
+proc_geocor.pnams.append('resized_flags')
 proc_geocor.pnams.append('geocor_order')
 proc_geocor.pnams.append('boundary_width')
 proc_geocor.pnams.append('boundary_nmin')
@@ -45,8 +45,8 @@ proc_geocor.params['gcp_intervals'] = 'GCP Interval (m)'
 proc_geocor.params['max_shifts'] = 'Max Shift (m)'
 proc_geocor.params['margins'] = 'Image Margin (m)'
 proc_geocor.params['scan_steps'] = 'Scan Step (pixel)'
-proc_geocor.params['higher_flags'] = 'Higher Order Flag'
-proc_geocor.params['geocor_order'] = 'Selected Order'
+proc_geocor.params['resized_flags'] = 'Resized Image'
+proc_geocor.params['geocor_order'] = 'Full-size Image'
 proc_geocor.params['boundary_width'] = 'Boundary Width (m)'
 proc_geocor.params['boundary_nmin'] = 'Min Boundary Ratio'
 proc_geocor.params['boundary_cmins'] = 'Min Contrast'
@@ -69,7 +69,7 @@ proc_geocor.param_types['gcp_intervals'] = 'float_list'
 proc_geocor.param_types['max_shifts'] = 'float_list'
 proc_geocor.param_types['margins'] = 'float_list'
 proc_geocor.param_types['scan_steps'] = 'int_list'
-proc_geocor.param_types['higher_flags'] = 'boolean_list'
+proc_geocor.param_types['resized_flags'] = 'boolean_list'
 proc_geocor.param_types['geocor_order'] = 'string_select'
 proc_geocor.param_types['boundary_width'] = 'float'
 proc_geocor.param_types['boundary_nmin'] = 'float'
@@ -111,7 +111,7 @@ proc_geocor.defaults['gcp_intervals'] = [25.0,25.0,12.5,12.5,7.5]
 proc_geocor.defaults['max_shifts'] = [8.0,5.0,2.5,1.5,1.5]
 proc_geocor.defaults['margins'] = [12.0,7.5,3.75,2.25,2.25]
 proc_geocor.defaults['scan_steps'] = [2,2,1,1,1]
-proc_geocor.defaults['higher_flags'] = [True,True,True]
+proc_geocor.defaults['resized_flags'] = [True,True,True,True]
 proc_geocor.defaults['geocor_order'] = '2nd'
 proc_geocor.defaults['boundary_width'] = 0.6
 proc_geocor.defaults['boundary_nmin'] = 0.1
@@ -127,7 +127,7 @@ proc_geocor.list_sizes['gcp_intervals'] = 5
 proc_geocor.list_sizes['max_shifts'] = 5
 proc_geocor.list_sizes['margins'] = 5
 proc_geocor.list_sizes['scan_steps'] = 5
-proc_geocor.list_sizes['higher_flags'] = 3
+proc_geocor.list_sizes['resized_flags'] = 4
 proc_geocor.list_sizes['geocor_order'] = 4
 proc_geocor.list_sizes['boundary_cmins'] = 2
 proc_geocor.list_sizes['boundary_emaxs'] = 3
@@ -140,7 +140,7 @@ proc_geocor.list_labels['gcp_intervals'] = ['','','','','']
 proc_geocor.list_labels['max_shifts'] = ['','','','','']
 proc_geocor.list_labels['margins'] = ['','','','','']
 proc_geocor.list_labels['scan_steps'] = ['','','','','']
-proc_geocor.list_labels['higher_flags'] = ['1st','2nd','3rd']
+proc_geocor.list_labels['resized_flags'] = ['0th','1st','2nd','3rd']
 proc_geocor.list_labels['geocor_order'] = ['0th','1st','2nd','3rd']
 proc_geocor.list_labels['boundary_cmins'] = ['','']
 proc_geocor.list_labels['boundary_emaxs'] = ['','','']
@@ -161,7 +161,7 @@ proc_geocor.input_types['gcp_intervals'] = 'float_list'
 proc_geocor.input_types['max_shifts'] = 'float_list'
 proc_geocor.input_types['margins'] = 'float_list'
 proc_geocor.input_types['scan_steps'] = 'int_list'
-proc_geocor.input_types['higher_flags'] = 'boolean_list'
+proc_geocor.input_types['resized_flags'] = 'boolean_list'
 proc_geocor.input_types['geocor_order'] = 'string_select'
 proc_geocor.input_types['boundary_width'] = 'box'
 proc_geocor.input_types['boundary_nmin'] = 'box'

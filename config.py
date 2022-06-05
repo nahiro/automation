@@ -92,7 +92,7 @@ config_defaults.update({
 'geocor.max_shifts'                   : [8.0,5.0,2.5,1.5,1.5],
 'geocor.margins'                      : [12.0,7.5,3.75,2.25,2.25],
 'geocor.scan_steps'                   : [2,2,1,1,1],
-'geocor.higher_flags'                 : [True,True,True],
+'geocor.resized_flags'                : [True,True,True,True],
 'geocor.geocor_order'                 : '2nd',
 'geocor.boundary_width'               : 0.6,
 'geocor.boundary_nmin'                : 0.1,
