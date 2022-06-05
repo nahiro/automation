@@ -230,8 +230,8 @@ class Geocor(Process):
         yorg = self.values['init_shifts'][1]
         for itry in range(len(trials)):
             fnam = os.path.join(wrk_dir,'{}_resized_geocor_{}.dat'.format(trg_bnam,trials[itry]))
-            if os.path.exists(fnam):
-                os.remove(fnam)
+            #if os.path.exists(fnam):
+            #    os.remove(fnam)
             command = self.python_path
             command += ' {}'.format(os.path.join(self.scr_dir,'find_gcps.py'))
             command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
@@ -270,12 +270,16 @@ class Geocor(Process):
                 command += ' --ref_data_umax {}'.format(self.values['ref_range'][1])
             #command += ' --trg_blur_sigma 1'
             command += ' --long'
-            sys.stderr.write('Geometric correction ({})\n'.format(trials[itry]))
+            sys.stderr.write('\nGeometric correction ({})\n'.format(trials[itry]))
             sys.stderr.write(command+'\n')
             sys.stderr.flush()
             call(command,shell=True)
             sys.stderr.write('{}\n'.format(datetime.now()))
             #---------
+            print('emaxs=',self.values['boundary_emaxs'])
+            print('emaxs[0]=',self.values['boundary_emaxs'][0])
+            print('emaxs[1]=',self.values['boundary_emaxs'][1])
+            print('emaxs[2]=',self.values['boundary_emaxs'][2])
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
             indx0 = np.arange(r.size)[(r>self.values['boundary_cmins'][1]) & (nb>nb.max()*self.values['boundary_nmin']) & (r90<self.values['boundary_rmax'])]
             x_diff1,y_diff1,e1,n1,indx1 = self.calc_mean(x,y,emax=self.values['boundary_emaxs'][0],selected=indx0)
