@@ -20,16 +20,19 @@ class Indices(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Calculate indices
+        out_params = [(('S'+param) if len(param) == 1 else param) for param in self.list_labels['out_params']]
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_calc_indices.py'))
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
         command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_indices.tif'.format(self.current_block,self.current_date)))
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_{}_indices.pdf'.format(self.current_block,self.current_date)))
-        for param in self.values['out_params']:
-            command += ' --param {}'.format(param)
-        for band in self.values['norm_bands']:
-            command += ' --norm_band'.format(band)
-        command += ' --rgi_red_band '.format(self.values['rgi_red_band'])
+        for param,flag in zip(out_params,self.values['out_params']):
+            if flag:
+                command += ' --param {}'.format(param)
+        for band,flag in zip(self.list_labels['norm_bands'],self.values['norm_bands']):
+            if flag:
+                command += ' --norm_band {}'.format(band)
+        command += ' --rgi_red_band {}'.format(self.values['rgi_red_band'])
         if not np.isnan(self.values['data_range'][0]):
             command += ' --data_min="{}"'.format(self.values['data_range'][0])
         if not np.isnan(self.values['data_range'][1]):
