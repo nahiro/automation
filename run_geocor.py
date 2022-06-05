@@ -68,6 +68,8 @@ class Geocor(Process):
         command += ' --jstp {}'.format(jstp)
         command += ' --src_geotiff {}'.format(self.values['trg_fnam'])
         command += ' --dst_geotiff {}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam))
+        sys.stderr.write('Rebin target\n')
+        sys.stderr.flush()
         sys.stderr.write(command+'\n')
         call(command,shell=True)
         # Crop reference
@@ -99,9 +101,12 @@ class Geocor(Process):
         command += ' {}'.format(self.values['ref_fnam'])
         command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         sys.stderr.write(command+'\n')
+        sys.stderr.write('Crop reference\n')
+        sys.stderr.flush()
         call(command,shell=True)
         # Finish process
-        sys.stderr.write('Finished process {}.\n'.format(self.proc_name))
+        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
+        sys.stderr.flush()
         return
 
 """
