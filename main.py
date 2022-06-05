@@ -224,7 +224,6 @@ else:
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cmb.config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
 pnam = 'date'
-style = ttk.Style()
 top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format,style='top_cde.DateEntry')
 if current_date != '':
     top_cde.set_date(current_date)
