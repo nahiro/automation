@@ -204,7 +204,6 @@ class Geocor(Process):
         #    os.remove(fnam2)
         #if os.path.exists(fnam3):
         #    os.remove(fnam3)
-        sys.exit()
 
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
@@ -271,9 +270,9 @@ class Geocor(Process):
                 command += ' --ref_data_umax {}'.format(self.values['ref_range'][1])
             #command += ' --trg_blur_sigma 1'
             command += ' --long'
-            sys.stdout.write('Geometric correction ({})'.format(trials[itry]))
-            sys.stdout.write(command+'\n')
-            sys.stdout.flush()
+            sys.stderr.write('Geometric correction ({})\n'.format(trials[itry]))
+            sys.stderr.write(command+'\n')
+            sys.stderr.flush()
             call(command,shell=True)
             sys.stderr.write('{}\n'.format(datetime.now()))
             #---------
@@ -299,8 +298,8 @@ class Geocor(Process):
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
                     command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
-                    sys.stdout.write(command+'\n')
-                    sys.stdout.flush()
+                    sys.stderr.write(command+'\n')
+                    sys.stderr.flush()
                     call(command,shell=True)
                 # Higher order correction of resized image
                 gnam = os.path.join(wrk_dir,'{}_resized_geocor.dat'.format(trg_bnam))
@@ -322,8 +321,8 @@ class Geocor(Process):
                     command += ' --npoly {}'.format(order)
                     command += ' --refine_gcps 0.1'
                     command += ' --minimum_number 3'
-                    sys.stdout.write(command+'\n')
-                    sys.stdout.flush()
+                    sys.stderr.write(command+'\n')
+                    sys.stderr.flush()
                     call(command,shell=True)
                 # Geometric correction at full resolution
                 if self.values['geocor_order'] == orders[0]:
@@ -359,8 +358,8 @@ class Geocor(Process):
                         command += ' --npoly {}'.format(order)
                         command += ' --refine_gcps 0.1'
                         command += ' --minimum_number 3'
-                        sys.stdout.write(command+'\n')
-                        sys.stdout.flush()
+                        sys.stderr.write(command+'\n')
+                        sys.stderr.flush()
                         call(command,shell=True)
 
         # Finish process
