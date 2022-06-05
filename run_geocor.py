@@ -40,21 +40,28 @@ class Geocor(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['ref_fnam']))
         if not os.path.exists(self.values['trg_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['trg_fnam']))
+        ref_bnam,ref_enam = os.path.splitext(os.path.basename(self.values['ref_fnam']))
+        trg_bnam,trg_enam = os.path.splitext(os.path.basename(self.values['trg_fnam']))
+        wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,'geocor')
+        if not os.path.exists(wrk_dir):
+            os.makedirs(wrk_dir)
+        if not os.path.isdir(wrk_dir):
+            raise ValueError('Error, no such folder >>> {}'.format(wrk_dir))
         # Rebin target
         ds = gdal.Open(self.values['trg_fnam'])
         trans = ds.GetGeoTransform()
         ds = None
-        xstp = trg_trans[1]
-        ystp = trg_trans[5]
-        istp = int(abs(self.values['trg_pixel']/xstp)+0.5)
-        jstp = int(abs(self.values['trg_pixel']/ystp)+0.5)
+        xstp = trans[1]
+        ystp = trans[5]
+        istp = int(abs(self.values['trg_binning']/xstp)+0.5)
+        jstp = int(abs(self.values['trg_binning']/ystp)+0.5)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
         command += ' --istp {}'.format(istp)
         command += ' --jstp {}'.format(jstp)
-        #command += ' --src_geotiff {}'.format(target)
-        #command += ' --dst_geotiff {}_resized.tif'.format(target)
-        #call(command,shell=True)
+        command += ' --src_geotiff {}'.format(self.values['trg_fnam'])
+        command += ' --dst_geotiff {}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam))
+        call(command,shell=True)
         return
 
 
