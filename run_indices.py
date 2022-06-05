@@ -20,12 +20,13 @@ class Indices(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Calculate indices
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         out_params = [(('S'+param) if len(param) == 1 else param) for param in self.list_labels['out_params']]
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_calc_indices.py'))
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_indices.tif'.format(self.current_block,self.current_date)))
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_{}_indices.pdf'.format(self.current_block,self.current_date)))
+        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_indices.tif'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_{}_indices.pdf'.format(trg_bnam)))
         for param,flag in zip(out_params,self.values['out_params']):
             if flag:
                 command += ' --param {}'.format(param)
@@ -45,4 +46,7 @@ class Indices(Process):
         sys.stderr.flush()
         call(command,shell=True)
 
+        # Finish process
+        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
+        sys.stderr.flush()
         return
