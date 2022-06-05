@@ -55,6 +55,7 @@ class Identify(Process):
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
         command += ' --buffer {}'.format(self.values['buffer'])
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_subset.pdf'.format(trg_bnam)))
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --interp_point'

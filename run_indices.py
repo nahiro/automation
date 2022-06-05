@@ -26,7 +26,7 @@ class Indices(Process):
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_calc_indices.py'))
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
         command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_indices.tif'.format(trg_bnam)))
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_{}_indices.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_indices.pdf'.format(trg_bnam)))
         for param,flag in zip(out_params,self.values['out_params']):
             if flag:
                 command += ' --param {}'.format(param)
