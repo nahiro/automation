@@ -125,7 +125,7 @@ class Identify(Process):
         command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
-        command += ' --pixel_rmax {}'.format(self.values['pixel_rmax'])
+        command += ' --pixel_rmax {}'.format(self.values['point_rmax'])
         command += ' --point_dmax {}'.format(self.values['point_dmax'][0])
         command += ' --point_lwid {}'.format(self.values['point_dmax'][1])
         command += ' --point_smin {}'.format(self.values['point_area'][0])
@@ -138,7 +138,7 @@ class Identify(Process):
         command += ' --rthr_max {}'.format(self.values['rthr'][1])
         command += ' --rstp {}'.format(self.values['rthr'][2])
         command += ' --sthr {}'.format(self.values['sthr'])
-        command += ' --criteria {}'.format('Distance' if 'Distance' in selv.values['criteria'] else 'Area')
+        command += ' --criteria {}'.format('Distance' if 'Distance' in self.values['criteria'] else 'Area')
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
         command += ' --ax1_zmin 0.0'
         command += ' --ax1_zmax 0.3'
