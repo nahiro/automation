@@ -89,8 +89,8 @@ class Geocor(Process):
         ref_ymax = ref_trans[3]
         ref_ystp = ref_trans[5]
         ref_ymin = ref_ymax+ref_ystp*ref_shape[0]
-        xmgn = 10.0
-        ymgn = 10.0
+        xmgn = 10.0 # m
+        ymgn = 10.0 # m
         out_xmin = np.floor(trg_xmin-xmgn)
         out_ymin = np.floor(trg_ymin-ymgn)
         out_xmax = np.ceil(trg_xmax+xmgn)
@@ -103,7 +103,7 @@ class Geocor(Process):
             raise ValueError('{}: error, xoff={}, yoff={}, xsize={}, ysize={}'.format(self.proc_name,xoff,yoff,xsize,ysize))
         command = 'gdal_translate'
         command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
-        command += ' -tr 0.2 0.2'
+        command += ' -tr {} {}'.format(self.values['ref_pixel'],self.values['ref_pixel'])
         command += ' {}'.format(self.values['ref_fnam'])
         command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         sys.stderr.write('Crop reference\n')
@@ -204,11 +204,21 @@ class Geocor(Process):
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
         orders = {0:'0th',1:'1st',2:'2nd',3:'3rd'}
-        trg_pixel_size = abs(trg_xstp*istp)
-        sizes = np.int64(np.array(self.values['part_sizes'])/trg_pixel_size+0.5) #[250,250,120,120,80]
-        steps = np.int64(np.array(self.values['gcp_intervals'])/trg_pixel_size+0.5) #[125,125,60,60,40]
-        shifts = np.int64(np.array(self.values['max_shifts'])/trg_pixel_size+0.5) #[40,25,12,8,8]
-        margins = np.int64(np.array(self.values['margins'])/trg_pixel_size+0.5) #[60,40,18,12,12]
+        ds = gdal.Open('{}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam)))
+        trg_resized_trans = ds.GetGeoTransform()
+        trg_resized_shape = (ds.RasterYSize,ds.RasterXSize)
+        ds = None
+        trg_resized_xmin = trg_resized_trans[0]
+        trg_resized_xstp = trg_resized_trans[1]
+        trg_resized_xmax = trg_resized_xmin+trg_resized_xstp*trg_resized_shape[1]
+        trg_resized_ymax = trg_resized_trans[3]
+        trg_resized_ystp = trg_resized_trans[5]
+        trg_resized_ymin = trg_resized_ymax+trg_resized_ystp*trg_resized_shape[0]
+        trg_resized_pixel_size = abs(trg_resized_xstp)
+        sizes = np.int64(np.array(self.values['part_sizes'])/trg_resized_pixel_size+0.5) #[250,250,120,120,80]
+        steps = np.int64(np.array(self.values['gcp_intervals'])/trg_resized_pixel_size+0.5) #[125,125,60,60,40]
+        shifts = np.int64(np.array(self.values['max_shifts'])/trg_resized_pixel_size+0.5) #[40,25,12,8,8]
+        margins = np.int64(np.array(self.values['margins'])/trg_resized_pixel_size+0.5) #[60,40,18,12,12]
         shift_dat = os.path.join(wrk_dir,'{}_resized_geocor_shift.dat'.format(trg_bnam))
         if os.path.exists(shift_dat):
             os.remove(shift_dat)
@@ -273,6 +283,20 @@ class Geocor(Process):
             yorg = y_diff3
             #---------
             if trials[itry] == trials[-1]:
+                # 0th order correction of resized image
+                order = 0
+                if self.values['resized_flags'][order]:
+                    ulx = trg_resized_xmin+xorg
+                    uly = trg_resized_ymax+yorg
+                    lrx = trg_resized_xmax+xorg
+                    lry = trg_resized_ymin+yorg
+                    command = 'gdal_translate'
+                    command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
+                    sys.stdout.write(command+'\n')
+                    sys.stdout.flush()
+                    #call(command,shell=True)
                 # Higher order correction of resized image
                 gnam = os.path.join(wrk_dir,'{}_resized_geocor.dat'.format(trg_bnam))
                 with open(fnam,'r') as fp:
@@ -282,7 +306,7 @@ class Geocor(Process):
                         if i in indx2:
                             fp.write(line)
                 for order in [1,2,3]:
-                    if not self.values['higher_flags'][order-1]:
+                    if not self.values['resized_flags'][order]:
                         continue
                     command = self.python_path
                     command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
@@ -296,31 +320,43 @@ class Geocor(Process):
                     sys.stdout.write(command+'\n')
                     sys.stdout.flush()
                     #call(command,shell=True)
-
-                # Higher order correction at full resolution
-                hnam = os.path.join(wrk_dir,'{}_geocor.dat'.format(trg_bnam))
-                command = self.python_path
-                command += ' {}'.format(os.path.join(self.scr_dir,'trans_gcp.py'))
-                command += ' --src_fnam {}'.format(gnam)
-                command += ' --dst_fnam {}'.format(hnam)
-                command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-                #call(command,shell=True)
-                for order in [1,2,3]:
-                    if orders[order] != self.values['geocor_order']:
-                        continue
+                # Geometric correction at full resolution
+                if self.values['geocor_order'] == orders[0]:
+                    # 0th order correction at full resolution
+                    ulx = trg_xmin+xorg
+                    uly = trg_ymax+yorg
+                    lrx = trg_xmax+xorg
+                    lry = trg_ymin+yorg
+                    command = 'gdal_translate'
+                    command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
+                    command += ' {}'.format(self.values['trg_fnam'])
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,0)))
+                    call(command,shell=True)
+                else:
+                    # Higher order correction at full resolution
+                    hnam = os.path.join(wrk_dir,'{}_geocor.dat'.format(trg_bnam))
                     command = self.python_path
-                    command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-                    command += ' --out_fnam {}_geocor_np{}.tif'.format(trg_bnam,order)
-                    command += ' --scrdir {}'.format(self.scr_dir)
-                    command += ' --use_gcps {}'.format(hnam) # use
-                    command += ' --npoly {}'.format(order)
-                    command += ' --refine_gcps 0.1'
-                    command += ' --minimum_number 3'
-                    sys.stdout.write(command+'\n')
-                    sys.stdout.flush()
+                    command += ' {}'.format(os.path.join(self.scr_dir,'trans_gcp.py'))
+                    command += ' --src_fnam {}'.format(gnam)
+                    command += ' --dst_fnam {}'.format(hnam)
+                    command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+                    command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
                     #call(command,shell=True)
+                    for order in [1,2,3]:
+                        if self.values['geocor_order'] != orders[order]:
+                            continue
+                        command = self.python_path
+                        command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
+                        command += ' {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+                        command += ' --out_fnam {}_geocor_np{}.tif'.format(trg_bnam,order)
+                        command += ' --scrdir {}'.format(self.scr_dir)
+                        command += ' --use_gcps {}'.format(hnam) # use
+                        command += ' --npoly {}'.format(order)
+                        command += ' --refine_gcps 0.1'
+                        command += ' --minimum_number 3'
+                        sys.stdout.write(command+'\n')
+                        sys.stdout.flush()
+                        #call(command,shell=True)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
