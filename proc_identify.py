@@ -5,7 +5,6 @@ proc_identify = Identify()
 proc_identify.proc_name = 'identify'
 proc_identify.proc_title = 'Identify Points'
 proc_identify.pnams.append('inp_fnam')
-proc_identify.pnams.append('geocor_fnam')
 proc_identify.pnams.append('gcp_fnam')
 proc_identify.pnams.append('geocor_order')
 proc_identify.pnams.append('epsg')
@@ -25,9 +24,8 @@ proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
 proc_identify.pnams.append('data_range')
 proc_identify.pnams.append('neighbor_size')
-proc_identify.params['inp_fnam'] = 'Image aft. Geom. Correction'
-proc_identify.params['geocor_fnam'] = 'Image bef. Geom. Correction'
-proc_identify.params['gcp_fnam'] = 'GCP File'
+proc_identify.params['inp_fnam'] = 'Image after Geom. Correction'
+proc_identify.params['gcp_fnam'] = 'GCP File (utm2utm)'
 proc_identify.params['geocor_order'] = 'Order of Geom. Correction'
 proc_identify.params['epsg'] = 'EPSG'
 proc_identify.params['obs_fnam'] = 'Observation File'
@@ -47,7 +45,6 @@ proc_identify.params['sthr'] = 'Signal Ratio Threshold'
 proc_identify.params['data_range'] = 'DN Range'
 proc_identify.params['neighbor_size'] = 'Neighborhood Size (m)'
 proc_identify.param_types['inp_fnam'] = 'string'
-proc_identify.param_types['geocor_fnam'] = 'string'
 proc_identify.param_types['gcp_fnam'] = 'string'
 proc_identify.param_types['geocor_order'] = 'string_select'
 proc_identify.param_types['epsg'] = 'int'
@@ -82,7 +79,6 @@ proc_identify.param_range['sthr'] = (-1.0e50,1.0e50)
 proc_identify.param_range['data_range'] = (-1.0e50,1.0e50)
 proc_identify.param_range['neighbor_size'] = (0.0,1.0e50)
 proc_identify.defaults['inp_fnam'] = 'input.tif'
-proc_identify.defaults['geocor_fnam'] = 'input_resized.tif'
 proc_identify.defaults['gcp_fnam'] = 'gcp.dat'
 proc_identify.defaults['geocor_order'] = '2nd'
 proc_identify.defaults['epsg'] = 32748
@@ -119,7 +115,6 @@ proc_identify.list_labels['rthr'] = ['Min :',' Max :',' Step :']
 proc_identify.list_labels['data_range'] = ['Min :',' Max :']
 proc_identify.list_labels['neighbor_size'] = ['Inner :',' Outer :']
 proc_identify.input_types['inp_fnam'] = 'ask_file'
-proc_identify.input_types['geocor_fnam'] = 'ask_file'
 proc_identify.input_types['gcp_fnam'] = 'ask_file'
 proc_identify.input_types['geocor_order'] = 'string_select'
 proc_identify.input_types['epsg'] = 'box'
@@ -140,7 +135,6 @@ proc_identify.input_types['sthr'] = 'box'
 proc_identify.input_types['data_range'] = 'float_list'
 proc_identify.input_types['neighbor_size'] = 'float_list'
 proc_identify.flag_check['inp_fnam'] = False
-proc_identify.flag_check['geocor_fnam'] = False
 proc_identify.flag_check['gcp_fnam'] = False
 for pnam in proc_identify.pnams:
     proc_identify.values[pnam] = proc_identify.defaults[pnam]

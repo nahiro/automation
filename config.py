@@ -113,7 +113,6 @@ config_defaults.update({
 'indices.middle_left_frame_width'     : 1000,
 #----------- identify -----------
 'identify.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
-'identify.geocor_fnam'                : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_resized.tif'),
 'identify.gcp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_resized_geocor_utm2utm.dat'),
 'identify.geocor_order'               : '2nd',
 'identify.epsg'                       : 32748,

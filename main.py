@@ -51,14 +51,12 @@ def set_title(pnam):
     # identify
     proc_pnam = 'inp_fnam'
     proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_{}.tif'.format(block,dstr,geocor_order[proc_geocor.values['geocor_order']]))
-    proc_pnam = 'geocor_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_resized.tif'.format(block,dstr))
     proc_pnam = 'gcp_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_resized_geocor_utm2utm.dat'.format(block,dstr))
+    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
     proc_pnam = 'obs_fnam'
     proc_identify.values[proc_pnam] = os.path.join(field_dir,block,dstr,'{}_{}.xls'.format(block,dstr))
     if proc_identify.center_var is not None:
-        for proc_pnam in ['inp_fnam','geocor_fnam','gcp_fnam','obs_fnam']:
+        for proc_pnam in ['inp_fnam','gcp_fnam','obs_fnam']:
             proc_identify.center_var[proc_pnam].set(proc_identify.values[proc_pnam])
     # extract
     proc_pnam = 'inp_fnam'
