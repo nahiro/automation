@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 import os
 import sys
-import gdal
-import osr
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
+try:
+    import osr
+except Exception:
+    from osgeo import osr
 from skimage.measure import points_in_poly
 import shapefile
 from shapely.geometry import Polygon

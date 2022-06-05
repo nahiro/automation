@@ -35,6 +35,7 @@ class Geocor(Process):
     def run(self):
         # Start process
         super().run()
+
         # Check files
         if not os.path.exists(self.values['gis_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_title,self.values['gis_fnam']))
@@ -49,6 +50,7 @@ class Geocor(Process):
             os.makedirs(wrk_dir)
         if not os.path.isdir(wrk_dir):
             raise ValueError('Error, no such folder >>> {}'.format(wrk_dir))
+
         # Rebin target
         ds = gdal.Open(self.values['trg_fnam'])
         trg_trans = ds.GetGeoTransform()
@@ -69,9 +71,10 @@ class Geocor(Process):
         command += ' --src_geotiff {}'.format(self.values['trg_fnam'])
         command += ' --dst_geotiff {}_resized.tif'.format(os.path.join(wrk_dir,trg_bnam))
         sys.stderr.write('Rebin target\n')
-        sys.stderr.flush()
         sys.stderr.write(command+'\n')
+        sys.stderr.flush()
         call(command,shell=True)
+
         # Crop reference
         ds = gdal.Open(self.values['ref_fnam'])
         ref_trans = ds.GetGeoTransform()
@@ -100,10 +103,82 @@ class Geocor(Process):
         command += ' -tr 0.2 0.2'
         command += ' {}'.format(self.values['ref_fnam'])
         command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        sys.stderr.write(command+'\n')
         sys.stderr.write('Crop reference\n')
+        sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
+
+        # Make dist mask
+        sys.stderr.write('Make dist mask\n')
+        sys.stderr.flush()
+        # Inside
+        buffer1 = -0.5*self.values['boundary_width']
+        fnam1 = os.path.join(wrk_dir,'mask1.tif')
+        if os.path.exists(fnam1):
+            os.remove(fnam1)
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff {}'.format(fnam1)
+        command += ' --use_index'
+        command += ' --buffer "{:22.15e} "'.format(buffer1)
+        sys.stderr.write('Inside\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+        ds = gdal.Open(fnam1)
+        mask_nx = ds.RasterXSize
+        mask_ny = ds.RasterYSize
+        mask_shape = (mask_ny,mask_nx)
+        mask_prj = ds.GetProjection()
+        mask_trans = ds.GetGeoTransform()
+        mask_meta = ds.GetMetadata()
+        mask1 = ds.ReadAsArray()
+        mask_nodata = -1.0
+        ds = None
+        # Outside
+        buffer2 = 0.5*self.values['boundary_width']
+        fnam2 = os.path.join(wrk_dir,'mask2.tif')
+        if os.path.exists(fnam2):
+            os.remove(fnam2)
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff {}'.format(fnam2)
+        command += ' --use_index'
+        command += ' --buffer "{:22.15e}"'.format(buffer2)
+        sys.stderr.write('Outside\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+        ds = gdal.Open(fnam2)
+        mask2 = ds.ReadAsArray()
+        ds = None
+        # Both side
+        mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
+        cnd = (mask1 < 0.5) & (mask2 > -0.5)
+        mask[cnd] = mask_nodata
+        sys.stderr.write('Both side\n')
+        sys.stderr.flush()
+        drv = gdal.GetDriverByName('GTiff')
+        ds = drv.Create(os.path.join(wrk_dir,'{}_dist_mask.tif'.format(trg_bnam)),mask_nx,mask_ny,1,gdal.GDT_Int32)
+        ds.SetProjection(mask_prj)
+        ds.SetGeoTransform(mask_trans)
+        ds.SetMetadata(mask_meta)
+        band = ds.GetRasterBand(1)
+        band.WriteArray(mask)
+        band.SetDescription('dist mask')
+        band.SetNoDataValue(mask_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
+        ds.FlushCache()
+        ds = None # close dataset
+        if os.path.exists(fnam1):
+            os.remove(fnam1)
+        if os.path.exists(fnam2):
+            os.remove(fnam2)
+
+
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
