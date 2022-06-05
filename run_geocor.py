@@ -302,7 +302,7 @@ class Geocor(Process):
                     sys.stderr.flush()
                     call(command,shell=True)
                 # Higher order correction of resized image
-                gnam = os.path.join(wrk_dir,'{}_resized_geocor.dat'.format(trg_bnam))
+                gnam = os.path.join(wrk_dir,'{}_resized_geocor_pix2utm.dat'.format(trg_bnam))
                 with open(fnam,'r') as fp:
                     lines = fp.readlines()
                 with open(gnam,'w') as fp:
@@ -339,7 +339,7 @@ class Geocor(Process):
                     call(command,shell=True)
                 else:
                     # Higher order correction at full resolution
-                    hnam = os.path.join(wrk_dir,'{}_geocor.dat'.format(trg_bnam))
+                    hnam = os.path.join(wrk_dir,'{}_geocor_pix2utm.dat'.format(trg_bnam))
                     command = self.python_path
                     command += ' {}'.format(os.path.join(self.scr_dir,'trans_gcp.py'))
                     command += ' --src_fnam {}'.format(gnam)
