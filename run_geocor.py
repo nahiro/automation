@@ -278,9 +278,9 @@ class Geocor(Process):
             #---------
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
             indx0 = np.arange(r.size)[(r>self.values['boundary_cmins'][1]) & (nb>nb.max()*self.values['boundary_nmin']) & (r90<self.values['boundary_rmax'])]
-            x_diff1,y_diff1,e1,n1,indx1 = calc_mean(x,y,emax=self.values['boundary_emaxs'][0],selected=indx0)
-            x_diff2,y_diff2,e2,n2,indx2 = calc_mean(x,y,emax=self.values['boundary_emaxs'][1],selected=indx1)
-            x_diff3,y_diff3,e3,n3,indx3 = calc_mean(x,y,emax=self.values['boundary_emaxs'][2],selected=indx2)
+            x_diff1,y_diff1,e1,n1,indx1 = self.calc_mean(x,y,emax=self.values['boundary_emaxs'][0],selected=indx0)
+            x_diff2,y_diff2,e2,n2,indx2 = self.calc_mean(x,y,emax=self.values['boundary_emaxs'][1],selected=indx1)
+            x_diff3,y_diff3,e3,n3,indx3 = self.calc_mean(x,y,emax=self.values['boundary_emaxs'][2],selected=indx2)
             with open(shift_dat,'a') as fp:
                 fp.write('{} {:8.4f} {:8.4f} {:7.4f} {:7.4f} {:7.4f} {:3d} {:3d} {:3d}\n'.format(trials[itry],x_diff3,y_diff3,e1,e2,e3,n1,n2,n3))
             xorg = x_diff3
