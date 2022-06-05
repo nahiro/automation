@@ -74,7 +74,7 @@ class Geocor(Process):
         sys.stderr.write('Rebin target\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
 
         # Crop reference
         ds = gdal.Open(self.values['ref_fnam'])
@@ -107,12 +107,12 @@ class Geocor(Process):
         sys.stderr.write('Crop reference\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        call(command,shell=True)
+        #call(command,shell=True)
 
         # Make dist mask
         sys.stderr.write('Make dist mask\n')
         sys.stderr.flush()
-        print(datetime.now())
+        sys.stderr.write('{}\n'.format(datetime.now()))
         # Inside
         buffer1 = -0.5*self.values['boundary_width']
         fnam1 = os.path.join(wrk_dir,'mask1.tif')
@@ -123,8 +123,8 @@ class Geocor(Process):
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
         command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         command += ' --dst_geotiff {}'.format(fnam1)
-        command += ' --use_index'
         command += ' --buffer="{:22.15e}"'.format(buffer1)
+        command += ' --use_index'
         sys.stderr.write('Inside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -139,7 +139,7 @@ class Geocor(Process):
         mask1 = ds.ReadAsArray()
         mask_nodata = -1.0
         ds = None
-        print(datetime.now())
+        sys.stderr.write('{}\n'.format(datetime.now()))
         # Outside
         buffer2 = 0.5*self.values['boundary_width']
         fnam2 = os.path.join(wrk_dir,'mask2.tif')
@@ -150,8 +150,8 @@ class Geocor(Process):
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
         command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         command += ' --dst_geotiff {}'.format(fnam2)
-        command += ' --use_index'
         command += ' --buffer="{:22.15e}"'.format(buffer2)
+        command += ' --use_index'
         sys.stderr.write('Outside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -159,7 +159,7 @@ class Geocor(Process):
         ds = gdal.Open(fnam2)
         mask2 = ds.ReadAsArray()
         ds = None
-        print(datetime.now())
+        sys.stderr.write('{}\n'.format(datetime.now()))
         # Both side
         mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
         cnd = (mask1 < 0.5) & (mask2 > -0.5)
@@ -177,12 +177,27 @@ class Geocor(Process):
         band.SetNoDataValue(mask_nodata) # The TIFFTAG_GDAL_NODATA only support one value per dataset
         ds.FlushCache()
         ds = None # close dataset
-        if os.path.exists(fnam1):
-            os.remove(fnam1)
-        if os.path.exists(fnam2):
-            os.remove(fnam2)
-        print(datetime.now())
+        #if os.path.exists(fnam1):
+        #    os.remove(fnam1)
+        #if os.path.exists(fnam2):
+        #    os.remove(fnam2)
+        sys.stderr.write('{}\n'.format(datetime.now()))
 
+        # Make area mask
+        buffer3 = 0.0
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_area_mask.tif'.format(trg_bnam)))
+        command += ' --buffer="{:22.15e}"'.format(buffer3)
+        command += ' --use_index'
+        command += ' --select_inside'
+        sys.stderr.write('Make area map\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+        sys.stderr.write('{}\n'.format(datetime.now()))
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
