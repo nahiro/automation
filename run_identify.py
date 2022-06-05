@@ -39,12 +39,12 @@ class Identify(Process):
         command += ' --epsg {}'.format(self.values['epsg'])
         command += ' --geocor_npoly {}'.format(orders[self.values['geocor_order']])
         command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         sys.stderr.write('\nRead observation data\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-        df = pd.read_csv(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)),comment='#')
+        df = pd.read_csv(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)),comment='#')
         df.columns = df.columns.str.strip()
         plot_bunch = df['PlotPaddy'].values
         plots = np.unique(plot_bunch)
@@ -54,7 +54,7 @@ class Identify(Process):
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_subset.py'))
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
         command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-        command += ' --gps_fnam {}'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' --gps_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
@@ -103,8 +103,8 @@ class Identify(Process):
             command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam,plot)))
             # for Redness Ratio
             command += ' --ax1_zmin 0'
-            command += ' --ax1_zmax 20'
-            command += ' --ax1_zstp 5'
+            command += ' --ax1_zmax 3'
+            command += ' --ax1_zstp 1'
             # for Signal Ratio
             command += ' --ax1_zmin 0'
             command += ' --ax1_zmax 5'
@@ -116,10 +116,42 @@ class Identify(Process):
             sys.stderr.flush()
             call(command,shell=True)
 
-        """
-        call('drone_extract_points.py -I {}.tif -g {}.csv -dn -z 0 -Z 0.3 -s 0.1'.format(target,target),shell=True)
-            return
-        """
+        # Identify point
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'drone_identify_points.py'))
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+        command += ' --csv_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --ext_fnam {}'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
+        command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
+        command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
+        command += ' --pixel_rmax {}'.format(self.values['pixel_rmax'])
+        command += ' --point_dmax {}'.format(self.values['point_dmax'][0])
+        command += ' --point_lwid {}'.format(self.values['point_dmax'][1])
+        command += ' --point_smin {}'.format(self.values['point_area'][0])
+        command += ' --point_smax {}'.format(self.values['point_area'][1])
+        command += ' --point_area {}'.format(self.values['point_area'][2])
+        command += ' --point_nmin {}'.format(self.values['point_nmin'])
+        command += ' --rr_param {}'.format('S'+self.values['rr_param'][0] if self.values['rr_param'][0].islower() else self.values['rr_param'][0])
+        command += ' --sr_param {}'.format('Br' if self.values['rr_param'][1] in ['S/B'] else 'Nr')
+        command += ' --rthr_min {}'.format(self.values['rthr'][0])
+        command += ' --rthr_max {}'.format(self.values['rthr'][1])
+        command += ' --rstp {}'.format(self.values['rthr'][2])
+        command += ' --sthr {}'.format(self.values['sthr'])
+        command += ' --criteria {}'.format('Distance' if 'Distance' in selv.values['criteria'] else 'Area')
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
+        command += ' --ax1_zmin 0.0'
+        command += ' --ax1_zmax 0.3'
+        command += ' --ax1_zstp 0.1'
+        command += ' --remove_nan'
+        command += ' --debug'
+        command += ' --batch'
+        sys.stderr.write('\nIdentify point\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
+        return

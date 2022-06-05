@@ -80,6 +80,7 @@ parser.add_argument('-s','--ax1_zstp',default=None,type=float,help='Axis1 Z stp 
 parser.add_argument('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%(default)s)')
 parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
 args = parser.parse_args()
 if not args.rr_param in RR_PARAMS:
     raise ValueError('Error, unknown redness ratio parameter >>> {}'.format(args.rr_param))
@@ -175,7 +176,8 @@ for plot in plots:
         raise ValueError('Error, plot={}, len(inside_plot[{}])={} >>> {}'.format(plot,plot,len(inside_plot[plot]),args.csv_fnam))
 
 if args.debug:
-    plt.interactive(True)
+    if not args.batch:
+        plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(args.fignam)
@@ -533,8 +535,9 @@ for plot in plots:
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
         plt.savefig(pdf,format='pdf')
-        plt.draw()
-        plt.pause(0.1)
+        if not args.batch:
+            plt.draw()
+            plt.pause(0.1)
     #if plot == 2:
     #    break
 if args.debug:
