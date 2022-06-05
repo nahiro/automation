@@ -70,7 +70,7 @@ class Identify(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-        ds = gdal.Open(iself.values['inp_fnam'])
+        ds = gdal.Open(self.values['inp_fnam'])
         trans = ds.GetGeoTransform()
         ds = None
         xstp = trans[1]
@@ -100,7 +100,7 @@ class Identify(Process):
                 command += ' --data_min="{}"'.format(self.values['data_range'][0])
             if not np.isnan(self.values['data_range'][1]):
                 command += ' --data_max="{}"'.format(self.values['data_range'][1])
-            command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam)))
+            command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam,plot)))
             # for Redness Ratio
             command += ' --ax1_zmin 0'
             command += ' --ax1_zmax 20'
@@ -117,9 +117,6 @@ class Identify(Process):
             call(command,shell=True)
 
         """
-        call('drone_calc_rr.py -I {}_plot1.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
-        call('drone_calc_rr.py -I {}_plot2.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
-        call('drone_calc_rr.py -I {}_plot3.tif --data_min 10 -d -n  -p Lrg -p Nr -z 0 -Z 20 -s 5 -Z 5'.format(target),shell=True)
         call('drone_extract_points.py -I {}.tif -g {}.csv -dn -z 0 -Z 0.3 -s 0.1'.format(target,target),shell=True)
             return
         """
