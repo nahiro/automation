@@ -76,7 +76,7 @@ def set_title(pnam):
     # formula
     proc_pnam = 'inp_fnams'
     dnam = os.path.join(analysis_dir,'extract')
-    fnams = glob(os.path.join(dnam,'*_indices.csv'))
+    fnams = glob(os.path.join(dnam,'*_extract.csv'))
     if len(fnams) > 0:
         proc_formula.values[proc_pnam] = '\n'.join(sorted(fnams))
     else:
