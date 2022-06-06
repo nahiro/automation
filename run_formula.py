@@ -11,12 +11,14 @@ class Formula(Process):
         super().run()
 
         # Check files
+        fnams = []
         for line in self.values['inp_fnams'].splitlines():
             fnam = line.strip()
             if (len(fnam) < 1) or (fnam[0] == '#'):
                 continue
             if not os.path.exists(fnam):
                 raise IOError('{}: error, no such file >>> "{}"'.format(self.proc_name,fnam))
+            fnams.append(fnam)
         wrk_dir = os.path.join(self.drone_analysis,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
@@ -26,9 +28,9 @@ class Formula(Process):
         # Make score formula
         trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         tmp_fnam = os.path.join(wrk_dir,'temp.dat')
-        x_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['x_params']]
         with open(tmp_fnam,'w') as fp:
-            fp.write(self.values['inp_fnams'])
+            fp.write('\n'.join(fnams))
+        x_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['x_params']]
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
@@ -75,11 +77,6 @@ class Formula(Process):
         call(command,shell=True)
 
         # Make intensity formula
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
-        tmp_fnam = os.path.join(wrk_dir,'temp.dat')
-        x_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['x_params']]
-        with open(tmp_fnam,'w') as fp:
-            fp.write(self.values['inp_fnams'])
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
@@ -125,8 +122,8 @@ class Formula(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-        #if os.path.exists(tmp_fnam):
-        #    os.remove(tmp_fnam)
+        if os.path.exists(tmp_fnam):
+            os.remove(tmp_fnam)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
