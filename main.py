@@ -319,6 +319,7 @@ for i,pnam in enumerate(pnams):
     right_btn[pnam] = tk.Button(right_cnv[pnam],text='Set',width=4,command=eval('lambda:set_child("{}")'.format(pnam)))
     right_btn[pnam].pack(side=tk.LEFT)
     right_lbl[pnam] = ttk.Label(right_cnv[pnam],text='ERROR',foreground='red')
-    check_child(pnam)
 set_title('block')
+for pnam in pnams:
+    check_child(pnam)
 root.mainloop()
