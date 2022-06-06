@@ -19,6 +19,7 @@ class Formula(Process):
             if not os.path.exists(fnam):
                 raise IOError('{}: error, no such file >>> "{}"'.format(self.proc_name,fnam))
             fnams.append(fnam)
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         wrk_dir = os.path.join(self.drone_analysis,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
@@ -26,7 +27,6 @@ class Formula(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Make score formula
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         tmp_fnam = os.path.join(wrk_dir,'temp.dat')
         with open(tmp_fnam,'w') as fp:
             fp.write('\n'.join(fnams))

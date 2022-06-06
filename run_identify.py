@@ -22,6 +22,7 @@ class Identify(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['gcp_fnam']))
         if not os.path.exists(self.values['obs_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['obs_fnam']))
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
@@ -29,7 +30,6 @@ class Identify(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Read data
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         orders = {'0th':0,'1st':1,'2nd':2,'3rd':3}
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))

@@ -20,6 +20,7 @@ class Estimate(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['score_fnam']))
         if not os.path.exists(self.values['intensity_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['intensity_fnam']))
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         etc_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
         wrk_dir = os.path.join(self.drone_analysis,self.proc_name)
         if not os.path.exists(etc_dir):
@@ -32,7 +33,6 @@ class Estimate(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Make mask
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         mask_fnam = os.path.join(etc_dir,'{}_mask.tif'.format(trg_bnam))
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
