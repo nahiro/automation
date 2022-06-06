@@ -1,5 +1,9 @@
 import os
 import sys
+try:
+    import gdal
+except Exception:
+    from osgeo import gdal
 from subprocess import call
 from proc_class import Process
 
