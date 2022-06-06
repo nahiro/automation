@@ -54,7 +54,7 @@ class Extract(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nIdentify point\n')
+        sys.stderr.write('\nExtract indices\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
