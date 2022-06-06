@@ -118,7 +118,7 @@ class Formula(Process):
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_intensity_formula.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nMake score formula\n')
+        sys.stderr.write('\nMake intensity formula\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
