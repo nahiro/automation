@@ -27,8 +27,23 @@ class Estimate(Process):
         if not os.path.isdir(wrk_dir):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
+        # Make mask
+        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
+        mask_fnam = os.path.join(etc_dir,'{}_mask.tif'.format(trg_bnam))
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
+        command += ' --dst_geotiff {}'.format(mask_fnam)
+        command += ' --buffer="{}"'.format(-abs(self.values['buffer']))
+        command += ' --use_index'
+        sys.stderr.write('\nMake mask\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+
         # Make rebinned image
-        tmp_fnam = os.path.join(etc_dir,'temp.tif')
+        img_fnam = os.path.join(etc_dir,'{}_resized.tif'.format(trg_bnam))
         ds = gdal.Open(self.values['inp_fnam'])
         inp_trans = ds.GetGeoTransform()
         inp_shape = (ds.RasterYSize,ds.RasterXSize)
@@ -48,18 +63,33 @@ class Estimate(Process):
         command += ' --istp {}'.format(istp)
         command += ' --jstp {}'.format(jstp)
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
-        command += ' --dst_geotiff {}'.format(tmp_fnam)
+        command += ' --dst_geotiff {}'.format(img_fnam)
+        command += ' --mask_geotiff {}'.format(mask_fnam)
+        command += ' --rmax 0.1'
         sys.stderr.write('\nRebin image\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
+
+        # Make parcel image
+        mask_resized_fnam = os.path.join(etc_dir,'{}_mask_resized.tif'.format(trg_bnam))
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'rebin_mask.py'))
+        command += ' --istp {}'.format(istp)
+        command += ' --jstp {}'.format(jstp)
+        command += ' --src_geotiff {}'.format(mask_fnam)
+        command += ' --dst_geotiff {}'.format(mask_resized_fnam)
+        command += ' --rmax 0.1'
+        sys.stderr.write('\nMake parcel image\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
 
         # Estimate score
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
         command += ' --inp_fnam {}'.format(self.values['score_fnam'])
-        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
+        command += ' --src_geotiff {}'.format(img_fnam)
         command += ' --dst_geotiff {}'.format(os.path.join(etc_dir,'{}_score.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
@@ -86,7 +116,7 @@ class Estimate(Process):
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
         command += ' --inp_fnam {}'.format(self.values['intensity_fnam'])
-        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
+        command += ' --src_geotiff {}'.format(img_fnam)
         command += ' --dst_geotiff {}'.format(os.path.join(etc_dir,'{}_intensity.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
@@ -102,29 +132,17 @@ class Estimate(Process):
         sys.stderr.flush()
         call(command,shell=True)
 
-        # Make mask
-        if os.path.exists(tmp_fnam):
-            os.remove(tmp_fnam)
-        command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
-        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        command += ' --dst_geotiff {}'.format(tmp_fnam)
-        command += ' --buffer="{:22.15e}"'.format(self.values['buffer'])
-        command += ' --use_index'
-
         # Calculate damage intensity of plot from score
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_damage_calculate.py'))
         command += ' --src_geotiff {}'.format(os.path.join(etc_dir,'{}_score.tif'.format(trg_bnam)))
-        command += ' --mask_geotiff {}'.format(tmp_fnam)
+        command += ' --mask_geotiff {}'.format(mask_resized_fnam)
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
         command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_score.csv'.format(trg_bnam)))
         command += ' --out_shp {}'.format(os.path.join(etc_dir,'{}_score.shp'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
-
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
@@ -132,10 +150,6 @@ class Estimate(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-
-        #drone_damage_calculate.py -I P4M_RTK_11b_20220301_geocor_indices_rebin_estimate.tif -M P4M_RTK_11b_20220301_geocor_mask_rebin.tif -i All_area_polygon_20210914/All_area_polygon_20210914.shp -dn
-        if os.path.exists(tmp_fnam):
-            os.remove(tmp_fnam)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
