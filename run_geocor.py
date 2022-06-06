@@ -111,7 +111,7 @@ class Geocor(Process):
         call(command,shell=True)
 
         # Make dist mask
-        sys.stderr.write('Make dist mask\n')
+        sys.stderr.write('\nMake dist mask\n')
         sys.stderr.flush()
         sys.stderr.write('{}\n'.format(datetime.now()))
         # Inside
