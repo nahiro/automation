@@ -39,11 +39,21 @@ class Formula(Process):
         for param,flag in zip(x_params,self.values['x_params']):
             if flag:
                 command += ' --x_param {}'.format(param)
-
-
-        for param,flag in zip(self.list_labels['x_params'],self.values['x_params']):
+        for param,flag in zip(self.list_labels['q_params'],self.values['q_params']):
             if flag:
-                command += ' --norm_band {}'.format(band)
+                command += ' --q_param {}'.format(param)
+        for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
+            if flag:
+                command += ' --y_param {}'.format(param)
+
+
+        for param,flag in zip(self.list_labels['y_params'],self.values['ythr']):
+            if flag:
+                command += ' --y_threshold {}'.format(param)
+
+        for param,flag in zip(self.list_labels['y_params'],self.values['score_max']):
+            if flag:
+                command += ' --y_threshold {}'.format(param)
 
 
         command += ' --x_param {}'.format(self.values[''])
