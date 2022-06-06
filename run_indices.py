@@ -21,7 +21,7 @@ class Indices(Process):
 
         # Calculate indices
         trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
-        out_params = [(('S'+param) if len(param) == 1 else param) for param in self.list_labels['out_params']]
+        out_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['out_params']]
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_calc_indices.py'))
         command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
