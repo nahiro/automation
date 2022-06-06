@@ -87,8 +87,8 @@ for itarg in range(len(args.img_fnam)):
         ny,nx = rgb_shape
         fig.clear()
         axs = plt.subplot(111,projection=prj)
-        axs.set_xticks([])
-        axs.set_yticks([])
+        axs.xaxis.set_ticks([])
+        axs.yaxis.set_ticks([])
         axs.imshow(rgb,extent=(data_xmin,data_xmax,data_ymin,data_ymax),origin='upper',interpolation='none')
         #axs.add_geometries(block_shp,prj,edgecolor='k',facecolor='none')
         rgb_xmin = xp[ind_ymin:ind_ymax,ind_xmin:ind_xmax].min()
