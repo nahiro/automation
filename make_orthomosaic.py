@@ -28,7 +28,7 @@ DEPTH_MAP_QUALITY = 'Medium'
 FILTER_MODE = 'Aggressive'
 EPSG = 32748 # UTM zone 48S
 PIXEL_SIZE = 0.025 # m
-SCALE_FACTOR = 1.0
+SCALE_FACTOR = [1.0]
 OUTPUT_TYPE = 'Float32'
 
 # Read options
@@ -47,7 +47,7 @@ parser.add_argument('--depth_map_quality',default=DEPTH_MAP_QUALITY,help='Depth 
 parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
 parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
-parser.add_argument('-f','--scale_factor',default=SCALE_FACTOR,type=float,help='Scale factor (%(default)s)')
+parser.add_argument('-S','--scale_factor',default=None,type=float,action='append',help='Scale factor ({})'.format(SCALE_FACTOR))
 parser.add_argument('-t','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
 parser.add_argument('--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
 parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
@@ -75,6 +75,8 @@ if not args.depth_map_quality in DEPTH_MAP_QUALITIES:
     raise ValueError('Error, unsupported depth map quality >>> {}'.format(args.depth_map_quality))
 if not args.filter_mode in FILTER_MODES:
     raise ValueError('Error, unknown depth map filter mode >>> {}'.format(args.filter_mode))
+if args.scale_factor is None:
+    args.scale_factor = SCALE_FACTOR
 if not args.output_type in OUTPUT_TYPES:
     raise ValueError('Error, unsupported output type >>> {}'.format(args.output_type))
 
