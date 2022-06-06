@@ -64,7 +64,7 @@ config_defaults.update({
 'orthomosaic.point_limit'             : [40000,4000],
 'orthomosaic.cam_flags'               : [True,True],
 'orthomosaic.optimize_flag'           : True,
-'orthomosaic.cam_params'              : [True,True,True,True,False,True,True,True,True,False,False],
+'orthomosaic.cam_params'              : [True,True,True,True,False,True,True,True,True,False,False,True],
 'orthomosaic.depth_map'               : ['Medium','Aggressive'],
 'orthomosaic.epsg'                    : 32748,
 'orthomosaic.pixel_size'              : 0.025,
