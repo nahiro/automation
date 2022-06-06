@@ -167,7 +167,7 @@ if len(args.src_geotiff) == 1:
                 fp.write(', {:>13s}'.format(src_band[iband]))
             fp.write('\n')
         for i in range(len(number_bunch)):
-            fp.write('{:3d}, {:3d}, {:12.4f}, {:13.4f},{}'.format(number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],rest_bunch[i]))
+            fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}'.format(loc_bunch[i],number_bunch[i],plot_bunch[i],x_bunch[i],y_bunch[i],rest_bunch[i]))
             r = np.sqrt(np.square(src_xp-x_bunch[i])+np.square(src_yp-y_bunch[i]))
             cnd1 = (r > args.inner_radius) & (r < args.outer_radius)
             for iband in range(src_nb):

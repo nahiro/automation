@@ -80,7 +80,7 @@ def set_title(pnam):
     if len(fnams) > 0:
         proc_formula.values[proc_pnam] = '\n'.join(sorted(fnams))
     else:
-        proc_formula.values[proc_pnam] = os.path.join(dnam,'{}_{}_indices.csv'.format(block,dstr))
+        proc_formula.values[proc_pnam] = os.path.join(dnam,'{}_{}_extract.csv'.format(block,dstr))
     if proc_formula.center_var is not None:
         try:
             proc_formula.center_inp[proc_pnam].delete(1.0,tk.END)
