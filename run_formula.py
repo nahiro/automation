@@ -13,8 +13,10 @@ class Formula(Process):
         # Check files
         for line in self.values['inp_fnams'].splitlines():
             fnam = line.strip()
+            if (len(fnam) < 1) or (fnam[0] == '#'):
+                continue
             if not os.path.exists(fnam):
-                raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,fnam))
+                raise IOError('{}: error, no such file >>> "{}"'.format(self.proc_name,fnam))
         wrk_dir = os.path.join(self.drone_analysis,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
@@ -44,7 +46,7 @@ class Formula(Process):
             if not np.isnan(value):
                 command += ' --y_threshold "{}:{}"'.format(param,value)
         for param,value in zip(self.list_labels['y_params'],self.values['score_max']):
-            if not np.isnan(value):
+            if not np.isnan(value) and (np.abs(value-1.0) > 1.0e-6):
                 command += ' --y_max "{}:{}"'.format(param,value)
         for param,value in zip(self.list_labels['y_params'],self.values['score_step']):
             if not np.isnan(value):
@@ -95,7 +97,7 @@ class Formula(Process):
             if not np.isnan(value):
                 command += ' --y_threshold "{}:{}"'.format(param,value)
         for param,value in zip(self.list_labels['y_params'],self.values['score_max']):
-            if not np.isnan(value):
+            if not np.isnan(value) and (np.abs(value-1.0) > 1.0e-6):
                 command += ' --y_max "{}:{}"'.format(param,value)
         for param,value in zip(self.list_labels['y_params'],self.values['score_step']):
             if not np.isnan(value):
@@ -123,8 +125,8 @@ class Formula(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-        if os.path.exists(tmp_fnam):
-            os.remove(tmp_fnam)
+        #if os.path.exists(tmp_fnam):
+        #    os.remove(tmp_fnam)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))

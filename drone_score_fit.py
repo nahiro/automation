@@ -147,9 +147,10 @@ if args.inp_list is not None:
     fnams = []
     with open(args.inp_list,'r') as fp:
         for line in fp:
-            if (len(line) < 1) or (line[0] == '#'):
+            fnam = line.strip()
+            if (len(fnam) < 1) or (fnam[0] == '#'):
                 continue
-            fnams.append(line.rstrip())
+            fnams.append(fnam)
 else:
     fnams = args.inp_fnam
 X = {}
