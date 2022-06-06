@@ -138,15 +138,44 @@ class Estimate(Process):
         command += ' --src_geotiff {}'.format(os.path.join(etc_dir,'{}_score.tif'.format(trg_bnam)))
         command += ' --mask_geotiff {}'.format(mask_resized_fnam)
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_score.csv'.format(trg_bnam)))
-        command += ' --out_shp {}'.format(os.path.join(etc_dir,'{}_score.shp'.format(trg_bnam)))
+        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_damage_score.csv'.format(trg_bnam)))
+        command += ' --out_shp {}'.format(os.path.join(etc_dir,'{}_damage_score.shp'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
+        for param,flag,value in zip(self.list_labels['y_params'],self.values['y_params'],self.values['score_max']):
+            if flag:
+                command += ' --smax {}'.format(value)
+        command += ' --rmax 0.01'
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_score.pdf'.format(trg_bnam)))
+        command += ' --use_index'
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
         sys.stderr.write('\nEstimate intensity of plot from score\n')
+        sys.stderr.write(command+'\n')
+        sys.stderr.flush()
+        call(command,shell=True)
+
+        # Calculate damage intensity of plot from intensity
+        command = self.python_path
+        command += ' {}'.format(os.path.join(self.scr_dir,'drone_damage_calculate.py'))
+        command += ' --src_geotiff {}'.format(os.path.join(etc_dir,'{}_intensity.tif'.format(trg_bnam)))
+        command += ' --mask_geotiff {}'.format(mask_resized_fnam)
+        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
+        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_damage_intensity.csv'.format(trg_bnam)))
+        command += ' --out_shp {}'.format(os.path.join(etc_dir,'{}_damage_intensity.shp'.format(trg_bnam)))
+        for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
+            if flag:
+                command += ' --y_param {}'.format(param)
+                command += ' --smax 1'
+        command += ' --rmax 0.01'
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_intensity.pdf'.format(trg_bnam)))
+        command += ' --use_index'
+        command += ' --remove_nan'
+        command += ' --debug'
+        command += ' --batch'
+        sys.stderr.write('\nEstimate intensity of plot from intensity\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
