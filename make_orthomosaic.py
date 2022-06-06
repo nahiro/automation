@@ -32,6 +32,7 @@ OUTPUT_TYPE = 'Float32'
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
+parser.add_argument('-i','--inp_list',default=None,help='Input folder list (%(default)s)')
 parser.add_argument('-I','--inp_dnam',default=None,action='append',help='Input folder name (%(default)s)')
 parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(default)s)')
 parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
@@ -59,6 +60,8 @@ parser.add_argument('--disable_fit_correction',default=False,action='store_true'
 parser.add_argument('--adaptive_fitting_align',default=False,action='store_true',help='Adaptive fitting during align cameras (%(default)s)')
 parser.add_argument('--adaptive_fitting_optimize',default=False,action='store_true',help='Adaptive fitting during optimize cameras (%(default)s)')
 args = parser.parse_args()
+if args.inp_list is None and args.inp_dnam is None:
+    raise ValueError('Error, args.inp_list={}, args.inp_dnam={}'.format(args.inp_list,args.inp_dnam))
 if not args.align_level in ALIGN_LEVELS:
     raise ValueError('Error, unsupported alignment accuracy >>> {}'.format(args.align_level))
 if args.camera_param is None:
@@ -83,7 +86,17 @@ def find_files(folder,types):
     return [entry.path for entry in os.scandir(folder) if (entry.is_file() and os.path.splitext(entry.name)[1].lower() in types)]
 
 photos = []
-for dnam in args.inp_dnam:
+if args.inp_list is not None:
+    dnams = []
+    with open(args.inp_list,'r') as fp:
+        for line in fp:
+            dnam = line.strip()
+            if (len(dnam) < 1) or (dnam[0] == '#'):
+                continue
+            dnams.append(dnam)
+else:
+    dnams = args.inp_dnam
+for dnam in dnams:
     photos.extend(find_files(dnam,['.tif','.tiff']))
 if len(photos) < 1:
     raise IOError('Error, no input image.')
