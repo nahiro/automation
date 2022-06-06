@@ -20,7 +20,6 @@ CRITERIAS = ['RMSE_test','R2_test','AIC_test','RMSE_train','R2_train','AIC_train
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
 X_PARAM = ['Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','NRGI']
-X_PRIORITY = ['NDVI','GNDVI','NRGI','Nn','Ne','Nr','Ng','Nb','RGI','Sn','Se','Sr','Sg','Sb']
 Y_PARAM = ['BLB']
 Q_PARAM = ['Location','PlotPaddy','PlantDate','Age']
 VMAX = 5.0
@@ -32,6 +31,7 @@ CRITERIA = 'RMSE_test'
 N_CROSS = 5
 Y_THRESHOLD = ['BLB:0.2','Blast:0.2','Borer:0.2','Rat:0.2','Hopper:0.2','Drought:0.2']
 Y_MAX = ['BLB:9.0','Blast:9.0','Drought:9.0']
+Y_INT = ['BLB:2.0','Blast:2.0','Borer':0.2,'Rat':0.2,'Hopper':0.2,'Drought:2.0']
 Y_FACTOR = ['BLB:BLB:1.0','Blast:Blast:1.0','Borer:Borer:1.0','Rat:Rat:1.0','Hopper:Hopper:1.0','Drought:Drought:1.0']
 FIGNAM = 'drone_score_fit.pdf'
 
@@ -44,6 +44,7 @@ parser.add_argument('-x','--x_param',default=None,action='append',help='Candidat
 parser.add_argument('-y','--y_param',default=None,action='append',help='Objective variable ({})'.format(Y_PARAM))
 parser.add_argument('--y_threshold',default=None,action='append',help='Threshold for limiting non-optimized objective variables ({})'.format(Y_THRESHOLD))
 parser.add_argument('--y_max',default=None,action='append',help='Max score ({})'.format(Y_MAX))
+parser.add_argument('--y_int',default=None,type=float,action='append',help='Score step for mean value fitting ({})'.format(Y_INT))
 parser.add_argument('--y_factor',default=None,action='append',help='Conversion factor to objective variable equivalent ({})'.format(Y_FACTOR))
 parser.add_argument('-p','--q_param',default=None,action='append',help='Identification parameter ({})'.format(Q_PARAM))
 parser.add_argument('-V','--vmax',default=VMAX,type=float,help='Max variance inflation factor (%(default)s)')
@@ -57,6 +58,7 @@ parser.add_argument('-a','--amin',default=None,type=float,help='Min age in day (
 parser.add_argument('-A','--amax',default=None,type=float,help='Max age in day (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
 parser.add_argument('-u','--use_average',default=False,action='store_true',help='Use plot average (%(default)s)')
+parser.add_argument('--mean_fitting',default=False,action='store_true',help='Mean value fitting (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
 parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
 args = parser.parse_args()
