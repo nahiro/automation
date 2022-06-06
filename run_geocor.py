@@ -75,7 +75,7 @@ class Geocor(Process):
         sys.stderr.write('\nRebin target\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
 
         # Crop reference
         ds = gdal.Open(self.values['ref_fnam'])
@@ -108,7 +108,7 @@ class Geocor(Process):
         sys.stderr.write('\nCrop reference\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
 
         # Make dist mask
         sys.stderr.write('Make dist mask\n')
@@ -117,8 +117,8 @@ class Geocor(Process):
         # Inside
         buffer1 = -0.5*self.values['boundary_width']
         fnam1 = os.path.join(wrk_dir,'mask1.tif')
-        #if os.path.exists(fnam1):
-        #    os.remove(fnam1)
+        if os.path.exists(fnam1):
+            os.remove(fnam1)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -129,7 +129,7 @@ class Geocor(Process):
         sys.stderr.write('\nInside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
         ds = gdal.Open(fnam1)
         mask_nx = ds.RasterXSize
         mask_ny = ds.RasterYSize
@@ -143,8 +143,8 @@ class Geocor(Process):
         # Outside
         buffer2 = 0.5*self.values['boundary_width']
         fnam2 = os.path.join(wrk_dir,'mask2.tif')
-        #if os.path.exists(fnam2):
-        #    os.remove(fnam2)
+        if os.path.exists(fnam2):
+            os.remove(fnam2)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -155,7 +155,7 @@ class Geocor(Process):
         sys.stderr.write('\nOutside\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
         ds = gdal.Open(fnam2)
         mask2 = ds.ReadAsArray()
         ds = None
@@ -163,8 +163,8 @@ class Geocor(Process):
         # Make area mask
         buffer3 = 0.0
         fnam3 = os.path.join(wrk_dir,'mask3.tif')
-        #if os.path.exists(fnam3):
-        #    os.remove(fnam3)
+        if os.path.exists(fnam3):
+            os.remove(fnam3)
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
@@ -175,7 +175,7 @@ class Geocor(Process):
         sys.stderr.write('\nMake area map\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
-        #call(command,shell=True)
+        call(command,shell=True)
         ds = gdal.Open(fnam3)
         mask3 = ds.ReadAsArray()
         ds = None
@@ -197,12 +197,12 @@ class Geocor(Process):
         band.SetNoDataValue(np.nan) # The TIFFTAG_GDAL_NODATA only support one value per dataset
         ds.FlushCache()
         ds = None # close dataset
-        #if os.path.exists(fnam1):
-        #    os.remove(fnam1)
-        #if os.path.exists(fnam2):
-        #    os.remove(fnam2)
-        #if os.path.exists(fnam3):
-        #    os.remove(fnam3)
+        if os.path.exists(fnam1):
+            os.remove(fnam1)
+        if os.path.exists(fnam2):
+            os.remove(fnam2)
+        if os.path.exists(fnam3):
+            os.remove(fnam3)
 
         # Geometric correction
         trials = ['1st','2nd','3rd','4th','5th']
@@ -229,8 +229,8 @@ class Geocor(Process):
         yorg = self.values['init_shifts'][1]
         for itry in range(len(trials)):
             fnam = os.path.join(wrk_dir,'{}_resized_geocor_{}.dat'.format(trg_bnam,trials[itry]))
-            #if os.path.exists(fnam):
-            #    os.remove(fnam)
+            if os.path.exists(fnam):
+                os.remove(fnam)
             command = self.python_path
             command += ' {}'.format(os.path.join(self.scr_dir,'find_gcps.py'))
             command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
@@ -272,8 +272,7 @@ class Geocor(Process):
             sys.stderr.write('\nGeometric correction ({})\n'.format(trials[itry]))
             sys.stderr.write(command+'\n')
             sys.stderr.flush()
-            if not os.path.exists(fnam): # for debug !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                call(command,shell=True)
+            call(command,shell=True)
             sys.stderr.write('{}\n'.format(datetime.now()))
             #---------
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
