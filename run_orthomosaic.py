@@ -32,7 +32,15 @@ class Orthomosaic(Process):
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
-        command += ''
+        command += ' --out_dnam {}'.format(wrk_dir)
+        command += ' {}'.format(self.values[''])
+        command += ' {}'.format(self.values[''])
+        command += ' {}'.format(self.values[''])
+        command += ' {}'.format()
+        command += ' {}'.format()
+        command += ' {}'.format()
+        command += ' {}'.format()
+        command += ' {}'.format()
         sys.stderr.write('\nMake orthomosaic image\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()

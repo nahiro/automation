@@ -18,6 +18,7 @@ DEPTH_MAP_QUALITIES = ['High','Medium','Low']
 OUTPUT_TYPES = ['UInt16','Int16','Float32']
 
 # Defaults
+OUT_FNAM = 'orthomosaic.tif'
 QMIN = 0.5
 ALIGN_LEVEL = 'High'
 KEY_LIMIT = 40000
@@ -35,6 +36,7 @@ parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,ma
 parser.add_argument('-i','--inp_list',default=None,help='Input folder list (%(default)s)')
 parser.add_argument('-I','--inp_dnam',default=None,action='append',help='Input folder name (%(default)s)')
 parser.add_argument('-O','--out_dnam',default=None,help='Output folder name (%(default)s)')
+parser.add_argument('-o','--out_fnam',default=OUT_FNAM,help='Output orthomosaic file name (%(default)s)')
 parser.add_argument('--panel_fnam',default=None,help='Panel reflectance file name (%(default)s)')
 parser.add_argument('-q','--qmin',default=QMIN,type=float,help='Min image quality (%(default)s)')
 parser.add_argument('--align_level',default=ALIGN_LEVEL,help='Image alignment accuracy (%(default)s)')
@@ -46,7 +48,7 @@ parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filterin
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
 parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
 parser.add_argument('-f','--scale_factor',default=SCALE_FACTOR,type=float,help='Scale factor (%(default)s)')
-parser.add_argument('-o','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
+parser.add_argument('-t','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
 parser.add_argument('--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
 parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
 parser.add_argument('--ignore_xmp_calibration',default=False,action='store_true',help='Ignore calibration in XMP meta data (%(default)s)')
@@ -223,7 +225,7 @@ chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 #    chunk.exportRaster(os.path.join(args.out_dnam,'dem.tif'),source_data=Metashape.ElevationData)
 
 if chunk.orthomosaic:
-    chunk.exportRaster(os.path.join(args.out_dnam,'orthomosaic.tif'),
+    chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
                        source_data=Metashape.OrthomosaicData,
                        save_alpha=False)
 
