@@ -474,7 +474,7 @@ identify_flag = False
 if args.ref_fnam is not None:
     df = pd.read_csv(args.ref_fnam,comment='#')
     df.columns = df.columns.str.strip()
-    if 'EastingI' in df.columns or not 'NorthingI' in df.columns:
+    if not 'EastingI' in df.columns or not 'NorthingI' in df.columns:
         raise ValueError('Error, identified coordinates not found >>> {}'.format(args.ref_fnam))
     loc_ref = df['Location'].astype(str).str.lower().values
     number_ref = df['BunchNumber'].values
