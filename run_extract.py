@@ -1,7 +1,5 @@
 import os
 import sys
-import numpy as np
-import pandas as pd
 from subprocess import call
 from proc_class import Process
 
@@ -37,10 +35,6 @@ class Extract(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
-        df = pd.read_csv(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)),comment='#')
-        df.columns = df.columns.str.strip()
-        plot_bunch = df['PlotPaddy'].values
-        plots = np.unique(plot_bunch)
 
         # Extract indices
         command = self.python_path
