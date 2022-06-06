@@ -205,7 +205,7 @@ class Geocor(Process):
             os.remove(fnam3)
 
         # Geometric correction
-        trials = ['1st','2nd','3rd','4th','5th']
+        trials = ['no1','no2','no3','no4','no5']
         orders = {0:'0th',1:'1st',2:'2nd',3:'3rd'}
         ds = gdal.Open(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
         trg_resized_trans = ds.GetGeoTransform()
@@ -269,7 +269,7 @@ class Geocor(Process):
                 command += ' --ref_data_umax {}'.format(self.values['ref_range'][1])
             #command += ' --trg_blur_sigma 1'
             command += ' --long'
-            sys.stderr.write('\nGeometric correction ({})\n'.format(trials[itry]))
+            sys.stderr.write('\nGeometric correction ({}/{})\n'.format(itry+1,len(trials)))
             sys.stderr.write(command+'\n')
             sys.stderr.flush()
             call(command,shell=True)
@@ -297,7 +297,7 @@ class Geocor(Process):
                     command = 'gdal_translate'
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     sys.stderr.write(command+'\n')
                     sys.stderr.flush()
                     call(command,shell=True)
@@ -342,7 +342,7 @@ class Geocor(Process):
                     command = self.python_path
                     command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
                     command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_np{}.tif'.format(trg_bnam,order)))
+                    command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     command += ' --scrdir {}'.format(self.scr_dir)
                     command += ' --use_gcps {}'.format(gnam) # use
                     command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
@@ -375,7 +375,7 @@ class Geocor(Process):
                     command = 'gdal_translate'
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' {}'.format(self.values['trg_fnam'])
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,order)))
+                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     call(command,shell=True)
                 else:
                     # Higher order correction at full resolution
@@ -419,7 +419,7 @@ class Geocor(Process):
                         command = self.python_path
                         command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
                         command += ' {}'.format(self.values['trg_fnam'])
-                        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_geocor_np{}.tif'.format(trg_bnam,order)))
+                        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
                         command += ' --scrdir {}'.format(self.scr_dir)
                         command += ' --use_gcps {}'.format(hnam) # use
                         command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
