@@ -49,7 +49,7 @@ for itarg in range(len(args.img_fnam)):
     fig_ymin = None
     fig_ymax = None
     for order in args.order:
-        ds = gdal.Open('{}_np{}.tif'.format(os.path.splitext(args.img_fnam[itarg])[0],order))
+        ds = gdal.Open('{}_{}.tif'.format(os.path.splitext(args.img_fnam[itarg])[0],ORDER_DICT[order]))
         data = ds.ReadAsArray()
         data_trans = ds.GetGeoTransform()
         data_shape = (ds.RasterYSize,ds.RasterXSize)
