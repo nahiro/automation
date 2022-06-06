@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 import numpy as np
 import tkinter as tk
 from tkinter import ttk
@@ -303,6 +304,28 @@ class Process:
                     else:
                         self.right_lbl[pnam].pack_forget()
         return check_values,check_errors
+
+    def print_message(self,message):
+        sys.stderr.write('\n')
+        if isinstance(message,str):
+            sys.stderr.write('{}\n'.format(message))
+        else:
+            for line in message:
+                sys.stderr.write('{}\n'.format(line))
+        sys.stderr.flush()
+        return
+
+    def print_time(self,message=None):
+        sys.stderr.write('\n')
+        if message is not None:
+            if isinstance(message,str):
+                sys.stderr.write('{}\n'.format(message))
+            else:
+                for line in message:
+                    sys.stderr.write('{}\n'.format(line))
+        sys.stderr.write('{}\n'.format(datetime.now()))
+        sys.stderr.flush()
+        return
 
     def set(self,parent):
         if self.root is not None and self.root.winfo_exists():
