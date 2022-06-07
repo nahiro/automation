@@ -27,7 +27,7 @@ CAMERA_PARAM = ['f','k1','k2','k3','cx','cy','p1','p2']
 DEPTH_MAP_QUALITY = 'Medium'
 FILTER_MODE = 'Aggressive'
 EPSG = 32748 # UTM zone 48S
-PIXEL_SIZE = 0.025 # m
+PIXEL_SIZE = 0.0 # m
 SCALE_FACTOR = [1.0]
 OUTPUT_TYPE = 'Float32'
 
@@ -208,6 +208,8 @@ if has_transform:
 
     chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
                            projection=proj,
+                           resolution_x=args.pixel_size,
+                           resolution_y=args.pixel_size,
                            blending_mode=Metashape.MosaicBlending,
                            refine_seamlines=False,
                            fill_holes=True,
@@ -215,7 +217,6 @@ if has_transform:
     doc.save()
 
 # export results
-chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 
 #if chunk.model:
 #    chunk.exportModel(os.path.join(args.out_dnam,'model.obj'))
@@ -231,4 +232,5 @@ if chunk.orthomosaic:
                        source_data=Metashape.OrthomosaicData,
                        save_alpha=False)
 
+chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 sys.stderr.write('Processing finished, results saved to '+args.out_dnam+'.\n')
