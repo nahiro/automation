@@ -115,7 +115,7 @@ chunk = doc.addChunk()
 chunk.addPhotos(photos,
                 layout=Metashape.MultiplaneLayout,
                 strip_extensions=True,
-                load_xmp_calibration=not args.ignore_xmp_calibrationTrue,
+                load_xmp_calibration=not args.ignore_xmp_calibration,
                 load_xmp_orientation=not args.ignore_xmp_orientation,
                 load_xmp_accuracy=not args.ignore_xmp_accuracy,
                 load_xmp_antenna=not args.ignore_xmp_antenna,
