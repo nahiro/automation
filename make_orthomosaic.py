@@ -6,7 +6,7 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 METASHAPE_VERSION = '1.7'
-DOWNSCALE = {'High':1,'Midium':4,'Low':16}
+DOWNSCALE = {'High':1,'Medium':4,'Low':16}
 ALIGN_LEVELS = ['High','Medium','Low']
 FILTER_MODES = ['None','Mild','Moderate','Aggressive']
 FILTER = {'None':Metashape.NoFiltering,
@@ -178,7 +178,7 @@ if not args.disable_camera_optimization:
                           fit_b2='b2' in args.camera_param,
                           adaptive_fitting=args.adaptive_fitting_optimize,
                           tiepoint_covariance=False,
-                          fit_corrections=not args.disable_fit_corrections)
+                          fit_corrections=not args.disable_fit_correction)
     doc.save()
 
 chunk.buildDepthMaps(downscale=DOWNSCALE[args.depth_map_quality],
