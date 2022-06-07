@@ -206,31 +206,14 @@ if has_transform:
     chunk.buildDem(source_data=Metashape.DenseCloudData,projection=proj,interpolation=Metashape.EnabledInterpolation)
     doc.save()
 
-    transform_flag = True
-    for scale in args.scale_factor:
-        if scale > 0.0:
-            transform_flag = True
-            break
-    if transform_flag:
-        # transform raster
-        chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
-                               projection=proj,
-                               resolution_x=args.pixel_size,
-                               resolution_y=args.pixel_size,
-                               blending_mode=Metashape.MosaicBlending,
-                               refine_seamlines=False,
-                               fill_holes=True,
-                               cull_faces=False)
-    else:
-        # no transform
-        chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
-                               projection=proj,
-                               resolution_x=args.pixel_size,
-                               resolution_y=args.pixel_size,
-                               blending_mode=Metashape.MosaicBlending,
-                               refine_seamlines=False,
-                               fill_holes=True,
-                               cull_faces=False)
+    chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
+                           projection=proj,
+                           resolution_x=args.pixel_size,
+                           resolution_y=args.pixel_size,
+                           blending_mode=Metashape.MosaicBlending,
+                           refine_seamlines=False,
+                           fill_holes=True,
+                           cull_faces=False)
     doc.save()
 
 # export results
@@ -245,6 +228,28 @@ if has_transform:
 #    chunk.exportRaster(os.path.join(args.out_dnam,'dem.tif'),source_data=Metashape.ElevationData)
 
 if chunk.orthomosaic:
+
+    # Check scale factor
+    transform_flag = True
+    for scale in args.scale_factor:
+        if scale > 0.0:
+            transform_flag = True
+            break
+        chunk.raster_transform.formula = formula
+        chunk.raster_transform.calibrateRange()
+        chunk.raster_transform.enabled = True
+    if transform_flag:
+        # transform raster
+        uniform_scale = True
+        formula = ['B1/32768','B2/32768','B3/32768','B4/32768','B5/32768']
+        #for scale in args.scale_factor[1:]:
+        #    if scale != args.scale_factor[0]:
+        #        uniform_scale = False
+        #        break
+
+    else:
+        # no transform
+        pass
     chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
                        source_data=Metashape.OrthomosaicData,
                        save_alpha=False)
