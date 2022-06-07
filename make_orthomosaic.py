@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-#import Metashape
+import Metashape
 from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants

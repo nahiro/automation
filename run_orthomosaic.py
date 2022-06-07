@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import os
+import sys
+import numpy as np
 from subprocess import call
 from proc_class import Process
 
@@ -28,15 +30,15 @@ class Orthomosaic(Process):
         # Make orthomosaic image
         tmp_fnam = os.path.join(wrk_dir,'temp.dat')
         with open(tmp_fnam,'w') as fp:
-            fp.write('\n'.join(fnams))
-        command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
+            fp.write('\n'.join(dnams))
+        command = '"{}"'.format(self.values['metashape_path'])
+        command += ' -r {}'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
         command += ' --out_dnam {}'.format(wrk_dir)
         command += ' --out_fnam {}'.format('{}.tif'.format(trg_bnam))
         command += ' --panel_fnam "{}"'.format(self.values['panel_fnam'])
-        command += ' --qmin {}'.format(self.values['--qmin'])
-        command += ' --align_level {}'.format(self.values['--align_level'])
+        command += ' --qmin {}'.format(self.values['qmin'])
+        command += ' --align_level {}'.format(self.values['align_level'])
         command += ' --key_limit {}'.format(self.values['point_limit'][0])
         command += ' --tie_limit {}'.format(self.values['point_limit'][1])
         for param,flag in zip(self.list_labels['cam_flags'][:-1],self.values['cam_flags'][:-1]):
