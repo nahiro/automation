@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import math
 import Metashape
 from argparse import ArgumentParser,RawTextHelpFormatter
 
@@ -111,7 +112,9 @@ Metashape.app.cpu_enable = True
 doc.save(os.path.join(args.out_dnam,'project.psx'))
 
 chunk = doc.addChunk()
+doc.chunk = chunk # makes active
 
+# Add photos
 chunk.addPhotos(photos,
                 layout=Metashape.MultiplaneLayout,
                 strip_extensions=True,
@@ -131,14 +134,15 @@ for camera in chunk.cameras:
 
 if args.disable_camera_optimization:
     params = [param.capitalize() for param in CAMERA_PARAMS]
-    for sensor in doc.chunk.sensors:
+    for sensor in chunk.sensors:
         sensor.fixed_params = params
 else:
     params = [param.capitalize() for param in CAMERA_PARAMS if param not in args.camera_param]
     if len(params) > 0:
-        for sensor in doc.chunk.sensors:
+        for sensor in chunk.sensors:
             sensor.fixed_params = params
 
+# Calibrate reflectance
 if args.use_panel:
     for sensor in chunk.sensors:
         sensor.normalize_sensitivity = True
@@ -150,6 +154,7 @@ else:
     chunk.calibrateReflectance(use_reflectance_panels=args.use_panel,use_sun_sensor=not args.ignore_sunsensor)
 doc.save()
 
+# Match photos
 chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
                   generic_preselection=not args.disable_generic_preselection,
                   reference_preselection=not args.disable_reference_preselection,
@@ -161,9 +166,11 @@ chunk.matchPhotos(downscale=DOWNSCALE[args.align_level],
                   guided_matching=False)
 doc.save()
 
+# Align camera
 chunk.alignCameras(adaptive_fitting=args.adaptive_fitting_align,reset_alignment=True)
 doc.save()
 
+# Optimize camera
 if not args.disable_camera_optimization:
     chunk.optimizeCameras(fit_f='f' in args.camera_param,
                           fit_k1='k1' in args.camera_param,
@@ -181,6 +188,7 @@ if not args.disable_camera_optimization:
                           fit_corrections=not args.disable_fit_correction)
     doc.save()
 
+# Build depth map
 chunk.buildDepthMaps(downscale=DOWNSCALE[args.depth_map_quality],
                      filter_mode=FILTER[args.filter_mode],
                      reuse_depth=True)
@@ -195,6 +203,7 @@ doc.save()
 #chunk.buildTexture(size=4096,ghosting_filter=True)
 #doc.save()
 
+# Build orthomosaic
 has_transform = chunk.transform.scale and chunk.transform.rotation and chunk.transform.translation
 
 if has_transform:
@@ -229,30 +238,54 @@ if has_transform:
 
 if chunk.orthomosaic:
 
-    # Check scale factor
-    transform_flag = True
-    for scale in args.scale_factor:
-        if scale > 0.0:
+    # Make formula
+    formula = []
+    prev_scale = 1.0
+    transform_flag = False
+    for i,scale in enumerate(args.scale_factor):
+        if math.isnan(scale):
+            formula.append('B{}'.format(i+1))
+        elif math.isclose(scale,0.0):
+            if math.isclose(prev_scale,1.0):
+                formula.append('B{}/32768'.format(i+1))
+            else:
+                formula.append('B{}*{}/32768'.format(i+1,prev_scale))
             transform_flag = True
-            break
+        else:
+            if math.isclose(scale,1.0):
+                formula.append('B{}/32768'.format(i+1))
+            else:
+                formula.append('B{}*{}/32768'.format(i+1,scale))
+            prev_scale = scale
+            transform_flag = True
+    for i in range(len(args.scale_factor),len(chunk.sensors)):
+        if math.isnan(args.scale_factor[-1]):
+            formula.append('B{}'.format(i+1))
+        elif math.isclose(args.scale_factor[-1],0.0):
+            if math.isclose(prev_scale,1.0):
+                formula.append('B{}/32768'.format(i+1))
+            else:
+                formula.append('B{}*{}/32768'.format(i+1,prev_scale))
+            transform_flag = True
+        else:
+            if math.isclose(args.scale_factor[-1],1.0):
+                formula.append('B{}/32768'.format(i+1))
+            else:
+                formula.append('B{}*{}/32768'.format(i+1,args.scale_factor[-1]))
+
+    # Make orthomosaic
+    if transform_flag:
         chunk.raster_transform.formula = formula
         chunk.raster_transform.calibrateRange()
         chunk.raster_transform.enabled = True
-    if transform_flag:
-        # transform raster
-        uniform_scale = True
-        formula = ['B1/32768','B2/32768','B3/32768','B4/32768','B5/32768']
-        #for scale in args.scale_factor[1:]:
-        #    if scale != args.scale_factor[0]:
-        #        uniform_scale = False
-        #        break
-
+        chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
+                           source_data=Metashape.OrthomosaicData,
+                           raster_transform=Metashape.RasterTransformValue,
+                           save_alpha=False)
     else:
-        # no transform
-        pass
-    chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
-                       source_data=Metashape.OrthomosaicData,
-                       save_alpha=False)
+        chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
+                           source_data=Metashape.OrthomosaicData,
+                           save_alpha=False)
 
 chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
 sys.stderr.write('Processing finished, results saved to '+args.out_dnam+'.\n')
