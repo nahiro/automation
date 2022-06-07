@@ -124,9 +124,9 @@ doc.save()
 
 sys.stderr.write(str(len(chunk.cameras))+' images loaded\n')
 
-chunk.estimateImageQuality(cameras=chunk.cameras)
+chunk.analyzePhotos(cameras=chunk.cameras)
 for camera in chunk.cameras:
-    if float(camera.photo.meta['Image/Quality']) < args.qmin:
+    if float(camera.meta['Image/Quality']) < args.qmin:
         camera.enabled = False
 
 if args.disable_camera_optimization:
