@@ -41,7 +41,7 @@ class Orthomosaic(Process):
         command += ' --align_level {}'.format(self.values['align_level'])
         command += ' --key_limit {}'.format(self.values['point_limit'][0])
         command += ' --tie_limit {}'.format(self.values['point_limit'][1])
-        for param,flag in zip(self.list_labels['cam_flags'][:-1],self.values['cam_flags'][:-1]):
+        for param,flag in zip(self.list_labels['cam_params'][:-1],self.values['cam_params'][:-1]):
             if flag:
                 command += ' --camera_param {}'.format(param)
         command += ' --depth_map_quality {}'.format(self.values['depth_map'][0])
@@ -52,18 +52,30 @@ class Orthomosaic(Process):
             if not np.isnan(factor):
                 command += ' --scale_factor {}'.format(factor)
         command += ' --output_type {}'.format(self.values['output_type'])
-        command += ' --use_panel {}'.format(self.values['calib_flag'][0])
-        command += ' --ignore_sunsensor {}'.format(not self.values['calib_flag'][1])
-        command += ' --ignore_xmp_calibration {}'.format(not self.values['xmp_flag'][0])
-        command += ' --ignore_xmp_orientation {}'.format(not self.values['xmp_flag'][1])
-        command += ' --ignore_xmp_accuracy {}'.format(not self.values['xmp_flag'][2])
-        command += ' --ignore_xmp_antenna {}'.format(not self.values['xmp_flag'][3])
-        command += ' --disable_generic_preselection {}'.format(not self.values['preselect'][0])
-        command += ' --disable_reference_preselection {}'.format(not self.values['preselect'][1])
-        command += ' --disable_camera_optimization {}'.format(not self.values['optimize_flag'])
-        command += ' --disable_fit_correction {}'.format(not self.values['cam_flags'][-1])
-        command += ' --adaptive_fitting_align {}'.format(self.values['cam_flags'][0])
-        command += ' --adaptive_fitting_optimize {}'.format(self.values['cam_flags'][1])
+        if self.values['calib_flag'][0]:
+            command += ' --use_panel'
+        if not self.values['calib_flag'][1]:
+            command += ' --ignore_sunsensor'
+        if not self.values['xmp_flag'][0]:
+            command += ' --ignore_xmp_calibration'
+        if not self.values['xmp_flag'][1]:
+            command += ' --ignore_xmp_orientation'
+        if not self.values['xmp_flag'][2]:
+            command += ' --ignore_xmp_accuracy'
+        if not self.values['xmp_flag'][3]:
+            command += ' --ignore_xmp_antenna'
+        if not self.values['preselect'][0]:
+            command += ' --disable_generic_preselection'
+        if not self.values['preselect'][1]:
+            command += ' --disable_reference_preselection'
+        if not self.values['optimize_flag']:
+            command += ' --disable_camera_optimization'
+        if not self.values['cam_params'][-1]:
+            command += ' --disable_fit_correction {}'
+        if self.values['cam_flags'][0]:
+            command += ' --adaptive_fitting_align'
+        if self.values['cam_flags'][1]:
+            command += ' --adaptive_fitting_optimize'
         sys.stderr.write('\nMake orthomosaic image\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
