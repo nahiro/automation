@@ -206,14 +206,31 @@ if has_transform:
     chunk.buildDem(source_data=Metashape.DenseCloudData,projection=proj,interpolation=Metashape.EnabledInterpolation)
     doc.save()
 
-    chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
-                           projection=proj,
-                           resolution_x=args.pixel_size,
-                           resolution_y=args.pixel_size,
-                           blending_mode=Metashape.MosaicBlending,
-                           refine_seamlines=False,
-                           fill_holes=True,
-                           cull_faces=False)
+    transform_flag = True
+    for scale in args.scale_factor:
+        if scale > 0.0:
+            transform_flag = True
+            break
+    if transform_flag:
+        # transform raster
+        chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
+                               projection=proj,
+                               resolution_x=args.pixel_size,
+                               resolution_y=args.pixel_size,
+                               blending_mode=Metashape.MosaicBlending,
+                               refine_seamlines=False,
+                               fill_holes=True,
+                               cull_faces=False)
+    else:
+        # no transform
+        chunk.buildOrthomosaic(surface_data=Metashape.ElevationData,
+                               projection=proj,
+                               resolution_x=args.pixel_size,
+                               resolution_y=args.pixel_size,
+                               blending_mode=Metashape.MosaicBlending,
+                               refine_seamlines=False,
+                               fill_holes=True,
+                               cull_faces=False)
     doc.save()
 
 # export results
