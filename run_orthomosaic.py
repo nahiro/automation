@@ -84,4 +84,3 @@ class Orthomosaic(Process):
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
         return
-#command = proccess.values['metashape_path']
