@@ -16,10 +16,10 @@ proc_estimate.pnams.append('gis_fnam')
 proc_estimate.pnams.append('buffer')
 proc_estimate.pnams.append('region_size')
 proc_estimate.params['inp_fnam'] = 'Input File'
-proc_estimate.params['score_fnam'] = 'Score Formula File'
-proc_estimate.params['score_number'] = 'Score Formula Number'
-proc_estimate.params['intensity_fnam'] = 'Intensity Formula File'
-proc_estimate.params['intensity_number'] = 'Intensity Formula Number'
+proc_estimate.params['score_fnam'] = 'Point-value/Score-mean Formula'
+proc_estimate.params['score_number'] = 'P-v/S-m Formula Number'
+proc_estimate.params['intensity_fnam'] = 'Plot-mean Formula'
+proc_estimate.params['intensity_number'] = 'Plot-mean Formula Number'
 proc_estimate.params['digitize'] = 'Digitize Score'
 proc_estimate.params['y_params'] = 'Output Variable'
 proc_estimate.params['score_max'] = 'Max Output Score'
@@ -77,4 +77,5 @@ proc_estimate.input_types['buffer'] = 'box'
 proc_estimate.input_types['region_size'] = 'box'
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
+proc_estimate.left_frame_width = 210
 proc_estimate.middle_left_frame_width = 1000
