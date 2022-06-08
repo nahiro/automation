@@ -14,7 +14,7 @@ FILTER = {'None':Metashape.NoFiltering,
           'Aggressive':Metashape.AggressiveFiltering}
 CAMERA_PARAMS = ['f','k1','k2','k3','k4','cx','cy','p1','p2','b1','b2']
 DEPTH_MAP_QUALITIES = ['High','Medium','Low']
-OUTPUT_TYPES = ['Float32','Int16']
+OUTPUT_TYPES = ['Float32','UInt16']
 
 # Defaults
 OUT_FNAM = 'orthomosaic.tif'
@@ -234,7 +234,7 @@ if has_transform:
 if chunk.orthomosaic:
 
     # Make orthomosaic
-    if args.output_type == 'Int16':
+    if args.output_type == 'UInt16':
         chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
                            source_data=Metashape.OrthomosaicData,
                            save_alpha=False)
