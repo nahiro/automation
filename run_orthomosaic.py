@@ -48,9 +48,6 @@ class Orthomosaic(Process):
         command += ' --filter_mode {}'.format(self.values['depth_map'][1])
         command += ' --epsg {}'.format(self.values['epsg'])
         command += ' --pixel_size {}'.format(self.values['pixel_size'])
-        for factor in self.values['scale_factor']:
-            if not np.isnan(factor):
-                command += ' --scale_factor {}'.format(factor)
         command += ' --output_type {}'.format(self.values['output_type'])
         if self.values['calib_flag'][0]:
             command += ' --use_panel'

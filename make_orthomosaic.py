@@ -16,7 +16,7 @@ FILTER = {'None':Metashape.NoFiltering,
           'Aggressive':Metashape.AggressiveFiltering}
 CAMERA_PARAMS = ['f','k1','k2','k3','k4','cx','cy','p1','p2','b1','b2']
 DEPTH_MAP_QUALITIES = ['High','Medium','Low']
-OUTPUT_TYPES = ['UInt16','Int16','Float32']
+OUTPUT_TYPES = ['Float32','Int16']
 
 # Defaults
 OUT_FNAM = 'orthomosaic.tif'
@@ -48,7 +48,6 @@ parser.add_argument('--depth_map_quality',default=DEPTH_MAP_QUALITY,help='Depth 
 parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
 parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
-parser.add_argument('-S','--scale_factor',default=None,type=float,action='append',help='Scale factor ({})'.format(SCALE_FACTOR))
 parser.add_argument('-t','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
 parser.add_argument('--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
 parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
@@ -76,8 +75,6 @@ if not args.depth_map_quality in DEPTH_MAP_QUALITIES:
     raise ValueError('Error, unsupported depth map quality >>> {}'.format(args.depth_map_quality))
 if not args.filter_mode in FILTER_MODES:
     raise ValueError('Error, unknown depth map filter mode >>> {}'.format(args.filter_mode))
-if args.scale_factor is None:
-    args.scale_factor = SCALE_FACTOR
 if not args.output_type in OUTPUT_TYPES:
     raise ValueError('Error, unsupported output type >>> {}'.format(args.output_type))
 
@@ -238,53 +235,21 @@ if has_transform:
 
 if chunk.orthomosaic:
 
-    # Make formula
-    formula = []
-    prev_scale = 1.0
-    transform_flag = False
-    for i,scale in enumerate(args.scale_factor):
-        if math.isnan(scale):
-            formula.append('B{}'.format(i+1))
-        elif math.isclose(scale,0.0):
-            if math.isclose(prev_scale,1.0):
-                formula.append('B{}'.format(i+1))
-            else:
-                formula.append('B{}*{}'.format(i+1,prev_scale))
-            transform_flag = True
-        else:
-            if math.isclose(scale,1.0):
-                formula.append('B{}'.format(i+1))
-            else:
-                formula.append('B{}*{}'.format(i+1,scale))
-            prev_scale = scale
-            transform_flag = True
-    for i in range(len(args.scale_factor),len(chunk.sensors)):
-        if math.isnan(args.scale_factor[-1]):
-            formula.append('B{}'.format(i+1))
-        elif math.isclose(args.scale_factor[-1],0.0):
-            if math.isclose(prev_scale,1.0):
-                formula.append('B{}'.format(i+1))
-            else:
-                formula.append('B{}*{}'.format(i+1,prev_scale))
-            transform_flag = True
-        else:
-            if math.isclose(args.scale_factor[-1],1.0):
-                formula.append('B{}'.format(i+1))
-            else:
-                formula.append('B{}*{}'.format(i+1,args.scale_factor[-1]))
-
     # Make orthomosaic
-    if transform_flag:
+    if args.output_type == 'Int16':
+        chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
+                           source_data=Metashape.OrthomosaicData,
+                           save_alpha=False)
+    else:
+        formula = []
+        for i in range(len(chunk.sensors)):
+            formula.append('B{}'.format(i+1))
         chunk.raster_transform.formula = formula
         chunk.raster_transform.calibrateRange()
         chunk.raster_transform.enabled = True
         chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
                            source_data=Metashape.OrthomosaicData,
                            raster_transform=Metashape.RasterTransformValue,
-                           save_alpha=False)
-    else:
-        chunk.exportRaster(os.path.join(args.out_dnam,args.out_fnam),
-                           source_data=Metashape.OrthomosaicData,
                            save_alpha=False)
 
 chunk.exportReport(os.path.join(args.out_dnam,'report.pdf'))
