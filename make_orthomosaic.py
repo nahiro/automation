@@ -247,15 +247,15 @@ if chunk.orthomosaic:
             formula.append('B{}'.format(i+1))
         elif math.isclose(scale,0.0):
             if math.isclose(prev_scale,1.0):
-                formula.append('B{}/32768'.format(i+1))
+                formula.append('B{}'.format(i+1))
             else:
-                formula.append('B{}*{}/32768'.format(i+1,prev_scale))
+                formula.append('B{}*{}'.format(i+1,prev_scale))
             transform_flag = True
         else:
             if math.isclose(scale,1.0):
-                formula.append('B{}/32768'.format(i+1))
+                formula.append('B{}'.format(i+1))
             else:
-                formula.append('B{}*{}/32768'.format(i+1,scale))
+                formula.append('B{}*{}'.format(i+1,scale))
             prev_scale = scale
             transform_flag = True
     for i in range(len(args.scale_factor),len(chunk.sensors)):
@@ -263,15 +263,15 @@ if chunk.orthomosaic:
             formula.append('B{}'.format(i+1))
         elif math.isclose(args.scale_factor[-1],0.0):
             if math.isclose(prev_scale,1.0):
-                formula.append('B{}/32768'.format(i+1))
+                formula.append('B{}'.format(i+1))
             else:
-                formula.append('B{}*{}/32768'.format(i+1,prev_scale))
+                formula.append('B{}*{}'.format(i+1,prev_scale))
             transform_flag = True
         else:
             if math.isclose(args.scale_factor[-1],1.0):
-                formula.append('B{}/32768'.format(i+1))
+                formula.append('B{}'.format(i+1))
             else:
-                formula.append('B{}*{}/32768'.format(i+1,args.scale_factor[-1]))
+                formula.append('B{}*{}'.format(i+1,args.scale_factor[-1]))
 
     # Make orthomosaic
     if transform_flag:
