@@ -24,7 +24,7 @@ main_field_data = os.path.join(top_dir,'Field_Data')
 main_drone_data = os.path.join(top_dir,'Drone_Data')
 main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
 main_browse_image = os.path.join(cnf_dir,'browse.png')
-if not os.path.main_browse_image:
+if not os.path.exists(main_browse_image):
     main_browse_image = os.path.join(HOME,'Pictures','browse.png')
 gis_fnam = os.path.join(top_dir,'Shapefile','All_area_polygon_20210914','All_area_polygon_20210914.shp')
 ref_fnam = os.path.join(top_dir,'WorldView','wv2_180629_pan.tif')
