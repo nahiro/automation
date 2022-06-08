@@ -19,10 +19,13 @@ if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
 python_path = sys.executable
 scr_dir = os.path.join(HOME,'Script')
+cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 main_field_data = os.path.join(top_dir,'Field_Data')
 main_drone_data = os.path.join(top_dir,'Drone_Data')
 main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
-main_browse_image = os.path.join(HOME,'Pictures','browse.png')
+main_browse_image = os.path.join(cnf_dir,'browse.png')
+if not os.path.main_browse_image:
+    main_browse_image = os.path.join(HOME,'Pictures','browse.png')
 gis_fnam = os.path.join(top_dir,'Shapefile','All_area_polygon_20210914','All_area_polygon_20210914.shp')
 ref_fnam = os.path.join(top_dir,'WorldView','wv2_180629_pan.tif')
 
@@ -192,7 +195,6 @@ if (len(sys.argv) > 1) and os.path.exists(sys.argv[1]):
     fnam = sys.argv[1]
     config.read(fnam,encoding='utf-8')
 else:
-    cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
     fnam = os.path.join(cnf_dir,'config.ini')
     if os.path.exists(fnam):
         config.read(fnam,encoding='utf-8')
