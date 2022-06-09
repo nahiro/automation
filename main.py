@@ -168,7 +168,7 @@ def exit():
     return
 
 root = tk.Tk()
-root.title('BLB Damage Estimation')
+root.title('BLB Damage Estimation - Drone version')
 root.geometry('{}x{}'.format(window_width,60+40*2+30*len(pnams)))
 top_frame = tk.Frame(root,width=10,height=top_frame_height,background=None)
 middle_frame = tk.Frame(root,width=10,height=20,background=None)
