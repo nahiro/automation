@@ -90,10 +90,10 @@ def set_title(pnam):
     # estimate
     proc_pnam = 'inp_fnam'
     proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
-    # change color
-    root.focus_set()
     if proc_estimate.center_var is not None:
         proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
+    # change color
+    root.focus_set()
     if pnam == 'date':
         style = ttk.Style()
         style.map('top_cmb.TCombobox',
