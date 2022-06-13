@@ -207,13 +207,13 @@ class Process:
             elif self.param_types[pnam] == 'float':
                 return check_float(self.params[pnam],t,self.param_range[pnam][0],self.param_range[pnam][1])
         elif self.input_types[pnam] == 'ask_file':
-            return check_file(self.params[pnam],t)
+            return check_file(self.params[pnam],t,quiet=((pnam in self.flag_check) and (not self.flag_check[pnam])))
         elif self.input_types[pnam] == 'ask_files':
-            return check_files(self.params[pnam],t)
+            return check_files(self.params[pnam],t,quiet=((pnam in self.flag_check) and (not self.flag_check[pnam])))
         elif self.input_types[pnam] == 'ask_folder':
-            return check_folder(self.params[pnam],t)
+            return check_folder(self.params[pnam],t,quiet=((pnam in self.flag_check) and (not self.flag_check[pnam])))
         elif self.input_types[pnam] == 'ask_folders':
-            return check_folders(self.params[pnam],t)
+            return check_folders(self.params[pnam],t,quiet=((pnam in self.flag_check) and (not self.flag_check[pnam])))
         elif self.input_types[pnam] in ['date','date_list']:
             return True
         elif self.input_types[pnam] in ['boolean','boolean_list']:
@@ -303,7 +303,10 @@ class Process:
                         raise ValueError('ERROR')
                     check_errors[pnam] = False
                 except Exception as e:
-                    sys.stderr.write(str(e)+'\n')
+                    if (pnam in self.flag_check) and (not self.flag_check[pnam]):
+                        pass
+                    else:
+                        sys.stderr.write(str(e)+'\n')
         if source == 'input':
             for pnam in self.pnams:
                 if not pnam in check_errors or not pnam in self.right_lbl:
@@ -336,6 +339,11 @@ class Process:
                                 self.right_lbl[pnam].pack(side=tk.LEFT)
                         else:
                             self.right_lbl[pnam].pack_forget()
+        else:
+            for pnam in self.pnams:
+                if self.input_types[pnam] in ['ask_file','ask_files','ask_folder','ask_folders']:
+                    if (pnam in self.flag_check) and (not self.flag_check[pnam]):
+                        check_errors[pnam] = False
         return check_values,check_errors
 
     def print_message(self,message):
