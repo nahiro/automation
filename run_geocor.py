@@ -206,7 +206,7 @@ class Geocor(Process):
 
         # Geometric correction
         trials = ['no1','no2','no3','no4','no5']
-        indx = (np.array(self.values['part_sizes'])<0.0).nonzero()[0]
+        indx = np.flatnonzero(np.array(self.values['part_sizes'])<0.0)
         if indx.size > 0:
             trials = trials[:indx[0]]
         orders = {0:'0th',1:'1st',2:'2nd',3:'3rd'}
