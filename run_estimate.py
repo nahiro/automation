@@ -152,6 +152,7 @@ class Estimate(Process):
                 command += ' --smax {}'.format(value)
         command += ' --rmax 0.01'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_score.pdf'.format(trg_bnam)))
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --use_index'
         command += ' --remove_nan'
         command += ' --debug'
@@ -175,6 +176,7 @@ class Estimate(Process):
                 command += ' --smax 1'
         command += ' --rmax 0.01'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_intensity.pdf'.format(trg_bnam)))
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --use_index'
         command += ' --remove_nan'
         command += ' --debug'
