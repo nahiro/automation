@@ -32,8 +32,8 @@ def set_title(pnam):
         proc_orthomosaic.values[proc_pnam] = dnam
     if proc_orthomosaic.center_var is not None:
         try:
-            proc_orthomosaic.center_inp[proc_pnam].delete(1.0,tk.END)
-            proc_orthomosaic.center_inp[proc_pnam].insert(1.0,proc_orthomosaic.values[proc_pnam])
+            proc_orthomosaic.center_inp[proc_pnam].delete('1.0',tk.END)
+            proc_orthomosaic.center_inp[proc_pnam].insert('1.0',proc_orthomosaic.values[proc_pnam])
         except Exception:
             pass
         proc_orthomosaic.center_var[proc_pnam].set(proc_orthomosaic.values[proc_pnam])
@@ -82,8 +82,8 @@ def set_title(pnam):
         proc_formula.values[proc_pnam] = os.path.join(dnam,'{}_{}_extract.csv'.format(block,dstr))
     if proc_formula.center_var is not None:
         try:
-            proc_formula.center_inp[proc_pnam].delete(1.0,tk.END)
-            proc_formula.center_inp[proc_pnam].insert(1.0,proc_formula.values[proc_pnam])
+            proc_formula.center_inp[proc_pnam].delete('1.0',tk.END)
+            proc_formula.center_inp[proc_pnam].insert('1.0',proc_formula.values[proc_pnam])
         except Exception:
             pass
         proc_formula.center_var[proc_pnam].set(proc_formula.values[proc_pnam])
