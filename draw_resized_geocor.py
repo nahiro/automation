@@ -7,8 +7,8 @@ except Exception:
     from osgeo import gdal
 from glob import glob
 import numpy as np
-import cartopy.crs as ccrs
-import cartopy.io.shapereader as shpreader
+import shapefile
+from shapely.geometry import shape
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.backends.backend_pdf import PdfPages
@@ -33,9 +33,7 @@ args = parser.parse_args()
 if args.order is None:
     args.order = ORDER
 
-block_shp = list(shpreader.Reader(args.shp_fnam).geometries())
-
-prj = ccrs.UTM(zone=48,southern_hemisphere=True)
+block_shp = shape(shapefile.Reader(args.shp_fnam).shapes())
 
 if not args.batch:
     plt.interactive(True)
@@ -86,11 +84,10 @@ for itarg in range(len(args.img_fnam)):
         rgb[cnd,:] = 1.0
         ny,nx = rgb_shape
         fig.clear()
-        axs = plt.subplot(111,projection=prj)
+        axs = plt.subplot(111)
         axs.xaxis.set_ticks([])
         axs.yaxis.set_ticks([])
         axs.imshow(rgb,extent=(data_xmin,data_xmax,data_ymin,data_ymax),origin='upper',interpolation='none')
-        #axs.add_geometries(block_shp,prj,edgecolor='k',facecolor='none')
         rgb_xmin = xp[ind_ymin:ind_ymax,ind_xmin:ind_xmax].min()
         rgb_ymax = yp[ind_ymin:ind_ymax,ind_xmin:ind_xmax].max()
         for shp in block_shp:
@@ -100,7 +97,7 @@ for itarg in range(len(args.img_fnam)):
             iy = int((rgb_ymax-yc)/np.abs(data_ystp))
             #if ix > 0 and ix < nx and iy > 0 and iy < ny and not cnd[iy,ix]:
             if (xc > fig_xmin-50.0) and (xc < fig_xmax+50.0) and (yc > fig_ymin-50.0) and (yc < fig_ymax+50.0):
-                axs.add_geometries([shp],prj,edgecolor='k',facecolor='none',linestyle='-',alpha=1.0,linewidth=0.02)
+                axs.add_patch(plt.Polygon(shp.exterior,edgecolor='k',facecolor='none',linestyle='-',alpha=1.0,linewidth=0.02))
         axs.set_xlim(fig_xmin,fig_xmax)
         axs.set_ylim(fig_ymin,fig_ymax)
         axs.set_title('{} ({})'.format(args.title[itarg],ORDER_DICT[order]))
