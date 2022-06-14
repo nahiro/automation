@@ -212,6 +212,8 @@ if args.shp_fnam is not None:
 
 # For debug
 if args.debug:
+    if args.shp_fnam is not None:
+        r = shapefile.Reader(args.out_shp)
     if not args.batch:
         plt.interactive(True)
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
@@ -224,28 +226,65 @@ if args.debug:
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
-        if args.ax1_zmin is not None and args.ax1_zmax is not None:
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
-        elif args.ax1_zmin is not None:
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
-        elif args.ax1_zmax is not None:
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
-        else:
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
-        divider = make_axes_locatable(ax1)
-        cax = divider.append_axes('right',size='5%',pad=0.05)
-        if args.ax1_zstp is not None:
+        if args.shp_fnam is not None:
             if args.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
+                zmin = args.ax1_zmin[param]
             else:
-                zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
+                zmin = np.nanmin(data)
             if args.ax1_zmax is not None:
-                zmax = max(np.nanmax(data),ax1_zmax[param]+0.1*ax1_zstp[param])
+                zmax = args.ax1_zmax[param]
             else:
-                zmax = np.nanmax(data)+0.1*ax1_zstp[param]
-            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
+                zmax = np.nanmax(data)
+            zdif = zmax-zmin
+            if args.ax1_zstp is not None:
+                zstp = args.ax1_zstp[param]
+            else:
+                d = zmax-zmin
+                if d > 50.0:
+                    zstp = 20.0
+                elif d > 25.0:
+                    zstp = 10.0
+                elif d > 12.5:
+                    zstp = 5.0
+                elif d > 5.0:
+                    zstp = 2.0
+                elif d > 2.5:
+                    zstp = 1.0
+                else:
+                    zstp = 0.5
+            for iobj,shaperec in enumerate(r.iterShapeRecords()):
+                rec = shaperec.record
+                shp = shaperec.shape
+                z = getattr(rec,param)*100.0
+                if not np.isnan(s):
+                    ax1.add_patch(plt.Polygon(shp.points,edgecolor='none',facecolor=cm.jet((z-zmin)/zdif)))
+            im = ax1.imshow(np.arange(4).reshape(2,2),extent=(-2,-1,-2,-1),vmin=zmin,vmax=zmax,cmap=cm.jet)
+            divider = make_axes_locatable(ax1)
+            cax = divider.append_axes('right',size='5%',pad=0.05)
+            ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,zstp)).ax
         else:
-            ax2 = plt.colorbar(im,cax=cax).ax
+            if args.ax1_zmin is not None and args.ax1_zmax is not None:
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            elif args.ax1_zmin is not None:
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
+            elif args.ax1_zmax is not None:
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            else:
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            divider = make_axes_locatable(ax1)
+            cax = divider.append_axes('right',size='5%',pad=0.05)
+            if args.ax1_zstp is not None:
+                if args.ax1_zmin is not None:
+                    zmin = min((np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
+                else:
+                    zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
+                if args.ax1_zmax is not None:
+                    zmax = max(np.nanmax(data),ax1_zmax[param]+0.1*ax1_zstp[param])
+                else:
+                    zmax = np.nanmax(data)+0.1*ax1_zstp[param]
+                ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
+            else:
+                ax2 = plt.colorbar(im,cax=cax).ax
         ax2.minorticks_on()
         ax2.set_ylabel('{} Intensity (%)'.format(param))
         ax2.yaxis.set_label_coords(4.5,0.5)
