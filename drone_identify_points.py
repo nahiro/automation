@@ -451,6 +451,7 @@ for plot in plots:
     rr_copy[~cnd] = np.nan
 
     if args.debug:
+        # Redness Ratio check image
         fig.clear()
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
@@ -544,6 +545,7 @@ for plot in plots:
             plt.draw()
             plt.pause(0.1)
         snam = bnam+'_plot{}'.format(plot)+enam
+        # RGB check image
         ds = gdal.Open(snam)
         src_nx = ds.RasterXSize
         src_ny = ds.RasterYSize
