@@ -42,6 +42,7 @@ parser.add_argument('-M','--ymgn',default=None,type=float,help='Y margin in m (%
 parser.add_argument('-W','--ywid',default=YWID,type=float,help='Y width in m (%(default)s)')
 parser.add_argument('-B','--buffer',default=BUFFER,type=float,help='Buffer radius in m (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
+parser.add_argument('-t','--title',default=None,help='Figure title for debug (%(default)s)')
 parser.add_argument('-S','--fact',default=FACT,type=float,help='Scale factor of output figure for debug (%(default)s)')
 parser.add_argument('-G','--gamma',default=GAMMA,type=float,help='Gamma factor of output figure for debug (%(default)s)')
 parser.add_argument('-i','--interp_point',default=False,action='store_true',help='Interpolate mode (%(default)s)')
@@ -315,6 +316,8 @@ for plot in plots:
             fig_ymax = dst_ymax
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
+        if args.title is not None:
+            ax1.set_title('{} (Plot{})'.format(args.title,plot))
         plt.savefig(pdf,format='pdf')
         if not args.batch:
             plt.draw()

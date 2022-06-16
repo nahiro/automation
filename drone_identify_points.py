@@ -73,7 +73,8 @@ parser.add_argument('-T','--rthr_max',default=RTHR_MAX,type=float,help='Max thre
 parser.add_argument('-r','--rstp',default=RSTP,type=float,help='Threshold step of redness ratio (%(default)s)')
 parser.add_argument('-S','--sthr',default=STHR,type=float,help='Threshold of signal ratio (%(default)s)')
 parser.add_argument('-C','--criteria',default=CRITERIA,help='Selection criteria (%(default)s)')
-parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name (%(default)s)')
+parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
+parser.add_argument('--title',default=None,help='Figure title for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,help='Axis1 Z stp for debug (%(default)s)')
@@ -534,6 +535,8 @@ for plot in plots:
             fig_ymax = rr_ymax
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
+        if args.title is not None:
+            ax1.set_title('{} (Plot{})'.format(args.title,plot))
         plt.savefig(pdf,format='pdf')
         if not args.batch:
             plt.draw()
