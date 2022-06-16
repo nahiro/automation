@@ -75,6 +75,8 @@ parser.add_argument('-S','--sthr',default=STHR,type=float,help='Threshold of sig
 parser.add_argument('-C','--criteria',default=CRITERIA,help='Selection criteria (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name for debug (%(default)s)')
 parser.add_argument('--title',default=None,help='Figure title for debug (%(default)s)')
+parser.add_argument('--fact',default=FACT,type=float,help='Scale factor of output figure for debug (%(default)s)')
+parser.add_argument('-G','--gamma',default=GAMMA,type=float,help='Gamma factor of output figure for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,help='Axis1 Z stp for debug (%(default)s)')
@@ -508,13 +510,11 @@ for plot in plots:
             raise ValueError('Error, args.rr_param={}'.format(args.rr_param))
         ax2.set_ylabel(pnam)
         ax2.yaxis.set_label_coords(3.5,0.5)
-
         #for i_point in range(len(number_point)):
         #    rect = patches.Rectangle((xmin_point[i_point],ymin_point[i_point]),
         #                              xmax_point[i_point]-xmin_point[i_point],
         #                              ymax_point[i_point]-ymin_point[i_point],fill=False,edgecolor='red',linewidth=2)
             #ax1.add_patch(rect)
-
         ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')
         ax1.plot(xf_point,yf_point,'k:')
         ng = number_plot[plot]
@@ -533,6 +533,54 @@ for plot in plots:
             fig_xmax = rr_xmax
             fig_ymin = rr_ymin
             fig_ymax = rr_ymax
+        ax1.set_xlim(fig_xmin,fig_xmax)
+        ax1.set_ylim(fig_ymin,fig_ymax)
+        if args.title is not None:
+            ax1.set_title('{} (Plot{})'.format(args.title,plot))
+        plt.savefig(pdf,format='pdf')
+        if not args.batch:
+            plt.draw()
+            plt.pause(0.1)
+        snam = bnam+'_plot{}'.format(plot)+enam
+        ds = gdal.Open(snam)
+        src_nx = ds.RasterXSize
+        src_ny = ds.RasterYSize
+        src_nb = ds.RasterCount
+        src_shape = (src_ny,src_nx)
+        src_trans = ds.GetGeoTransform()
+        src_data = ds.ReadAsArray().reshape(src_nb,src_ny,src_nx)
+        ds = None
+        if src_shape != rr_shape:
+            raise ValueError('Error, src_shape={}, rr_shape={}'.format(src_shape,rr_shape))
+        if src_trans != rr_trans:
+            raise ValueError('Error, src_trans={}, rr_trans={}'.format(src_trans,rr_trans))
+        b = src_data[0].astype(np.float32)
+        g = src_data[1].astype(np.float32)
+        r = src_data[2].astype(np.float32)
+        fact = args.fact
+        b = (b*fact/32768.0).clip(0,1)
+        g = (g*fact/32768.0).clip(0,1)
+        r = (r*fact/32768.0).clip(0,1)
+        if np.abs(args.gamma-1.0) > 1.0e-6:
+            rgb = np.power(np.dstack((r,g,b)),1.0/args.gamma)
+        else:
+            rgb = np.dstack((r,g,b))
+        if args.remove_nan:
+            rgb[~cnd,:] = 1.0
+        fig.clear()
+        if rr_ny > rr_nx:
+            wx = rr_nx/rr_ny
+            ax1 = fig.add_axes((0.5-0.5*wx,0,wx,1))
+        else:
+            wy = rr_ny/rr_nx
+            ax1 = fig.add_axes((0,0.5-0.5*wy,1,wy))
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+        ax1.imshow(rgb,extent=(rr_xmin,rr_xmax,rr_ymin,rr_ymax),interpolation='none')
+        ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')
+        ax1.plot(xf_point,yf_point,'k:')
+        for ntmp,xtmp,ytmp in zip(ng,xctr_point,yctr_point):
+            ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
         if args.title is not None:
