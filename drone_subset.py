@@ -298,7 +298,7 @@ for plot in plots:
             else:
                 patch = patches.PathPatch(path_search,facecolor='none',lw=2,ls='--')
                 ax1.add_patch(patch)
-        ax1.plot(xg,yg,'ko')
+        ax1.plot(xg,yg,'o',mfc='none',mec='k')
         ax1.plot(xf,yf,'k:')
         for ntmp,xtmp,ytmp in zip(ng,xg,yg):
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
