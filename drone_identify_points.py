@@ -31,6 +31,8 @@ bands['n'] = 'NIR'
 # Default values
 CSV_FNAM = 'gps_points.dat'
 FIGNAM = 'drone_extract_points.pdf'
+FACT = 10.0
+GAMMA = 2.2
 PIXEL_RMAX = 1.0  # m
 POINT_DMAX = 1.0  # m
 POINT_LWID = 0.5  # m

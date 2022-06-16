@@ -143,6 +143,8 @@ class Identify(Process):
         command += ' --criteria {}'.format('Distance' if 'Distance' in self.values['criteria'] else 'Area')
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
         command += ' --title {}'.format(trg_bnam)
+        command += ' --gamma 1'
+        command += ' --fact 30'
         command += ' --ax1_zmin 0.0'
         command += ' --ax1_zmax 0.3'
         command += ' --ax1_zstp 0.1'
