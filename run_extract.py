@@ -52,9 +52,9 @@ class Extract(Process):
         command += ' --outer_radius {}'.format(self.values['region_size'][1])
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_extract.pdf'.format(trg_bnam)))
         command += ' --title {}'.format(trg_bnam)
-        command += ' --ax1_zmin="{}"'.format(args.ax1_zmin)
-        command += ' --ax1_zmax="{}"'.format(args.ax1_zmax)
-        command += ' --ax1_zstp="{}"'.format(args.ax1_zstp)
+        command += ' --ax1_zmin="{}"'.format(self.ax1_zmin)
+        command += ' --ax1_zmax="{}"'.format(self.ax1_zmax)
+        command += ' --ax1_zstp="{}"'.format(self.ax1_zstp)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'

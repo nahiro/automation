@@ -243,8 +243,8 @@ if len(args.src_geotiff) == 1:
                     fig_xmax = src_xmax
                     fig_ymin = src_ymin
                     fig_ymax = src_ymax
-                ax1.set_xlim(fig_xmin,fig_xmax)
-                ax1.set_ylim(fig_ymin,fig_ymax)
+                ax1.set_xlim(max(fig_xmin,xg.min()-args.xmgn),min(fig_xmax,xg.max()+args.xmgn))
+                ax1.set_ylim(max(fig_ymin,yg.min()-args.ymgn),min(fig_ymax,yg.max()+args.ymgn))
                 if args.title is not None:
                     ax1.set_title('{} (Plot{})'.format(args.title,plot))
                 else:
