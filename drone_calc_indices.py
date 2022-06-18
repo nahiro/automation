@@ -43,7 +43,7 @@ parser.add_argument('-r','--rgi_red_band',default=RGI_RED_BAND,help='Wavelength 
 parser.add_argument('--data_min',default=None,type=float,help='Minimum data value (%(default)s)')
 parser.add_argument('--data_max',default=None,type=float,help='Maximum data value (%(default)s)')
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
-parser.add_argument('-t','--title',default=None,action='append',help='Figure title (%(default)s)')
+parser.add_argument('-t','--title',default=None,help='Figure title (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',help='Axis1 Z stp for debug (%(default)s)')
@@ -230,11 +230,11 @@ if args.debug:
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if args.ax1_zstp is not None:
             if args.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(dst_data[i])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i],args.ax1_zmin[i])
+                zmin = (np.floor(args.ax1_zmin[i]/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
             else:
                 zmin = (np.floor(np.nanmin(dst_data[i])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
             if args.ax1_zmax is not None:
-                zmax = max(np.nanmax(dst_data[i]),args.ax1_zmax[i]+0.1*args.ax1_zstp[i])
+                zmax = args.ax1_zmax[i]+0.1*args.ax1_zstp[i]
             else:
                 zmax = np.nanmax(dst_data[i])+0.1*args.ax1_zstp[i]
             ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp[i])).ax

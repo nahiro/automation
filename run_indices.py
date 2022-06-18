@@ -45,6 +45,15 @@ class Indices(Process):
             command += ' --data_min="{}"'.format(self.values['data_range'][0])
         if not np.isnan(self.values['data_range'][1]):
             command += ' --data_max="{}"'.format(self.values['data_range'][1])
+        for value,flag in zip(self.ax1_zmin,self.values['out_params']):
+            if flag:
+                command += ' --ax1_zmin="{}"'.format(value)
+        for value,flag in zip(self.ax1_zmax,self.values['out_params']):
+            if flag:
+                command += ' --ax1_zmax="{}"'.format(value)
+        for value,flag in zip(self.ax1_zstp,self.values['out_params']):
+            if flag:
+                command += ' --ax1_zstp="{}"'.format(value)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
