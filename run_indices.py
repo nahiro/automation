@@ -11,6 +11,7 @@ class Indices(Process):
         self.ax1_zmin = None
         self.ax1_zmax = None
         self.ax1_zstp = None
+        self.fig_dpi = None
 
     def run(self):
         # Start process
@@ -54,6 +55,7 @@ class Indices(Process):
         for value,flag in zip(self.ax1_zstp,self.values['out_params']):
             if flag:
                 command += ' --ax1_zstp="{}"'.format(value)
+        command += ' --fig_dpi {}'.format(self.fig_dpi)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
