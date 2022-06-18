@@ -34,6 +34,7 @@ CSV_FNAM = 'gps_points.dat'
 INNER_RADIUS = 0.2 # m
 OUTER_RADIUS = 0.5 # m
 PARAM = ['Nr']
+XMGN = 10.0 # m
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
@@ -46,6 +47,8 @@ parser.add_argument('-H','--header_none',default=False,action='store_true',help=
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter for debug ({})'.format(PARAM))
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
 parser.add_argument('-t','--title',default=None,help='Figure title (%(default)s)')
+parser.add_argument('-m','--xmgn',default=XMGN,type=float,help='X margin in m for debug (%(default)s)')
+parser.add_argument('-M','--ymgn',default=None,type=float,help='Y margin in m for debug (%(default)s)')
 parser.add_argument('-c','--marker_color',default=None,action='append',help='Marker color for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
@@ -67,6 +70,11 @@ if args.param is None:
 for param in args.param:
     if not param in PARAMS:
         raise ValueError('Error, unknown parameter >>> {}'.format(param))
+if args.ymgn is None:
+    args.ymgn = args.xmgn
+if args.marker_color is not None:
+    while len(args.marker_color) < len(args.param):
+        args.marker_color.append(args.marker_color[-1])
 if args.ax1_zmin is not None:
     while len(args.ax1_zmin) < len(args.param):
         args.ax1_zmin.append(args.ax1_zmin[-1])
@@ -76,9 +84,6 @@ if args.ax1_zmax is not None:
 if args.ax1_zstp is not None:
     while len(args.ax1_zstp) < len(args.param):
         args.ax1_zstp.append(args.ax1_zstp[-1])
-if args.marker_color is not None:
-    while len(args.marker_color) < len(args.param):
-        args.marker_color.append(args.marker_color[-1])
 
 comments = ''
 header = None
