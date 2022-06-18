@@ -45,6 +45,7 @@ parser.add_argument('-o','--outer_radius',default=OUTER_RADIUS,type=float,help='
 parser.add_argument('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%(default)s)')
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter for debug ({})'.format(PARAM))
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
+parser.add_argument('-t','--title',default=None,help='Figure title (%(default)s)')
 parser.add_argument('-c','--marker_color',default=None,action='append',help='Marker color for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
@@ -197,7 +198,6 @@ if len(args.src_geotiff) == 1:
                 ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec=args.marker_color[i])
             else:
                 ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec='k')
-            ax1.set_title('Location: {}'.format(loc_bunch[0]))
             divider = make_axes_locatable(ax1)
             cax = divider.append_axes('right',size='5%',pad=0.05)
             if args.ax1_zstp is not None:
@@ -233,6 +233,10 @@ if len(args.src_geotiff) == 1:
                 fig_ymax = src_ymax
             ax1.set_xlim(fig_xmin,fig_xmax)
             ax1.set_ylim(fig_ymin,fig_ymax)
+            if args.title is not None:
+                ax1.set_title('{}'.format(args.title))
+            else:
+                ax1.set_title('Location: {}'.format(loc_bunch[0]))
             plt.savefig(pdf,format='pdf')
             if not args.batch:
                 plt.draw()
@@ -318,7 +322,6 @@ elif len(args.src_geotiff) == len(plots):
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec=args.marker_color[i])
                     else:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
-                    ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
                     if args.ax1_zstp is not None:
@@ -354,6 +357,10 @@ elif len(args.src_geotiff) == len(plots):
                         fig_ymax = src_ymax
                     ax1.set_xlim(fig_xmin,fig_xmax)
                     ax1.set_ylim(fig_ymin,fig_ymax)
+                    if args.title is not None:
+                        ax1.set_title('{} (Plot{})'.format(args.title,plot))
+                    else:
+                        ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
                     plt.savefig(pdf,format='pdf')
                     if not args.batch:
                         plt.draw()
