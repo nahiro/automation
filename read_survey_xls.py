@@ -16,7 +16,7 @@ from io import StringIO
 from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Defaults
-SHEET = 0
+SHEET = 1
 RMAX = 10.0 # m
 NMIN = 20
 EPSG = 32748 # UTM zone 48S
@@ -25,7 +25,7 @@ EPSG = 32748 # UTM zone 48S
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-I','--inp_fnam',default=None,help='Input file name (%(default)s)')
 parser.add_argument('-O','--out_fnam',default=None,help='Output file name (%(default)s)')
-parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number (%(default)s)')
+parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number from 1 (%(default)s)')
 parser.add_argument('-r','--ref_fnam',default=None,help='CSV file for reference coordinates (%(default)s)')
 parser.add_argument('-R','--rmax',default=RMAX,type=float,help='Maximum distance from reference in m (%(default)s)')
 parser.add_argument('-n','--nmin',default=NMIN,type=int,help='Minimum number of points near the reference (%(default)s)')
@@ -35,6 +35,16 @@ parser.add_argument('-G','--geocor_geotiff',default=None,help='GeoTIFF name for 
 parser.add_argument('-N','--geocor_npoly',default=None,type=int,help='Order of polynomial for geometric correction between 1 and 3 (selected based on the number of GCPs)')
 parser.add_argument('-o','--optfile',default=None,help='Option file name for ogr2ogr (%(default)s)')
 args = parser.parse_args()
+
+def get_item(data,row,ncol):
+    for j in range(ncol):
+        v = data.iloc[row,j]
+        if not isinstance(v,str):
+            continue
+        m = re.search(':(.*)',v)
+        if m:
+            return m.group(1).strip()
+    return None
 
 def read_gps(s):
     #'S 06°50\'31.62"  E 107°16\'41.50"'
@@ -89,11 +99,11 @@ else:
         return pyproj.transform(inProj,outProj,longitude,latitude)
 
 xl = pd.ExcelFile(args.inp_fnam)
-if args.sheet > 0:
+if args.sheet > 1:
     sheets = xl.sheet_names
-    if len(sheets) <= args.sheet:
+    if len(sheets) < args.sheet:
         raise ValueError('Error, len(sheets)={}, args.sheet={}'.format(len(sheets),args.sheet))
-    df = pd.read_excel(xl,header=None,sheet_name=sheets[args.sheet])
+    df = pd.read_excel(xl,header=None,sheet_name=args.sheet-1)
 else:
     df = pd.read_excel(xl,header=None)
 ny,nx = df.shape
@@ -111,31 +121,41 @@ for i in range(ny):
             line += v
         elif len(line) > 0 and line[-1] != ',':
             line += ','
-    if location is None:
-        m = re.search('Location[^:]*:\s*([^,]+)\s*,',line)
-        if m:
-            location = m.group(1).strip().replace(' ','')
-    if date is None:
-        m = re.search('Time Observation[^:]*:\s*([^,]+)\s*,',line)
-        if m:
-            date = m.group(1).strip()
-    if trans_date is None:
-        m = re.search('Plant Date[^:]*:\s*([^,]+)\s*,',line)
-        if m:
-            trans_date = m.group(1).strip()
-    if variety is None:
-        m = re.search('Variety[^:]*:\s*([^,]+)\s*,',line)
-        if m:
-            variety = m.group(1).strip()
-    if village is None:
-        m = re.search('Village[^:]*:\s*(.*)\s*,\s*Village',line)
-        if m:
-            village = m.group(1).strip()
+    if location is None and re.search('Location.*:',line):
+        v = get_item(df,i,nx)
+        if v is not None:
+            location = v.replace(' ','')
+    elif date is None and re.search('Time Observation.*:',line):
+        v = get_item(df,i,nx)
+        if v is not None:
+            date = v
+    elif trans_date is None and re.search('Plant Date.*:',line):
+        v = get_item(df,i,nx)
+        if v is not None:
+            trans_date = v
+    elif variety is None and re.search('Variety.*:',line):
+        v = get_item(df,i,nx)
+        if v is not None:
+            variety = v
+    elif village is None and re.search('Village.*:',line):
+        v = get_item(df,i,nx)
+        if v is not None:
+            village = v
 if location is None:
     raise ValueError('Error, failed in finding location.')
 if date is None:
     raise ValueError('Error, failed in finding date.')
-dtim = datetime.strptime(date,'%d.%m.%Y')
+# 04.01.2022 or 04,01,2022
+m = re.search('(\d+)\s*[,\.]\s*(\d+)\s*[,\.]\s*(\d+)',date)
+if m:
+    dtim = datetime.strptime(m.group(1)+'.'+m.group(2)+'.'+m.group(3),'%d.%m.%Y')
+else:
+    # 26 Desember 2021
+    m = re.search('(\d+)\s*(\D+)\s*(\d+)',date)
+    if m:
+        dtim = datetime(int(m.group(3)),read_month(m.group(2)),int(m.group(1)))
+    else:
+        raise ValueError('Error, failed in reading Time Observation >>> {}'.format(date))
 if args.out_fnam is None:
     args.out_fnam = '{}_{:%Y-%m-%d}_blb.csv'.format(location,dtim)
 
