@@ -6,6 +6,12 @@ from proc_class import Process
 
 class Indices(Process):
 
+    def __init__(self):
+        super().__init__()
+        self.ax1_zmin = None
+        self.ax1_zmax = None
+        self.ax1_zstp = None
+
     def run(self):
         # Start process
         super().run()

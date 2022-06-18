@@ -109,6 +109,9 @@ config_defaults.update({
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
 'indices.data_range'                  : [np.nan,np.nan],
+'indices.ax1_zmin'                    : [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+'indices.ax1_zmax'                    : [1.0,1.0,1.0,2.0,4.0,1.0,1.0,1.0,2.0,4.0,1.0,1.0,1.0,1.0],
+'indices.ax1_zstp'                    : [0.2,0.2,0.2,0.5,1.0,0.2,0.2,0.2,0.5,1.0,0.2,0.2,0.2,0.2],
 'indices.python_path'                 : python_path,
 'indices.scr_dir'                     : scr_dir,
 'indices.middle_left_frame_width'     : 1000,
@@ -274,4 +277,7 @@ for proc in pnams:
     modules[proc].drone_data =  os.path.normpath(config['main'].get('main.drone_data'))
     modules[proc].drone_analysis = os.path.normpath(config['main'].get('main.drone_analysis'))
     modules[proc].browse_image = os.path.normpath(config['main'].get('main.browse_image'))
+    for pnam in ['ax1_zmin','ax1_zmax','ax1_zstp']:
+        if hasattr(modules[proc],pnam):
+            setattr(modules[proc],pnam,eval(config[proc].get('{}.{}'.format(proc,pnam))))
     modules[proc].middle_left_frame_width = config[proc].getint('{}.middle_left_frame_width'.format(proc))
