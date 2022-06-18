@@ -180,67 +180,74 @@ if len(args.src_geotiff) == 1:
             fp.write('\n')
     # For debug
     if args.debug:
-        for i,param in enumerate(args.param):
-            iband = src_band.index(param)
-            fig.clear()
-            ax1 = plt.subplot(111)
-            ax1.set_xticks([])
-            ax1.set_yticks([])
-            if args.ax1_zmin is not None and args.ax1_zmax is not None:
-                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
-            elif args.ax1_zmin is not None:
-                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],cmap=cm.jet,interpolation='none')
-            elif args.ax1_zmax is not None:
-                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
-            else:
-                im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
-            if args.marker_color is not None:
-                ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec=args.marker_color[i])
-            else:
-                ax1.plot(x_bunch,y_bunch,'o',ms=10,mfc='none',mec='k')
-            divider = make_axes_locatable(ax1)
-            cax = divider.append_axes('right',size='5%',pad=0.05)
-            if args.ax1_zstp is not None:
-                if args.ax1_zmin is not None:
-                    zmin = min((np.floor(np.nanmin(src_data[iband])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i],args.ax1_zmin[i])
+        for plot in plots:
+            cnd = (plot_bunch == plot)
+            indx = indx_bunch[cnd]
+            lg = loc_bunch[indx]
+            ng = number_bunch[indx]
+            xg = x_bunch[indx]
+            yg = y_bunch[indx]
+            for i,param in enumerate(args.param):
+                iband = src_band.index(param)
+                fig.clear()
+                ax1 = plt.subplot(111)
+                ax1.set_xticks([])
+                ax1.set_yticks([])
+                if args.ax1_zmin is not None and args.ax1_zmax is not None:
+                    im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
+                elif args.ax1_zmin is not None:
+                    im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=args.ax1_zmin[i],cmap=cm.jet,interpolation='none')
+                elif args.ax1_zmax is not None:
+                    im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=args.ax1_zmax[i],cmap=cm.jet,interpolation='none')
                 else:
-                    zmin = (np.floor(np.nanmin(src_data[iband])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
-                if args.ax1_zmax is not None:
-                    zmax = max(np.nanmax(src_data[iband]),args.ax1_zmax[i]+0.1*args.ax1_zstp[i])
+                    im = ax1.imshow(src_data[iband],extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+                if args.marker_color is not None:
+                    ax1.plot(xg,yg,'o',ms=10,mfc='none',mec=args.marker_color[i])
                 else:
-                    zmax = np.nanmax(src_data[iband])+0.1*args.ax1_zstp[i]
-                ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp[i])).ax
-            else:
-                ax2 = plt.colorbar(im,cax=cax).ax
-            ax2.minorticks_on()
-            ax2.set_ylabel(pnams[param])
-            ax2.yaxis.set_label_coords(3.5,0.5)
-            if args.remove_nan:
-                src_indy,src_indx = np.indices(src_shape)
-                src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
-                src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
-                cnd = ~np.isnan(src_data[iband])
-                xp = src_xp[cnd]
-                yp = src_yp[cnd]
-                fig_xmin = xp.min()
-                fig_xmax = xp.max()
-                fig_ymin = yp.min()
-                fig_ymax = yp.max()
-            else:
-                fig_xmin = src_xmin
-                fig_xmax = src_xmax
-                fig_ymin = src_ymin
-                fig_ymax = src_ymax
-            ax1.set_xlim(fig_xmin,fig_xmax)
-            ax1.set_ylim(fig_ymin,fig_ymax)
-            if args.title is not None:
-                ax1.set_title('{}'.format(args.title))
-            else:
-                ax1.set_title('Location: {}'.format(loc_bunch[0]))
-            plt.savefig(pdf,format='pdf')
-            if not args.batch:
-                plt.draw()
-                plt.pause(0.1)
+                    ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
+                divider = make_axes_locatable(ax1)
+                cax = divider.append_axes('right',size='5%',pad=0.05)
+                if args.ax1_zstp is not None:
+                    if args.ax1_zmin is not None:
+                        zmin = (np.floor(args.ax1_zmin[i]/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
+                    else:
+                        zmin = (np.floor(np.nanmin(src_data[iband])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
+                    if args.ax1_zmax is not None:
+                        zmax = args.ax1_zmax[i]+0.1*args.ax1_zstp[i]
+                    else:
+                        zmax = np.nanmax(src_data[iband])+0.1*args.ax1_zstp[i]
+                    ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp[i])).ax
+                else:
+                    ax2 = plt.colorbar(im,cax=cax).ax
+                ax2.minorticks_on()
+                ax2.set_ylabel(pnams[param])
+                ax2.yaxis.set_label_coords(3.5,0.5)
+                if args.remove_nan:
+                    src_indy,src_indx = np.indices(src_shape)
+                    src_xp = src_trans[0]+(src_indx+0.5)*src_trans[1]+(src_indy+0.5)*src_trans[2]
+                    src_yp = src_trans[3]+(src_indx+0.5)*src_trans[4]+(src_indy+0.5)*src_trans[5]
+                    cnd = ~np.isnan(src_data[iband])
+                    xp = src_xp[cnd]
+                    yp = src_yp[cnd]
+                    fig_xmin = xp.min()
+                    fig_xmax = xp.max()
+                    fig_ymin = yp.min()
+                    fig_ymax = yp.max()
+                else:
+                    fig_xmin = src_xmin
+                    fig_xmax = src_xmax
+                    fig_ymin = src_ymin
+                    fig_ymax = src_ymax
+                ax1.set_xlim(fig_xmin,fig_xmax)
+                ax1.set_ylim(fig_ymin,fig_ymax)
+                if args.title is not None:
+                    ax1.set_title('{} (Plot{})'.format(args.title,plot))
+                else:
+                    ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
+                plt.savefig(pdf,format='pdf')
+                if not args.batch:
+                    plt.draw()
+                    plt.pause(0.1)
 elif len(args.src_geotiff) == len(plots):
     with open(args.ext_fnam,'w') as fp:
         if len(comments) > 0:
@@ -326,11 +333,11 @@ elif len(args.src_geotiff) == len(plots):
                     cax = divider.append_axes('right',size='5%',pad=0.05)
                     if args.ax1_zstp is not None:
                         if args.ax1_zmin is not None:
-                            zmin = min((np.floor(np.nanmin(src_data[iband])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i],args.ax1_zmin[i])
+                            zmin = (np.floor(args.ax1_zmin[i]/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
                         else:
                             zmin = (np.floor(np.nanmin(src_data[iband])/args.ax1_zstp[i])-1.0)*args.ax1_zstp[i]
                         if args.ax1_zmax is not None:
-                            zmax = max(np.nanmax(src_data[iband]),args.ax1_zmax[i]+0.1*args.ax1_zstp[i])
+                            zmax = args.ax1_zmax[i]+0.1*args.ax1_zstp[i]
                         else:
                             zmax = np.nanmax(src_data[iband])+0.1*args.ax1_zstp[i]
                         ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp[i])).ax
