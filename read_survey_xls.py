@@ -394,10 +394,15 @@ for plot in plots:
     y_plot[plot] = y
 plant_plot = {}
 for plot in plots:
-    # Plot 1. 04.01.2022 Plot 2. 04.01.2022 Plot 3. 04.01.2022
-    m = re.search('Plot\s*{}[\D]+([\d\.]+)\s*'.format(plot),trans_date)
+    # Plot 1. 04.01.2022 or 04,01,2022
+    m = re.search('Plot\s*{}[\D]+(\d+)\s*[,\.]\s*(\d+)\s*[,\.]\s*(\d+)'.format(plot),trans_date)
     if m:
-        plant_plot[plot] = datetime.strptime(m.group(1),'%d.%m.%Y')
+        plant_plot[plot] = datetime.strptime(m.group(1)+'.'+m.group(2)+'.'+m.group(3),'%d.%m.%Y')
+        continue
+    # 04.01.2022 or 04,01,2022
+    m = re.search('(\d+)\s*[,\.]\s*(\d+)\s*[,\.]\s*(\d+)',trans_date)
+    if m:
+        plant_plot[plot] = datetime.strptime(m.group(1)+'.'+m.group(2)+'.'+m.group(3),'%d.%m.%Y')
         continue
     # 26 Desember 2021
     m = re.search('(\d+)\s*(\D+)\s*(\d+)',trans_date)
