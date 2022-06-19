@@ -230,6 +230,8 @@ if len(args.src_geotiff) == 1:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec=args.marker_color[i])
                     else:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
+                    for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+                        ax1.text(xtmp,ytmp,'{}'.format(ntmp))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
                     if args.ax1_zstp is not None:
@@ -351,6 +353,8 @@ elif len(args.src_geotiff) == len(plots):
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec=args.marker_color[i])
                     else:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
+                    for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+                        ax1.text(xtmp,ytmp,'{}'.format(ntmp))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
                     if args.ax1_zstp is not None:
