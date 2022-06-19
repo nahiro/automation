@@ -468,11 +468,11 @@ for plot in plots:
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if args.ax1_zstp is not None:
             if args.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(rr)/args.ax1_zstp)-1.0)*args.ax1_zstp,args.ax1_zmin)
+                zmin = (np.floor(args.ax1_zmin/args.ax1_zstp)-1.0)*args.ax1_zstp
             else:
                 zmin = (np.floor(np.nanmin(rr)/args.ax1_zstp)-1.0)*args.ax1_zstp
             if args.ax1_zmax is not None:
-                zmax = max(np.nanmax(rr),args.ax1_zmax+0.1*args.ax1_zstp)
+                zmax = args.ax1_zmax+0.1*args.ax1_zstp
             else:
                 zmax = np.nanmax(rr)+0.1*args.ax1_zstp
             ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,args.ax1_zstp)).ax

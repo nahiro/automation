@@ -259,11 +259,11 @@ if args.debug:
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if args.ax1_zstp is not None:
             if args.ax1_zmin is not None:
-                zmin = min((np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param],ax1_zmin[param])
+                zmin = (np.floor(ax1_zmin[param]/ax1_zstp[param])-1.0)*ax1_zstp[param]
             else:
                 zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
             if args.ax1_zmax is not None:
-                zmax = max(np.nanmax(data),ax1_zmax[param]+0.1*ax1_zstp[param])
+                zmax = ax1_zmax[param]+0.1*ax1_zstp[param]
             else:
                 zmax = np.nanmax(data)+0.1*ax1_zstp[param]
             ax2 = plt.colorbar(im,cax=cax,ticks=np.arange(zmin,zmax,ax1_zstp[param])).ax
