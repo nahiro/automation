@@ -100,15 +100,24 @@ class Estimate(Process):
             if flag:
                 command += ' --y_param {}'.format(param)
                 command += ' --y_number {}'.format(self.values['score_number'])
-        for flag,value in zip(self.values['y_params'],self.values['score_max']):
+        for value,flag in zip(self.values['score_max'],self.values['y_params']):
             if flag:
                 command += ' --smax {}'.format(value)
-        for flag,value in zip(self.values['y_params'],self.values['score_step']):
+        for value,flag in zip(self.values['score_step'],self.values['y_params']):
             if flag:
                 command += ' --sint {}'.format(value)
         if self.values['digitize']:
             command += ' --digitize'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_score.pdf'.format(trg_bnam)))
+        for value,flag in zip(self.ax1_zmin[0],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmin="{}"'.format(value)
+        for value,flag in zip(self.ax1_zmax[0],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmax="{}"'.format(value)
+        for value,flag in zip(self.ax1_zstp[0],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zstp="{}"'.format(value)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
@@ -129,6 +138,15 @@ class Estimate(Process):
                 command += ' --y_number {}'.format(self.values['intensity_number'])
                 command += ' --smax 1'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_intensity.pdf'.format(trg_bnam)))
+        for value,flag in zip(self.ax1_zmin[1],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmin="{}"'.format(value)
+        for value,flag in zip(self.ax1_zmax[1],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmax="{}"'.format(value)
+        for value,flag in zip(self.ax1_zstp[1],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zstp="{}"'.format(value)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
@@ -148,11 +166,20 @@ class Estimate(Process):
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
-        for flag,value in zip(self.values['y_params'],self.values['score_max']):
+        for value,flag in zip(self.values['score_max'],self.values['y_params']):
             if flag:
                 command += ' --smax {}'.format(value)
         command += ' --rmax 0.01'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_score.pdf'.format(trg_bnam)))
+        for value,flag in zip(self.ax1_zmin[2],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmin="{}"'.format(value)
+        for value,flag in zip(self.ax1_zmax[2],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmax="{}"'.format(value)
+        for value,flag in zip(self.ax1_zstp[2],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zstp="{}"'.format(value)
         command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --use_index'
         command += ' --remove_nan'
@@ -177,6 +204,15 @@ class Estimate(Process):
                 command += ' --smax 1'
         command += ' --rmax 0.01'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_damage_intensity.pdf'.format(trg_bnam)))
+        for value,flag in zip(self.ax1_zmin[3],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmin="{}"'.format(value)
+        for value,flag in zip(self.ax1_zmax[3],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zmax="{}"'.format(value)
+        for value,flag in zip(self.ax1_zstp[3],self.values['y_params']):
+            if flag:
+                command += ' --ax1_zstp="{}"'.format(value)
         command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --use_index'
         command += ' --remove_nan'

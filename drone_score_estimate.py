@@ -230,22 +230,22 @@ if args.debug:
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
-        if args.ax1_zmin is not None and args.ax1_zmax is not None:
+        if args.ax1_zmin is not None and args.ax1_zmax is not None and not np.isnan(ax1_zmin[param]) and not np.isnan(ax1_zmax[param]):
             im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
-        elif args.ax1_zmin is not None:
+        elif args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
             im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
-        elif args.ax1_zmax is not None:
+        elif args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
             im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         else:
             im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
-        if args.ax1_zstp is not None:
-            if args.ax1_zmin is not None:
+        if args.ax1_zstp is not None and not np.isnan(ax1_zstp[param]):
+            if args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
                 zmin = (np.floor(ax1_zmin[param]/ax1_zstp[param])-1.0)*ax1_zstp[param]
             else:
                 zmin = (np.floor(np.nanmin(data)/ax1_zstp[param])-1.0)*ax1_zstp[param]
-            if args.ax1_zmax is not None:
+            if args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
                 zmax = ax1_zmax[param]+0.1*ax1_zstp[param]
             else:
                 zmax = np.nanmax(data)+0.1*ax1_zstp[param]
