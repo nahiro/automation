@@ -16,8 +16,8 @@ proc_estimate.pnams.append('gis_fnam')
 proc_estimate.pnams.append('buffer')
 proc_estimate.pnams.append('region_size')
 proc_estimate.params['inp_fnam'] = 'Input File'
-proc_estimate.params['score_fnam'] = 'Point-value/Score-mean Formula'
-proc_estimate.params['score_number'] = 'P-v/S-m Formula Number'
+proc_estimate.params['score_fnam'] = 'Point-value Formula'
+proc_estimate.params['score_number'] = 'Point-value Formula Number'
 proc_estimate.params['intensity_fnam'] = 'Plot-mean Formula'
 proc_estimate.params['intensity_number'] = 'Plot-mean Formula Number'
 proc_estimate.params['digitize'] = 'Digitize Score'
