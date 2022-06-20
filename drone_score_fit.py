@@ -308,6 +308,13 @@ for y_param in args.y_param:
             ax1.minorticks_on()
             ax1.plot(X_all[param],Y*fact,'bo')
             ax1.plot(X_inp[param],Y_inp[y_param]*fact,'k.')
+            xmin = X_inp[param].min()
+            ymin = Y_inp[y_param].min()*fact
+            xmax = X_inp[param].max()
+            ymax = Y_inp[y_param].max()*fact
+            xfit = np.linspace(xmin,xmax,100)
+            yfit = np.polyval(np.polyfit(X_all[param],Y*fact,1),xfit)
+            ax1.plot(xfit,yfit,'r-')
             ax1.set_xlabel(param)
             ax1.set_ylabel(y_label)
             ax1.xaxis.set_tick_params(pad=7)
