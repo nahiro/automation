@@ -95,7 +95,7 @@ class Estimate(Process):
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
         command += ' --inp_fnam {}'.format(self.values['pv_fnam'])
         command += ' --src_geotiff {}'.format(img_fnam)
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pv.tif'.format(trg_bnam)))
+        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_pv_mesh.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
@@ -108,7 +108,7 @@ class Estimate(Process):
                 command += ' --sint {}'.format(value)
         if self.values['digitize']:
             command += ' --digitize'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_mesh_pv.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pv_mesh.pdf'.format(trg_bnam)))
         for value,flag in zip(self.ax1_zmin[0],self.values['y_params']):
             if flag:
                 command += ' --ax1_zmin="{}"'.format(value)
@@ -132,13 +132,13 @@ class Estimate(Process):
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
         command += ' --inp_fnam {}'.format(self.values['pm_fnam'])
         command += ' --src_geotiff {}'.format(img_fnam)
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pm.tif'.format(trg_bnam)))
+        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_pm_mesh.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
                 command += ' --y_number {}'.format(self.values['pm_number'])
                 command += ' --smax 1'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_mesh_pm.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pm_mesh.pdf'.format(trg_bnam)))
         for value,flag in zip(self.ax1_zmin[1],self.values['y_params']):
             if flag:
                 command += ' --ax1_zmin="{}"'.format(value)
@@ -160,11 +160,11 @@ class Estimate(Process):
         # Calculate damage intensity of plot from point-value
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_damage_calculate.py'))
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pv.tif'.format(trg_bnam)))
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_pv_mesh.tif'.format(trg_bnam)))
         command += ' --mask_geotiff {}'.format(mask_resized_fnam)
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_plot_pv.csv'.format(trg_bnam)))
-        command += ' --out_shp {}'.format(os.path.join(wrk_dir,'{}_plot_pv.shp'.format(trg_bnam)))
+        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_pv_plot.csv'.format(trg_bnam)))
+        command += ' --out_shp {}'.format(os.path.join(wrk_dir,'{}_pv_plot.shp'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
@@ -172,7 +172,7 @@ class Estimate(Process):
             if flag:
                 command += ' --smax {}'.format(value)
         command += ' --rmax 0.01'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot_pv.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pv_plot.pdf'.format(trg_bnam)))
         for value,flag in zip(self.ax1_zmin[2],self.values['y_params']):
             if flag:
                 command += ' --ax1_zmin="{}"'.format(value)
@@ -195,17 +195,17 @@ class Estimate(Process):
         # Calculate damage intensity of plot from plot-mean
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_damage_calculate.py'))
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pm.tif'.format(trg_bnam)))
+        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_pm_mesh.tif'.format(trg_bnam)))
         command += ' --mask_geotiff {}'.format(mask_resized_fnam)
         command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_plot_pm.csv'.format(trg_bnam)))
-        command += ' --out_shp {}'.format(os.path.join(wrk_dir,'{}_plot_pm.shp'.format(trg_bnam)))
+        command += ' --out_csv {}'.format(os.path.join(wrk_dir,'{}_pm_plot.csv'.format(trg_bnam)))
+        command += ' --out_shp {}'.format(os.path.join(wrk_dir,'{}_pm_plot.shp'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
                 command += ' --smax 1'
         command += ' --rmax 0.01'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot_pm.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pm_plot.pdf'.format(trg_bnam)))
         for value,flag in zip(self.ax1_zmin[3],self.values['y_params']):
             if flag:
                 command += ' --ax1_zmin="{}"'.format(value)
