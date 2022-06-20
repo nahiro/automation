@@ -26,7 +26,7 @@ class Formula(Process):
         if not os.path.isdir(wrk_dir):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
-        # Make score formula
+        # Make point-value formula
         tmp_fnam = os.path.join(wrk_dir,'temp.dat')
         with open(tmp_fnam,'w') as fp:
             fp.write('\n'.join(fnams))
@@ -34,7 +34,7 @@ class Formula(Process):
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_score_formula.csv'.format(trg_bnam)))
+        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_pv_formula.csv'.format(trg_bnam)))
         for param,flag in zip(x_params,self.values['x_params']):
             if flag:
                 command += ' --x_param {}'.format(param)
@@ -68,19 +68,19 @@ class Formula(Process):
         command += ' --amax {}'.format(self.values['age_range'][1])
         if self.values['mean_fitting']:
             command += ' --mean_fitting'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_score_formula.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pv_formula.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nMake score formula\n')
+        sys.stderr.write('\nMake point-value formula\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
 
-        # Make intensity formula
+        # Make plot-mean formula
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
         command += ' --inp_list {}'.format(tmp_fnam)
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_intensity_formula.csv'.format(trg_bnam)))
+        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_pm_formula.csv'.format(trg_bnam)))
         for param,flag in zip(x_params,self.values['x_params']):
             if flag:
                 command += ' --x_param {}'.format(param)
@@ -115,10 +115,10 @@ class Formula(Process):
         command += ' --use_average'
         if self.values['mean_fitting']:
             command += ' --mean_fitting'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_intensity_formula.pdf'.format(trg_bnam)))
+        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_pm_formula.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nMake intensity formula\n')
+        sys.stderr.write('\nMake plot-mean formula\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
