@@ -412,15 +412,25 @@ for y_param in args.y_param:
                 ax1 = plt.subplot(111)
                 ax1.minorticks_on()
                 if y_param in y_max:
-                    ax1.plot(Y*y_max[y_param],Y_pred*y_max[y_param],'bo')
+                    xtmp = Y*y_max[y_param]
+                    ytmp = Y_pred*y_max[y_param]
+                    ax1.plot(xtmp,ytmp,'bo')
                     xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
                     xmax = max(Y.max(),Y_pred.max())*y_max[y_param]
+                    xfit = np.linspace(xmin,xmax,100)
+                    yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
+                    ax1.plot(xfit,yfit,'r-')
                     x_label = 'True {} Score'.format(y_param)
                     y_label = 'Pred {} Score'.format(y_param)
                 else:
-                    ax1.plot(Y*100.0,Y_pred*100.0,'bo')
+                    xtmp = Y*100.0
+                    ytmp = Y_pred*100.0
+                    ax1.plot(xtmp,ytmp,'bo')
                     xmin = min(Y.min(),Y_pred.min())*100.0
                     xmax = max(Y.max(),Y_pred.max())*100.0
+                    xfit = np.linspace(xmin,xmax,100)
+                    yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
+                    ax1.plot(xfit,yfit,'r-')
                     x_label = 'True {} Intensity (%) '.format(y_param)
                     y_label = 'Pred {} Intensity (%) '.format(y_param)
                 ax1.set_xlim(xmin,xmax)
