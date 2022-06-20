@@ -295,6 +295,27 @@ for y_param in args.y_param:
         Y_all = Y_inp.copy()
         P_all = P_inp.copy()
     Y = Y_all[y_param]
+    if args.debug:
+        for param in args.x_param:
+            if y_param in y_max:
+                fact = y_max[y_param]
+                y_label = 'True {} Score'.format(y_param)
+            else:
+                fact = 100.0
+                y_label = 'True {} Intensity (%)'.format(y_param)
+            fig.clear()
+            ax1 = plt.subplot(111)
+            ax1.minorticks_on()
+            ax1.plot(X_all[param],Y*fact,'bo')
+            ax1.plot(X_inp[param],Y_inp[y_param]*fact,'k.')
+            ax1.set_xlabel(param)
+            ax1.set_ylabel(y_label)
+            ax1.xaxis.set_tick_params(pad=7)
+            ax1.yaxis.set_label_coords(-0.14,0.5)
+            plt.savefig(pdf,format='pdf')
+            if not args.batch:
+                plt.draw()
+                plt.pause(0.1)
     model_xs = []
     model_rmse_test = []
     model_r2_test = []
@@ -431,8 +452,8 @@ for y_param in args.y_param:
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
-                    x_label = 'True {} Intensity (%) '.format(y_param)
-                    y_label = 'Pred {} Intensity (%) '.format(y_param)
+                    x_label = 'True {} Intensity (%)'.format(y_param)
+                    y_label = 'Pred {} Intensity (%)'.format(y_param)
                 ax1.set_xlim(xmin,xmax)
                 ax1.set_ylim(xmin,xmax)
                 ax1.set_title(title)
