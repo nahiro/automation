@@ -46,7 +46,7 @@ parser.add_argument('-o','--outer_radius',default=OUTER_RADIUS,type=float,help='
 parser.add_argument('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%(default)s)')
 parser.add_argument('-p','--param',default=None,action='append',help='Output parameter for debug ({})'.format(PARAM))
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
-parser.add_argument('-t','--title',default=None,help='Figure title (%(default)s)')
+parser.add_argument('-t','--ax1_title',default=None,help='Axis1 title for debug (%(default)s)')
 parser.add_argument('-m','--xmgn',default=XMGN,type=float,help='X margin in m for debug (%(default)s)')
 parser.add_argument('-M','--ymgn',default=None,type=float,help='Y margin in m for debug (%(default)s)')
 parser.add_argument('-c','--marker_color',default=None,action='append',help='Marker color for debug (%(default)s)')
@@ -264,8 +264,8 @@ if len(args.src_geotiff) == 1:
                         fig_ymax = src_ymax
                     ax1.set_xlim(fig_xmin,fig_xmax)
                     ax1.set_ylim(fig_ymin,fig_ymax)
-                    if args.title is not None:
-                        ax1.set_title('{} (Plot{})'.format(args.title,plot))
+                    if args.ax1_title is not None:
+                        ax1.set_title('{} (Plot{})'.format(args.ax1_title,plot))
                     else:
                         ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
                     plt.savefig(pdf,format='pdf')
@@ -387,8 +387,8 @@ elif len(args.src_geotiff) == len(plots):
                         fig_ymax = src_ymax
                     ax1.set_xlim(fig_xmin,fig_xmax)
                     ax1.set_ylim(fig_ymin,fig_ymax)
-                    if args.title is not None:
-                        ax1.set_title('{} (Plot{})'.format(args.title,plot))
+                    if args.ax1_title is not None:
+                        ax1.set_title('{} (Plot{})'.format(args.ax1_title,plot))
                     else:
                         ax1.set_title('Location: {}, Plot: {}'.format(lg[0],plot))
                     plt.savefig(pdf,format='pdf')

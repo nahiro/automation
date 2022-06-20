@@ -60,7 +60,7 @@ class Identify(Process):
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
         command += ' --buffer {}'.format(self.values['buffer'])
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_subset.pdf'.format(trg_bnam)))
-        command += ' --title {}'.format(trg_bnam)
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --interp_point'
@@ -102,7 +102,7 @@ class Identify(Process):
             if not np.isnan(self.values['data_range'][1]):
                 command += ' --data_max="{}"'.format(self.values['data_range'][1])
             command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam,plot)))
-            command += ' --title "{} (Plot{})"'.format(trg_bnam,plot)
+            command += ' --ax1_title "{} (Plot{})"'.format(trg_bnam,plot)
             # for Redness Ratio
             command += ' --ax1_zmin 0'
             command += ' --ax1_zmax 1'
@@ -142,7 +142,7 @@ class Identify(Process):
         command += ' --sthr {}'.format(self.values['sthr'])
         command += ' --criteria {}'.format('Distance' if 'Distance' in self.values['criteria'] else 'Area')
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
-        command += ' --title {}'.format(trg_bnam)
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --ax1_zmin 0.0'

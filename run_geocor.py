@@ -363,7 +363,7 @@ class Geocor(Process):
                     command += ' --img_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor.tif'.format(trg_bnam)))
                     for order in figure_orders:
                         command += ' --order {}'.format(order)
-                    command += ' --title {}'.format(trg_bnam)
+                    command += ' --ax1_title {}'.format(trg_bnam)
                     command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_resized.pdf'.format(trg_bnam)))
                     command += ' --batch'
                     call(command,shell=True)

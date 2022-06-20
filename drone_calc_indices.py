@@ -43,7 +43,7 @@ parser.add_argument('-r','--rgi_red_band',default=RGI_RED_BAND,help='Wavelength 
 parser.add_argument('--data_min',default=None,type=float,help='Minimum data value (%(default)s)')
 parser.add_argument('--data_max',default=None,type=float,help='Maximum data value (%(default)s)')
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
-parser.add_argument('-t','--title',default=None,help='Figure title (%(default)s)')
+parser.add_argument('-t','--ax1_title',default=None,help='Axis1 title for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',help='Axis1 Z stp for debug (%(default)s)')
@@ -272,8 +272,8 @@ if args.debug:
             fig_ymax = src_ymax
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
-        if args.title is not None:
-            ax1.set_title('{}'.format(args.title))
+        if args.ax1_title is not None:
+            ax1.set_title('{}'.format(args.ax1_title))
         if args.fig_dpi is None:
             plt.savefig(pdf,format='pdf')
         else:

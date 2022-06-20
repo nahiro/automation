@@ -227,8 +227,6 @@ if args.debug:
         ax1 = plt.subplot(111)
         ax1.set_xticks([])
         ax1.set_yticks([])
-        if args.ax1_title is not None:
-            ax1.set_title(args.ax1_title)
         if args.shp_fnam is not None:
             if args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
                 zmin = ax1_zmin[param]
@@ -290,6 +288,8 @@ if args.debug:
             fig_ymax = src_ymax
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
+        if args.ax1_title is not None:
+            ax1.set_title(args.ax1_title)
         plt.savefig(pdf,format='pdf')
         if not args.batch:
             plt.draw()

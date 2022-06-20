@@ -24,7 +24,7 @@ FIGNAM = 'geocor_resized.pdf'
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-f','--img_fnam',default=None,action='append',help='Image file name (%(default)s)')
-parser.add_argument('-t','--title',default=None,action='append',help='Figure title (%(default)s)')
+parser.add_argument('-t','--ax1_title',default=None,action='append',help='Axis1 title (%(default)s)')
 parser.add_argument('-o','--order',default=None,type=int,action='append',help='Geocor order ({})'.format(ORDER))
 parser.add_argument('-s','--shp_fnam',default=None,help='Shape file name (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name (%(default)s)')
@@ -100,7 +100,7 @@ for itarg in range(len(args.img_fnam)):
                 axs.add_patch(plt.Polygon(shp.exterior,edgecolor='k',facecolor='none',linestyle='-',alpha=1.0,linewidth=0.02))
         axs.set_xlim(fig_xmin,fig_xmax)
         axs.set_ylim(fig_ymin,fig_ymax)
-        axs.set_title('{} ({})'.format(args.title[itarg],ORDER_DICT[order]))
+        axs.set_title('{} ({})'.format(args.ax1_title[itarg],ORDER_DICT[order]))
         plt.savefig(pdf,format='pdf')
         if not args.batch:
             plt.draw()
