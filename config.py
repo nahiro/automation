@@ -286,5 +286,5 @@ for proc in pnams:
     modules[proc].browse_image = os.path.normpath(config['main'].get('main.browse_image'))
     for pnam in ['ax1_zmin','ax1_zmax','ax1_zstp','fig_dpi']:
         if hasattr(modules[proc],pnam):
-            setattr(modules[proc],pnam,eval(config[proc].get('{}.{}'.format(proc,pnam))))
+            setattr(modules[proc],pnam,eval(config[proc].get('{}.{}'.format(proc,pnam)).lower().replace('nan','np.nan')))
     modules[proc].middle_left_frame_width = config[proc].getint('{}.middle_left_frame_width'.format(proc))
