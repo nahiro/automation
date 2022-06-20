@@ -118,6 +118,7 @@ class Estimate(Process):
         for value,flag in zip(self.ax1_zstp[0],self.values['y_params']):
             if flag:
                 command += ' --ax1_zstp="{}"'.format(value)
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
@@ -147,6 +148,7 @@ class Estimate(Process):
         for value,flag in zip(self.ax1_zstp[1],self.values['y_params']):
             if flag:
                 command += ' --ax1_zstp="{}"'.format(value)
+        command += ' --ax1_title {}'.format(trg_bnam)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
