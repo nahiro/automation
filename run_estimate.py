@@ -22,10 +22,10 @@ class Estimate(Process):
         # Check files
         if not os.path.exists(self.values['inp_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['inp_fnam']))
-        if not os.path.exists(self.values['score_fnam']):
-            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['score_fnam']))
-        if not os.path.exists(self.values['intensity_fnam']):
-            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['intensity_fnam']))
+        if not os.path.exists(self.values['pv_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['pv_fnam']))
+        if not os.path.exists(self.values['pm_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['pm_fnam']))
         trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
         wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
         if not os.path.exists(wrk_dir):
@@ -93,13 +93,13 @@ class Estimate(Process):
         # Estimate point-value
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
-        command += ' --inp_fnam {}'.format(self.values['score_fnam'])
+        command += ' --inp_fnam {}'.format(self.values['pv_fnam'])
         command += ' --src_geotiff {}'.format(img_fnam)
         command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pv.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
-                command += ' --y_number {}'.format(self.values['score_number'])
+                command += ' --y_number {}'.format(self.values['pv_number'])
         for value,flag in zip(self.values['score_max'],self.values['y_params']):
             if flag:
                 command += ' --smax {}'.format(value)
@@ -130,13 +130,13 @@ class Estimate(Process):
         # Estimate plot-mean
         command = self.python_path
         command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_estimate.py'))
-        command += ' --inp_fnam {}'.format(self.values['intensity_fnam'])
+        command += ' --inp_fnam {}'.format(self.values['pm_fnam'])
         command += ' --src_geotiff {}'.format(img_fnam)
         command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_mesh_pm.tif'.format(trg_bnam)))
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
-                command += ' --y_number {}'.format(self.values['intensity_number'])
+                command += ' --y_number {}'.format(self.values['pm_number'])
                 command += ' --smax 1'
         command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_mesh_pm.pdf'.format(trg_bnam)))
         for value,flag in zip(self.ax1_zmin[1],self.values['y_params']):
@@ -187,7 +187,7 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate intensity of plot from score\n')
+        sys.stderr.write('\nEstimate damage intensity of plot from point-value\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
@@ -220,7 +220,7 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate intensity of plot from intensity\n')
+        sys.stderr.write('\nEstimate damage intensity of plot from plot-mean\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
