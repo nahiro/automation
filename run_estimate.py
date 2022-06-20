@@ -180,6 +180,10 @@ class Estimate(Process):
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
         call(command,shell=True)
+        if os.path.exists(mask_fnam):
+            os.remove(mask_fnam)
+        if os.path.exists(mask_resized_fnam):
+            os.remove(mask_resized_fnam)
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
