@@ -100,10 +100,10 @@ class Estimate(Process):
             if flag:
                 command += ' --y_param {}'.format(param)
                 command += ' --y_number {}'.format(self.values['score_number'])
-        for param,flag,value in zip(self.list_labels['y_params'],self.values['y_params'],self.values['score_max']):
+        for flag,value in zip(self.values['y_params'],self.values['score_max']):
             if flag:
                 command += ' --smax {}'.format(value)
-        for param,flag,value in zip(self.list_labels['y_params'],self.values['y_params'],self.values['score_step']):
+        for flag,value in zip(self.values['y_params'],self.values['score_step']):
             if flag:
                 command += ' --sint {}'.format(value)
         if self.values['digitize']:
@@ -148,7 +148,7 @@ class Estimate(Process):
         for param,flag in zip(self.list_labels['y_params'],self.values['y_params']):
             if flag:
                 command += ' --y_param {}'.format(param)
-        for param,flag,value in zip(self.list_labels['y_params'],self.values['y_params'],self.values['score_max']):
+        for flag,value in zip(self.values['y_params'],self.values['score_max']):
             if flag:
                 command += ' --smax {}'.format(value)
         command += ' --rmax 0.01'
