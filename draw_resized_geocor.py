@@ -24,10 +24,10 @@ FIGNAM = 'geocor_resized.pdf'
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-f','--img_fnam',default=None,action='append',help='Image file name (%(default)s)')
-parser.add_argument('-t','--ax1_title',default=None,action='append',help='Axis1 title (%(default)s)')
 parser.add_argument('-o','--order',default=None,type=int,action='append',help='Geocor order ({})'.format(ORDER))
 parser.add_argument('-s','--shp_fnam',default=None,help='Shape file name (%(default)s)')
 parser.add_argument('-F','--fignam',default=FIGNAM,help='Output figure name (%(default)s)')
+parser.add_argument('-t','--ax1_title',default=None,action='append',help='Axis1 title (%(default)s)')
 parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
 args = parser.parse_args()
 if args.order is None:
