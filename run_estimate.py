@@ -14,6 +14,7 @@ class Estimate(Process):
         self.ax1_zmin = None
         self.ax1_zmax = None
         self.ax1_zstp = None
+        self._freeze()
 
     def run(self):
         # Start process

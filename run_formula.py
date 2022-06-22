@@ -6,6 +6,10 @@ from proc_class import Process
 
 class Formula(Process):
 
+    def __init__(self):
+        super().__init__()
+        self._freeze()
+
     def run(self):
         # Start process
         super().run()

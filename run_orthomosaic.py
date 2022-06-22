@@ -7,6 +7,10 @@ from proc_class import Process
 
 class Orthomosaic(Process):
 
+    def __init__(self):
+        super().__init__()
+        self._freeze()
+
     def run(self):
         # Start process
         super().run()

@@ -12,6 +12,7 @@ class Indices(Process):
         self.ax1_zmax = None
         self.ax1_zstp = None
         self.fig_dpi = None
+        self._freeze()
 
     def run(self):
         # Start process
