@@ -20,9 +20,9 @@ if not os.path.isdir(top_dir):
 python_path = sys.executable
 scr_dir = os.path.join(HOME,'Script')
 cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-main_field_data = os.path.join(top_dir,'Field_Data')
-main_drone_data = os.path.join(top_dir,'Drone_Data')
-main_drone_analysis = os.path.join(top_dir,'Drone_Analysis')
+main_field_data = os.path.join(top_dir,'Field_Data','Current')
+main_drone_data = os.path.join(top_dir,'Drone_Data','Current')
+main_drone_analysis = os.path.join(top_dir,'Drone_Analysis','Current')
 main_browse_image = os.path.join(cnf_dir,'browse.png')
 if not os.path.exists(main_browse_image):
     main_browse_image = os.path.join(HOME,'Pictures','browse.png')
@@ -57,7 +57,7 @@ config_defaults.update({
 'main.center_btn_width'               : 20,
 #----------- orthomosaic -----------
 'orthomosaic.metashape_path'          : os.path.join(os.environ.get('PROGRAMFILES'),'Agisoft','Metashape Pro','metashape.exe'),
-'orthomosaic.inpdirs'                 : os.path.join(main_drone_data,'Current'),
+'orthomosaic.inpdirs'                 : main_drone_data,
 'orthomosaic.qmin'                    : 0.5,
 'orthomosaic.xmp_flag'                : [True,True,True,True],
 'orthomosaic.calib_flag'              : [False,True],
@@ -82,7 +82,7 @@ config_defaults.update({
 'geocor.ref_pixel'                    : 0.2,
 'geocor.ref_margin'                   : 10.0,
 'geocor.ref_range'                    : [np.nan,np.nan],
-'geocor.trg_fnam'                     : os.path.join(main_drone_analysis,'Current','orthomosaic','orthomosaic.tif'),
+'geocor.trg_fnam'                     : os.path.join(main_drone_analysis,'orthomosaic','orthomosaic.tif'),
 'geocor.trg_bands'                    : [2,4],
 'geocor.trg_ndvi'                     : True,
 'geocor.trg_binning'                  : 0.2,
@@ -104,7 +104,7 @@ config_defaults.update({
 'geocor.scr_dir'                      : scr_dir,
 'geocor.middle_left_frame_width'      : 1000,
 #----------- indices -----------
-'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
+'indices.inp_fnam'                    : os.path.join(main_drone_analysis,'geocor','orthomosaic_geocor_np2.tif'),
 'indices.out_params'                  : [False,False,False,False,False,True,True,True,True,True,True,True,False,True],
 'indices.norm_bands'                  : [True,True,True,True,True],
 'indices.rgi_red_band'                : 'e',
@@ -117,11 +117,11 @@ config_defaults.update({
 'indices.scr_dir'                     : scr_dir,
 'indices.middle_left_frame_width'     : 1000,
 #----------- identify -----------
-'identify.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_geocor_np2.tif'),
-'identify.gcp_fnam'                   : os.path.join(main_drone_analysis,'Current','geocor','orthomosaic_resized_geocor_utm2utm.dat'),
+'identify.inp_fnam'                   : os.path.join(main_drone_analysis,'geocor','orthomosaic_geocor_np2.tif'),
+'identify.gcp_fnam'                   : os.path.join(main_drone_analysis,'geocor','orthomosaic_resized_geocor_utm2utm.dat'),
 'identify.geocor_order'               : '2nd',
 'identify.epsg'                       : 32748,
-'identify.obs_fnam'                   : os.path.join(main_field_data,'Current','observation.xls'),
+'identify.obs_fnam'                   : os.path.join(main_field_data,'observation.xls'),
 'identify.i_sheet'                    : 1,
 'identify.buffer'                     : 5.0,
 'identify.bunch_nmin'                 : 5,
@@ -141,11 +141,11 @@ config_defaults.update({
 'identify.scr_dir'                    : scr_dir,
 'identify.middle_left_frame_width'    : 1000,
 #----------- extract -----------
-'extract.inp_fnam'                    : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
-'extract.obs_fnam'                    : os.path.join(main_field_data,'Current','observation.xls'),
+'extract.inp_fnam'                    : os.path.join(main_drone_analysis,'indices','orthomosaic_indices.tif'),
+'extract.obs_fnam'                    : os.path.join(main_field_data,'observation.xls'),
 'extract.i_sheet'                     : 1,
 'extract.epsg'                        : 32748,
-'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'Current','identify','orthomosaic_identify.csv'),
+'extract.gps_fnam'                    : os.path.join(main_drone_analysis,'identify','orthomosaic_identify.csv'),
 'extract.region_size'                 : [0.2,0.5],
 'extract.ax1_zmin'                    : 0.0,
 'extract.ax1_zmax'                    : 1.6,
@@ -154,7 +154,7 @@ config_defaults.update({
 'extract.scr_dir'                     : scr_dir,
 'extract.middle_left_frame_width'     : 1000,
 #----------- formula -----------
-'formula.inp_fnams'                   : os.path.join(main_drone_analysis,'Current','extract','orthomosaic_indices.csv'),
+'formula.inp_fnams'                   : os.path.join(main_drone_analysis,'extract','orthomosaic_indices.csv'),
 'formula.age_range'                   : [-100.0,150.0],
 'formula.n_x'                         : [1,2],
 'formula.x_params'                    : [False,False,False,False,False,True,True,True,True,True,True,True,False,True],
@@ -179,10 +179,10 @@ config_defaults.update({
 'formula.scr_dir'                     : scr_dir,
 'formula.middle_left_frame_width'     : 1000,
 #----------- estimate -----------
-'estimate.inp_fnam'                   : os.path.join(main_drone_analysis,'Current','indices','orthomosaic_indices.tif'),
-'estimate.pv_fnam'                    : os.path.join(main_drone_analysis,'Current','formula','pv_formula_age_90_110.csv'),
+'estimate.inp_fnam'                   : os.path.join(main_drone_analysis,'indices','orthomosaic_indices.tif'),
+'estimate.pv_fnam'                    : os.path.join(main_drone_analysis,'formula','pv_formula_age_90_110.csv'),
 'estimate.pv_number'                  : 1,
-'estimate.pm_fnam'                    : os.path.join(main_drone_analysis,'Current','formula','pm_formula_age_90_110.csv'),
+'estimate.pm_fnam'                    : os.path.join(main_drone_analysis,'formula','pm_formula_age_90_110.csv'),
 'estimate.pm_number'                  : 1,
 'estimate.digitize'                   : True,
 'estimate.y_params'                   : [True,False,False,False,False,False],

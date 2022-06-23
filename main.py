@@ -263,7 +263,7 @@ for pnam,title in zip(['field_data','drone_data','drone_analysis'],['Field Data'
     top_sep[pnam] = ttk.Separator(top_center_left_cnv[pnam],orient='horizontal')
     top_sep[pnam].pack(ipadx=0,ipady=0,padx=(0,2),pady=0,fill=tk.X,side=tk.LEFT,expand=True)
     top_var[pnam] = tk.StringVar()
-    top_var[pnam].set(os.path.join(eval(pnam),'Current'))
+    top_var[pnam].set(eval(pnam))
     top_box[pnam] = tk.Entry(top_center_right_cnv[pnam],textvariable=top_var[pnam])
     top_box[pnam].pack(ipadx=0,ipady=0,padx=(0,1),pady=(3,0),anchor=tk.W,fill=tk.X,side=tk.LEFT,expand=True)
     top_box[pnam].config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
