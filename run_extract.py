@@ -32,12 +32,12 @@ class Extract(Process):
 
         # Read data
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))
-        command += ' --inp_fnam {}'.format(self.values['obs_fnam'])
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))
+        command += ' --inp_fnam "{}"'.format(self.values['obs_fnam'])
         command += ' --sheet {}'.format(self.values['i_sheet'])
-        command += ' --ref_fnam {}'.format(self.values['gps_fnam'])
+        command += ' --ref_fnam "{}"'.format(self.values['gps_fnam'])
         command += ' --epsg {}'.format(self.values['epsg'])
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         sys.stderr.write('\nRead observation data\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -45,17 +45,17 @@ class Extract(Process):
 
         # Extract indices
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'drone_extract_values.py'))
-        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
-        command += ' --csv_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
-        command += ' --ext_fnam {}'.format(os.path.join(wrk_dir,'{}_extract.csv'.format(trg_bnam)))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_extract_values.py'))
+        command += ' --src_geotiff "{}"'.format(self.values['inp_fnam'])
+        command += ' --csv_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --ext_fnam "{}"'.format(os.path.join(wrk_dir,'{}_extract.csv'.format(trg_bnam)))
         command += ' --inner_radius {}'.format(self.values['region_size'][0])
         command += ' --outer_radius {}'.format(self.values['region_size'][1])
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_extract.pdf'.format(trg_bnam)))
+        command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_extract.pdf'.format(trg_bnam)))
         command += ' --ax1_zmin="{}"'.format(self.ax1_zmin)
         command += ' --ax1_zmax="{}"'.format(self.ax1_zmax)
         command += ' --ax1_zstp="{}"'.format(self.ax1_zstp)
-        command += ' --ax1_title {}'.format(trg_bnam)
+        command += ' --ax1_title "{}"'.format(trg_bnam)
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'

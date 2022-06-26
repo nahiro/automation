@@ -36,9 +36,9 @@ class Formula(Process):
             fp.write('\n'.join(fnams))
         x_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['x_params']]
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
-        command += ' --inp_list {}'.format(tmp_fnam)
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'pv_formula_{}.csv'.format(trg_bnam)))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
+        command += ' --inp_list "{}"'.format(tmp_fnam)
+        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'pv_formula_{}.csv'.format(trg_bnam)))
         for param,flag in zip(x_params,self.values['x_params']):
             if flag:
                 command += ' --x_param {}'.format(param)
@@ -66,13 +66,13 @@ class Formula(Process):
         command += ' --nx_max {}'.format(self.values['n_x'][1])
         command += ' --ncheck_min {}'.format(self.values['n_multi'])
         command += ' --nmodel_max {}'.format(self.values['n_formula'])
-        command += ' --criteria {}'.format(self.values['criteria'])
+        command += ' --criteria "{}"'.format(self.values['criteria'])
         command += ' --n_cross {}'.format(self.values['n_cros'])
         command += ' --amin {}'.format(self.values['age_range'][0])
         command += ' --amax {}'.format(self.values['age_range'][1])
         if self.values['mean_fitting']:
             command += ' --mean_fitting'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'pv_formula_{}.pdf'.format(trg_bnam)))
+        command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'pv_formula_{}.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
         sys.stderr.write('\nMake point-value formula\n')
@@ -82,9 +82,9 @@ class Formula(Process):
 
         # Make plot-mean formula
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
-        command += ' --inp_list {}'.format(tmp_fnam)
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'pm_formula_{}.csv'.format(trg_bnam)))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_score_fit.py'))
+        command += ' --inp_list "{}"'.format(tmp_fnam)
+        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'pm_formula_{}.csv'.format(trg_bnam)))
         for param,flag in zip(x_params,self.values['x_params']):
             if flag:
                 command += ' --x_param {}'.format(param)
@@ -112,14 +112,14 @@ class Formula(Process):
         command += ' --nx_max {}'.format(self.values['n_x'][1])
         command += ' --ncheck_min {}'.format(self.values['n_multi'])
         command += ' --nmodel_max {}'.format(self.values['n_formula'])
-        command += ' --criteria {}'.format(self.values['criteria'])
+        command += ' --criteria "{}"'.format(self.values['criteria'])
         command += ' --n_cross {}'.format(self.values['n_cros'])
         command += ' --amin {}'.format(self.values['age_range'][0])
         command += ' --amax {}'.format(self.values['age_range'][1])
         command += ' --use_average'
         if self.values['mean_fitting']:
             command += ' --mean_fitting'
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'pm_formula_{}.pdf'.format(trg_bnam)))
+        command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'pm_formula_{}.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
         sys.stderr.write('\nMake plot-mean formula\n')

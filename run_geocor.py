@@ -71,11 +71,11 @@ class Geocor(Process):
         if istp != jstp:
             raise ValueError('{}: error, istp={}, jstp={}'.format(self.proc_name,istp,jstp))
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'rebin_gtiff.py'))
         command += ' --istp {}'.format(istp)
         command += ' --jstp {}'.format(jstp)
-        command += ' --src_geotiff {}'.format(self.values['trg_fnam'])
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+        command += ' --src_geotiff "{}"'.format(self.values['trg_fnam'])
+        command += ' --dst_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
         sys.stderr.write('\nRebin target\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -107,8 +107,8 @@ class Geocor(Process):
         command = 'gdal_translate'
         command += ' -srcwin {} {} {} {}'.format(xoff,yoff,xsize,ysize)
         command += ' -tr {} {}'.format(self.values['ref_pixel'],self.values['ref_pixel'])
-        command += ' {}'.format(self.values['ref_fnam'])
-        command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' "{}"'.format(self.values['ref_fnam'])
+        command += ' "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
         sys.stderr.write('\nCrop reference\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -124,10 +124,10 @@ class Geocor(Process):
         if os.path.exists(fnam1):
             os.remove(fnam1)
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
-        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        command += ' --dst_geotiff {}'.format(fnam1)
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam "{}"'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff "{}"'.format(fnam1)
         command += ' --buffer="{:22.15e}"'.format(buffer1)
         command += ' --use_index'
         sys.stderr.write('\nInside\n')
@@ -150,10 +150,10 @@ class Geocor(Process):
         if os.path.exists(fnam2):
             os.remove(fnam2)
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
-        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        command += ' --dst_geotiff {}'.format(fnam2)
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam "{}"'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff "{}"'.format(fnam2)
         command += ' --buffer="{:22.15e}"'.format(buffer2)
         command += ' --use_index'
         sys.stderr.write('\nOutside\n')
@@ -170,10 +170,10 @@ class Geocor(Process):
         if os.path.exists(fnam3):
             os.remove(fnam3)
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'make_mask.py'))
-        command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        command += ' --dst_geotiff {}'.format(fnam3)
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'make_mask.py'))
+        command += ' --shp_fnam "{}"'.format(self.values['gis_fnam'])
+        command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+        command += ' --dst_geotiff "{}"'.format(fnam3)
         command += ' --buffer="{:22.15e}"'.format(buffer3)
         command += ' --use_index'
         sys.stderr.write('\nMake area map\n')
@@ -239,11 +239,11 @@ class Geocor(Process):
             if os.path.exists(fnam):
                 os.remove(fnam)
             command = self.python_path
-            command += ' {}'.format(os.path.join(self.scr_dir,'find_gcps.py'))
-            command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-            command += ' {}'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-            command += ' --ref_mask_fnam {}'.format(os.path.join(wrk_dir,'{}_{}_resized_mask.tif'.format(ref_bnam,trg_bnam)))
-            command += ' --out_fnam {}'.format(fnam)
+            command += ' "{}"'.format(os.path.join(self.scr_dir,'find_gcps.py'))
+            command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+            command += ' "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
+            command += ' --ref_mask_fnam "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized_mask.tif'.format(ref_bnam,trg_bnam)))
+            command += ' --out_fnam "{}"'.format(fnam)
             command += ' --x0 {:.4f}'.format(xorg)
             command += ' --y0 {:.4f}'.format(yorg)
             command += ' --subset_width {}'.format(sizes[itry])
@@ -303,8 +303,8 @@ class Geocor(Process):
                     lry = trg_resized_ymin+yorg
                     command = 'gdal_translate'
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
+                    command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+                    command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     sys.stderr.write(command+'\n')
                     sys.stderr.flush()
                     call(command,shell=True)
@@ -347,12 +347,12 @@ class Geocor(Process):
                     if not self.values['resized_flags'][order]:
                         continue
                     command = self.python_path
-                    command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
-                    command += ' --scrdir {}'.format(self.scr_dir)
-                    command += ' --use_gcps {}'.format(gnam) # use
-                    command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
+                    command += ' "{}"'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
+                    command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+                    command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
+                    command += ' --scrdir "{}"'.format(self.scr_dir)
+                    command += ' --use_gcps "{}"'.format(gnam) # use
+                    command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
                     command += ' --npoly {}'.format(order)
                     command += ' --refine_gcps 0.1'
                     command += ' --minimum_number 3'
@@ -362,13 +362,13 @@ class Geocor(Process):
                     figure_orders.append(order)
                 if len(figure_orders) > 0:
                     command = self.python_path
-                    command += ' {}'.format(os.path.join(self.scr_dir,'draw_resized_geocor.py'))
-                    command += ' --shp_fnam {}'.format(self.values['gis_fnam'])
-                    command += ' --img_fnam {}'.format(os.path.join(wrk_dir,'{}_resized_geocor.tif'.format(trg_bnam)))
+                    command += ' "{}"'.format(os.path.join(self.scr_dir,'draw_resized_geocor.py'))
+                    command += ' --shp_fnam "{}"'.format(self.values['gis_fnam'])
+                    command += ' --img_fnam "{}"'.format(os.path.join(wrk_dir,'{}_resized_geocor.tif'.format(trg_bnam)))
                     for order in figure_orders:
                         command += ' --order {}'.format(order)
-                    command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_resized.pdf'.format(trg_bnam)))
-                    command += ' --ax1_title {}'.format(trg_bnam)
+                    command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_resized.pdf'.format(trg_bnam)))
+                    command += ' --ax1_title "{}"'.format(trg_bnam)
                     command += ' --batch'
                     call(command,shell=True)
 
@@ -381,18 +381,18 @@ class Geocor(Process):
                     lry = trg_ymin+yorg
                     command = 'gdal_translate'
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
-                    command += ' {}'.format(self.values['trg_fnam'])
-                    command += ' {}'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
+                    command += ' "{}"'.format(self.values['trg_fnam'])
+                    command += ' "{}"'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     call(command,shell=True)
                 else:
                     # Higher order correction at full resolution
                     hnam = os.path.join(wrk_dir,'{}_geocor_pix2utm.dat'.format(trg_bnam))
                     command = self.python_path
-                    command += ' {}'.format(os.path.join(self.scr_dir,'trans_gcp.py'))
-                    command += ' --src_fnam {}'.format(gnam)
-                    command += ' --dst_fnam {}'.format(hnam)
-                    command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-                    command += ' --dst_geotiff {}'.format(self.values['trg_fnam'])
+                    command += ' "{}"'.format(os.path.join(self.scr_dir,'trans_gcp.py'))
+                    command += ' --src_fnam "{}"'.format(gnam)
+                    command += ' --dst_fnam "{}"'.format(hnam)
+                    command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
+                    command += ' --dst_geotiff "{}"'.format(self.values['trg_fnam'])
                     call(command,shell=True)
                     src_xi = []
                     src_yi = []
@@ -424,12 +424,12 @@ class Geocor(Process):
                         if self.values['geocor_order'] != orders[order]:
                             continue
                         command = self.python_path
-                        command += ' {}'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
-                        command += ' {}'.format(self.values['trg_fnam'])
-                        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
-                        command += ' --scrdir {}'.format(self.scr_dir)
-                        command += ' --use_gcps {}'.format(hnam) # use
-                        command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
+                        command += ' "{}"'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
+                        command += ' "{}"'.format(self.values['trg_fnam'])
+                        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
+                        command += ' --scrdir "{}"'.format(self.scr_dir)
+                        command += ' --use_gcps "{}"'.format(hnam) # use
+                        command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
                         command += ' --npoly {}'.format(order)
                         command += ' --refine_gcps 0.1'
                         command += ' --minimum_number 3'

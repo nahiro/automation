@@ -36,10 +36,10 @@ class Orthomosaic(Process):
         with open(tmp_fnam,'w') as fp:
             fp.write('\n'.join(dnams))
         command = '"{}"'.format(self.values['metashape_path'])
-        command += ' -r {}'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
-        command += ' --inp_list {}'.format(tmp_fnam)
-        command += ' --out_dnam {}'.format(wrk_dir)
-        command += ' --out_fnam {}'.format('{}.tif'.format(trg_bnam))
+        command += ' -r "{}"'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
+        command += ' --inp_list "{}"'.format(tmp_fnam)
+        command += ' --out_dnam "{}"'.format(wrk_dir)
+        command += ' --out_fnam "{}"'.format('{}.tif'.format(trg_bnam))
         command += ' --panel_fnam "{}"'.format(self.values['panel_fnam'])
         command += ' --qmin {}'.format(self.values['qmin'])
         command += ' --align_level {}'.format(self.values['align_level'])
@@ -72,7 +72,7 @@ class Orthomosaic(Process):
         if not self.values['optimize_flag']:
             command += ' --disable_camera_optimization'
         if not self.values['cam_params'][-1]:
-            command += ' --disable_fit_correction {}'
+            command += ' --disable_fit_correction'
         if self.values['cam_flags'][0]:
             command += ' --adaptive_fitting_align'
         if self.values['cam_flags'][1]:

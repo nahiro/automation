@@ -36,14 +36,14 @@ class Identify(Process):
         # Read data
         orders = {'0th':0,'1st':1,'2nd':2,'3rd':3}
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))
-        command += ' --inp_fnam {}'.format(self.values['obs_fnam'])
-        command += ' --geocor_fnam {}'.format(self.values['gcp_fnam'])
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))
+        command += ' --inp_fnam "{}"'.format(self.values['obs_fnam'])
+        command += ' --geocor_fnam "{}"'.format(self.values['gcp_fnam'])
         command += ' --sheet {}'.format(self.values['i_sheet'])
         command += ' --epsg {}'.format(self.values['epsg'])
         command += ' --geocor_npoly {}'.format(orders[self.values['geocor_order']])
-        command += ' --optfile {}'.format(os.path.join(wrk_dir,'temp.dat'))
-        command += ' --out_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
+        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         sys.stderr.write('\nRead observation data\n')
         sys.stderr.write(command+'\n')
         sys.stderr.flush()
@@ -55,16 +55,16 @@ class Identify(Process):
 
         # Subset image
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'drone_subset.py'))
-        command += ' --src_geotiff {}'.format(self.values['inp_fnam'])
-        command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-        command += ' --gps_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_subset.py'))
+        command += ' --src_geotiff "{}"'.format(self.values['inp_fnam'])
+        command += ' --dst_geotiff "{}"'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+        command += ' --gps_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
         command += ' --buffer {}'.format(self.values['buffer'])
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_subset.pdf'.format(trg_bnam)))
-        command += ' --ax1_title {}'.format(trg_bnam)
+        command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_subset.pdf'.format(trg_bnam)))
+        command += ' --ax1_title "{}"'.format(trg_bnam)
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --interp_point'
@@ -94,9 +94,9 @@ class Identify(Process):
         sys.stderr.write('\nCalculate redness ratio\n')
         for plot in plots:
             command = self.python_path
-            command += ' {}'.format(os.path.join(self.scr_dir,'drone_calc_rr.py'))
-            command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}_plot{}.tif'.format(trg_bnam,plot)))
-            command += ' --dst_geotiff {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.tif'.format(trg_bnam,plot)))
+            command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_calc_rr.py'))
+            command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_plot{}.tif'.format(trg_bnam,plot)))
+            command += ' --dst_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_plot{}_rr.tif'.format(trg_bnam,plot)))
             command += ' --param {}'.format('S'+self.values['rr_param'][0] if self.values['rr_param'][0].islower() else self.values['rr_param'][0])
             command += ' --param {}'.format('Br' if self.values['rr_param'][1] in ['S/B'] else 'Nr')
             command += ' --inner_size {}'.format(inner_size)
@@ -105,7 +105,7 @@ class Identify(Process):
                 command += ' --data_min="{}"'.format(self.values['data_range'][0])
             if not np.isnan(self.values['data_range'][1]):
                 command += ' --data_max="{}"'.format(self.values['data_range'][1])
-            command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam,plot)))
+            command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_plot{}_rr.pdf'.format(trg_bnam,plot)))
             command += ' --ax1_title "{} (Plot{})"'.format(trg_bnam,plot)
             # for Redness Ratio
             command += ' --ax1_zmin 0'
@@ -124,10 +124,10 @@ class Identify(Process):
 
         # Identify point
         command = self.python_path
-        command += ' {}'.format(os.path.join(self.scr_dir,'drone_identify_points.py'))
-        command += ' --src_geotiff {}'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
-        command += ' --csv_fnam {}'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
-        command += ' --ext_fnam {}'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_identify_points.py'))
+        command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
+        command += ' --csv_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
+        command += ' --ext_fnam "{}"'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
         command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
@@ -144,9 +144,9 @@ class Identify(Process):
         command += ' --rthr_max {}'.format(self.values['rthr'][1])
         command += ' --rstp {}'.format(self.values['rthr'][2])
         command += ' --sthr {}'.format(self.values['sthr'])
-        command += ' --criteria {}'.format('Distance' if 'Distance' in self.values['criteria'] else 'Area')
-        command += ' --fignam {}'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
-        command += ' --ax1_title {}'.format(trg_bnam)
+        command += ' --criteria "{}"'.format('Distance' if 'Distance' in self.values['criteria'] else 'Area')
+        command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_identify.pdf'.format(trg_bnam)))
+        command += ' --ax1_title "{}"'.format(trg_bnam)
         command += ' --gamma 1'
         command += ' --fact 30'
         command += ' --ax1_zmin 0.0'
