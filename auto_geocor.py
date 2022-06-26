@@ -58,8 +58,8 @@ parser.add_argument('--ref_data_min',default=REF_DATA_MIN,type=float,help='Minim
 parser.add_argument('--ref_data_max',default=None,type=float,help='Maximum reference data value (%(default)s)')
 parser.add_argument('--trg_data_min',default=None,type=float,help='Minimum target data value (%(default)s)')
 parser.add_argument('--trg_data_max',default=None,type=float,help='Maximum target data value (%(default)s)')
-parser.add_argument('--ref_data_umax',default=None,type=float,help='Maximum reference data value to use (%(default)s)')
 parser.add_argument('--ref_data_umin',default=None,type=float,help='Minimum reference data value to use (%(default)s)')
+parser.add_argument('--ref_data_umax',default=None,type=float,help='Maximum reference data value to use (%(default)s)')
 parser.add_argument('--trg_blur_sigma',default=None,type=int,help='Target blur radius in pixel (%(default)s)')
 parser.add_argument('-I','--interp',default=None,help='Interpolation method (%(default)s)')
 parser.add_argument('-r','--rthr',default=None,type=float,help='Threshold of correlation coefficient (%(default)s)')
@@ -181,10 +181,10 @@ else:
         command += ' --trg_data_min {}'.format(args.trg_data_min)
     if args.trg_data_max is not None:
         command += ' --trg_data_max {}'.format(args.trg_data_max)
-    if args.ref_data_umax is not None:
-        command += ' --ref_data_umax {}'.format(args.ref_data_umax)
     if args.ref_data_umin is not None:
         command += ' --ref_data_umin {}'.format(args.ref_data_umin)
+    if args.ref_data_umax is not None:
+        command += ' --ref_data_umax {}'.format(args.ref_data_umax)
     if args.trg_blur_sigma is not None:
         command += ' --trg_blur_sigma {}'.format(args.trg_blur_sigma)
     if args.interp is not None:

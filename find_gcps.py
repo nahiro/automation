@@ -65,8 +65,8 @@ parser.add_argument('--ref_data_min',default=None,type=float,help='Minimum refer
 parser.add_argument('--ref_data_max',default=None,type=float,help='Maximum reference data value (%(default)s)')
 parser.add_argument('--trg_data_min',default=None,type=float,help='Minimum target data value (%(default)s)')
 parser.add_argument('--trg_data_max',default=None,type=float,help='Maximum target data value (%(default)s)')
-parser.add_argument('--ref_data_umax',default=None,type=float,help='Maximum reference data value to use (%(default)s)')
 parser.add_argument('--ref_data_umin',default=None,type=float,help='Minimum reference data value to use (%(default)s)')
+parser.add_argument('--ref_data_umax',default=None,type=float,help='Maximum reference data value to use (%(default)s)')
 parser.add_argument('--trg_blur_sigma',default=None,type=int,help='Target blur radius in pixel (%(default)s)')
 parser.add_argument('-I','--interp',default=INTERP,help='Interpolation method (%(default)s)')
 parser.add_argument('-r','--rthr',default=RTHR,type=float,help='Threshold of correlation coefficient (%(default)s)')
@@ -331,16 +331,16 @@ for trg_indyc in np.arange(args.trg_indy_start,args.trg_indy_stop,args.trg_indy_
         if args.ref_data_max is not None and np.nanmax(ref_subset_data) > args.ref_data_max:
             continue
 
-        if args.ref_data_umax is not None:
-            cnd1 = (~np.isnan(ref_subset_data)) & (ref_subset_data > args.ref_data_umax)
+        if args.ref_data_umin is not None:
+            cnd1 = (~np.isnan(ref_subset_data)) & (ref_subset_data < args.ref_data_umin)
             if cnd1.sum() > 0:
                 cnd2 = np.full(ref_subset_data.shape,False)
                 indy,indx = np.indices(ref_subset_data.shape)
                 for indy_tmp,indx_tmp in zip(indy[cnd1],indx[cnd1]):
                     cnd2[indy_tmp-5:indy_tmp+6,indx_tmp-5:indx_tmp+6] = True
                 ref_subset_data[cnd2] = np.nan
-        if args.ref_data_umin is not None:
-            cnd1 = (~np.isnan(ref_subset_data)) & (ref_subset_data < args.ref_data_umin)
+        if args.ref_data_umax is not None:
+            cnd1 = (~np.isnan(ref_subset_data)) & (ref_subset_data > args.ref_data_umax)
             if cnd1.sum() > 0:
                 cnd2 = np.full(ref_subset_data.shape,False)
                 indy,indx = np.indices(ref_subset_data.shape)
