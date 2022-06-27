@@ -187,7 +187,7 @@ if args.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(args.fignam)
-tmp_fp = tempfile.TemporaryFile(mode='w')
+tmp_fp = tempfile.TemporaryFile(mode='r+')
 if len(comments) > 0:
     tmp_fp.write(comments)
 if header is not None:
@@ -573,8 +573,8 @@ for plot in plots:
             rgb[~cnd,:] = 1.0
         fig.clear()
         if rr_ny > rr_nx:
-            wx = rr_nx/rr_ny
-            ax1 = fig.add_axes((0.5-0.5*wx,0,wx,1))
+            wx = rr_nx/rr_ny*0.95
+            ax1 = fig.add_axes((0.5-0.5*wx,0,wx,0.95))
         else:
             wy = rr_ny/rr_nx
             ax1 = fig.add_axes((0,0.5-0.5*wy,1,wy))

@@ -279,8 +279,8 @@ for plot in plots:
             rgb[~flags,:] = 1.0
         fig.clear()
         if dst_ny > dst_nx:
-            wx = dst_nx/dst_ny
-            ax1 = fig.add_axes((0.5-0.5*wx,0,wx,1))
+            wx = dst_nx/dst_ny*0.95
+            ax1 = fig.add_axes((0.5-0.5*wx,0,wx,0.95))
         else:
             wy = dst_ny/dst_nx
             ax1 = fig.add_axes((0,0.5-0.5*wy,1,wy))
