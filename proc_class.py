@@ -212,6 +212,7 @@ class Process:
 
     def run(self):
         sys.stderr.write('Running process {}.\n'.format(self.proc_name))
+        sys.stderr.flush()
         return
 
     def run_command(self,command,message=None,print_command=True,print_time=True):
@@ -230,6 +231,11 @@ class Process:
             t2 = datetime.now()
             sys.stderr.write('\nEnd: {} ({})\n'.format(t2,t2-t1))
             sys.stderr.flush()
+        if ret != 0:
+            sys.stderr.write('\nTerminated process {}.\n'.format(self.proc_name))
+            sys.stderr.write('\n')
+            sys.stderr.flush()
+            raise ValueError('ERROR')
         return ret
 
     def print_message(self,message,print_time=True):

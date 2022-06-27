@@ -71,10 +71,7 @@ class Identify(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nSubset image\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='Subset image')
         ds = gdal.Open(self.values['inp_fnam'])
         trans = ds.GetGeoTransform()
         ds = None
