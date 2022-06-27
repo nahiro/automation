@@ -30,7 +30,7 @@ bands['n'] = 'NIR'
 
 # Default values
 CSV_FNAM = 'gps_points.dat'
-FIGNAM = 'drone_extract_points.pdf'
+FIGNAM = 'drone_identify_points.pdf'
 FACT = 10.0
 GAMMA = 2.2
 PIXEL_RMAX = 1.0  # m
@@ -57,7 +57,7 @@ CRITERIA = 'Distance'
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%(default)s)')
-parser.add_argument('-e','--ext_fnam',default=None,help='Extract file name (%(default)s)')
+parser.add_argument('-o','--out_fnam',default=None,help='Output file name (%(default)s)')
 parser.add_argument('-R','--pixel_rmax',default=PIXEL_RMAX,type=float,help='Maximum pixel distance of a point in m (%(default)s)')
 parser.add_argument('-D','--point_dmax',default=POINT_DMAX,type=float,help='Maximum distance of a point from the fit line in m (%(default)s)')
 parser.add_argument('-W','--point_lwid',default=POINT_LWID,type=float,help='Maximum distance of a point from the selected line in m (%(default)s)')
@@ -93,9 +93,9 @@ if not args.sr_param in SR_PARAMS:
     raise ValueError('Error, unknown signal ratio parameter >>> {}'.format(args.sr_param))
 if not args.criteria in CRITERIAS:
     raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
-if args.ext_fnam is None:
+if args.out_fnam is None:
     bnam,enam = os.path.splitext(args.csv_fnam)
-    args.ext_fnam = bnam+'_extract'+enam
+    args.out_fnam = bnam+'_identify'+enam
 
 comments = ''
 header = None
@@ -186,7 +186,7 @@ if args.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(args.fignam)
-with open(args.ext_fnam,'w') as fp:
+with open(args.out_fnam,'w') as fp:
     if len(comments) > 0:
         fp.write(comments)
     if header is not None:
@@ -440,7 +440,7 @@ for plot in plots:
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             cnd_dist = (dist < args.point_dmax)
-    with open(args.ext_fnam,'a') as fp:
+    with open(args.out_fnam,'a') as fp:
         for i in range(size_plot[plot]):
             fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()

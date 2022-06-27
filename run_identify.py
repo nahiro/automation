@@ -119,7 +119,7 @@ class Identify(Process):
         command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_identify_points.py'))
         command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
         command += ' --csv_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
-        command += ' --ext_fnam "{}"'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
+        command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_identify.csv'.format(trg_bnam)))
         command += ' --bunch_rmax {}'.format(self.values['bunch_rmax'])
         command += ' --bunch_emax {}'.format(self.values['bunch_emax'])
         command += ' --bunch_nmin {}'.format(self.values['bunch_nmin'])
