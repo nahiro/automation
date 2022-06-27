@@ -189,11 +189,11 @@ for plot in plots:
     out_ymin = yg.min()-args.ymgn
     out_xmax = xg.max()+args.xmgn
     out_ymax = yg.max()+args.ymgn
-    xoff = int((out_xmin-src_xmin)/np.abs(src_xstp)+0.5)
-    yoff = int((src_ymax-out_ymax)/np.abs(src_ystp)+0.5)
-    xsize = int((out_xmax-out_xmin)/np.abs(src_xstp)+0.5)
-    ysize = int((out_ymax-out_ymin)/np.abs(src_ystp)+0.5)
-    if xoff < 0 or yoff < 0 or xsize < 0 or ysize < 0:
+    xoff = max(int((out_xmin-src_xmin)/np.abs(src_xstp)+0.5),0)
+    yoff = max(int((src_ymax-out_ymax)/np.abs(src_ystp)+0.5),0)
+    xsize = min(int((out_xmax-out_xmin)/np.abs(src_xstp)+0.5),src_nx-xoff)
+    ysize = min(int((out_ymax-out_ymin)/np.abs(src_ystp)+0.5),src_ny-yoff)
+    if xsize < 0 or ysize < 0:
         raise ValueError('Error, xoff={}, yoff={}, xsize={}, ysize={}'.format(xoff,yoff,xsize,ysize))
     dst_nx = xsize
     dst_ny = ysize
