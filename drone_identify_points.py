@@ -270,10 +270,9 @@ for plot in plots:
     cnd_dist = None
     rthr = args.rthr_max
     err = False
-    num = 0
     while True:
         if rthr < args.rthr_min:
-            sys.stderr.write('Warning, num={}, rthr={}\n'.format(num,rthr))
+            sys.stderr.write('Warning, rthr={}\n'.format(rthr))
             sys.stderr.flush()
             err = True
             break
@@ -550,6 +549,8 @@ for plot in plots:
         ax1.plot(xf_point,yf_point,'k:')
         ng = number_plot[plot]
         for ntmp,xtmp,ytmp in zip(ng,xctr_point,yctr_point):
+            if np.isnan(xtmp) or np.isnan(ytmp):
+                continue
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if args.remove_nan:
             cnd = ~np.isnan(rr)
@@ -612,6 +613,8 @@ for plot in plots:
         ax1.plot(xctr_point,yctr_point,'o',mfc='none',mec='k')
         ax1.plot(xf_point,yf_point,'k:')
         for ntmp,xtmp,ytmp in zip(ng,xctr_point,yctr_point):
+            if np.isnan(xtmp) or np.isnan(ytmp):
+                continue
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         ax1.set_xlim(fig_xmin,fig_xmax)
         ax1.set_ylim(fig_ymin,fig_ymax)
