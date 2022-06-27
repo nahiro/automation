@@ -144,6 +144,10 @@ class Identify(Process):
         command += ' --ax1_zmin 0.0'
         command += ' --ax1_zmax 0.3'
         command += ' --ax1_zstp 0.1'
+        if os.path.exists(self.values['assign_fnam']):
+            command += ' --assign_fnam "{}"'.format(self.values['assign_fnam'])
+        if self.values['ignore_error']:
+            command += ' --ignore_error'
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'

@@ -83,6 +83,7 @@ parser.add_argument('-z','--ax1_zmin',default=None,type=float,help='Axis1 Z min 
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,help='Axis1 Z stp for debug (%(default)s)')
 parser.add_argument('--ax1_title',default=None,help='Axis1 title for debug (%(default)s)')
+parser.add_argument('-E','--ignore_error',default=False,action='store_true',help='Ignore error (%(default)s)')
 parser.add_argument('-H','--header_none',default=False,action='store_true',help='Read csv file with no header (%(default)s)')
 parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
@@ -193,6 +194,7 @@ if len(comments) > 0:
 if header is not None:
     tmp_fp.write(header.replace(easting,'EastingI').replace(northing,'NorthingI'))
 bnam,enam = os.path.splitext(args.src_geotiff)
+err_flag = []
 for plot in plots:
     # Read redness ratio image
     onam = bnam+'_plot{}_rr'.format(plot)+enam
@@ -275,6 +277,7 @@ for plot in plots:
             sys.stderr.write('Warning, rthr={}\n'.format(rthr))
             sys.stderr.flush()
             err = True
+            err_flag.append(plot)
             break
         elif cnd_dist is None:
             cnd_all = cnd_sr & (rr > rthr)
@@ -633,3 +636,5 @@ line = tmp_fp.read()
 with open(args.out_fnam,'w') as fp:
     fp.write(line)
 tmp_fp.close()
+if (len(err_flag) > 0) and (not args.ignore_error):
+    raise ValueError('Error, check the number of plot {}'.format(','.join([str(plot) for plot in err_flag])))
