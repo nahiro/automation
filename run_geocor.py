@@ -8,7 +8,6 @@ except Exception:
     from osgeo import gdal
 from glob import glob
 import numpy as np
-from subprocess import call
 from proc_class import Process
 
 def calc_mean(x,y,emax=2.0,nrpt=10,nmin=1,selected=None):
@@ -76,10 +75,7 @@ class Geocor(Process):
         command += ' --jstp {}'.format(jstp)
         command += ' --src_geotiff "{}"'.format(self.values['trg_fnam'])
         command += ' --dst_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
-        sys.stderr.write('\nRebin target\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Rebin target >>>')
 
         # Crop reference
         ds = gdal.Open(self.values['ref_fnam'])
@@ -109,16 +105,9 @@ class Geocor(Process):
         command += ' -tr {} {}'.format(self.values['ref_pixel'],self.values['ref_pixel'])
         command += ' "{}"'.format(self.values['ref_fnam'])
         command += ' "{}"'.format(os.path.join(wrk_dir,'{}_{}_resized.tif'.format(ref_bnam,trg_bnam)))
-        sys.stderr.write('\nCrop reference\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Crop reference >>>')
 
-        # Make dist mask
-        sys.stderr.write('\nMake dist mask\n')
-        sys.stderr.flush()
-        sys.stderr.write('{}\n'.format(datetime.now()))
-        # Inside
+        # Make dist mask (Inside)
         buffer1 = -0.5*self.values['boundary_width']
         fnam1 = os.path.join(wrk_dir,'mask1.tif')
         if os.path.exists(fnam1):
@@ -130,10 +119,8 @@ class Geocor(Process):
         command += ' --dst_geotiff "{}"'.format(fnam1)
         command += ' --buffer="{:22.15e}"'.format(buffer1)
         command += ' --use_index'
-        sys.stderr.write('\nInside\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make dist mask (Inside) >>>')
+
         ds = gdal.Open(fnam1)
         mask_nx = ds.RasterXSize
         mask_ny = ds.RasterYSize
@@ -143,8 +130,8 @@ class Geocor(Process):
         mask_meta = ds.GetMetadata()
         mask1 = ds.ReadAsArray()
         ds = None
-        sys.stderr.write('{}\n'.format(datetime.now()))
-        # Outside
+
+        # Make dist mask (Outside)
         buffer2 = 0.5*self.values['boundary_width']
         fnam2 = os.path.join(wrk_dir,'mask2.tif')
         if os.path.exists(fnam2):
@@ -156,14 +143,13 @@ class Geocor(Process):
         command += ' --dst_geotiff "{}"'.format(fnam2)
         command += ' --buffer="{:22.15e}"'.format(buffer2)
         command += ' --use_index'
-        sys.stderr.write('\nOutside\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make dist mask (Outside) >>>')
+
         ds = gdal.Open(fnam2)
         mask2 = ds.ReadAsArray()
         ds = None
         sys.stderr.write('{}\n'.format(datetime.now()))
+
         # Make area mask
         buffer3 = 0.0
         fnam3 = os.path.join(wrk_dir,'mask3.tif')
@@ -176,14 +162,12 @@ class Geocor(Process):
         command += ' --dst_geotiff "{}"'.format(fnam3)
         command += ' --buffer="{:22.15e}"'.format(buffer3)
         command += ' --use_index'
-        sys.stderr.write('\nMake area map\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make area map >>>')
+
         ds = gdal.Open(fnam3)
         mask3 = ds.ReadAsArray()
         ds = None
-        sys.stderr.write('{}\n'.format(datetime.now()))
+
         # Make mask
         mask = np.full(mask_shape,fill_value=1.0,dtype=np.float32)
         cnd = (mask1 < 0.5) & (mask2 > 0.5)
@@ -276,11 +260,7 @@ class Geocor(Process):
                 command += ' --ref_data_umax {}'.format(self.values['ref_range'][1])
             #command += ' --trg_blur_sigma 1'
             command += ' --long'
-            sys.stderr.write('\nGeometric correction ({}/{})\n'.format(itry+1,len(trials)))
-            sys.stderr.write(command+'\n')
-            sys.stderr.flush()
-            call(command,shell=True)
-            sys.stderr.write('{}\n'.format(datetime.now()))
+            self.run_command(command,message='Geometric correction ({}/{})'.format(itry+1,len(trials)))
             #---------
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
             indx0 = np.arange(r.size)[(r>self.values['boundary_cmins'][1]) & (nb>nb.max()*self.values['boundary_nmin']) & (r90<self.values['boundary_rmax'])]
@@ -305,9 +285,7 @@ class Geocor(Process):
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
                     command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
-                    sys.stderr.write(command+'\n')
-                    sys.stderr.flush()
-                    call(command,shell=True)
+                    self.run_command(command,message='<<< {} order correction of resized image >>>'.format(orders[order]))
                     figure_orders.append(order)
                 # Higher order correction of resized image
                 gnam = os.path.join(wrk_dir,'{}_resized_geocor_pix2utm.dat'.format(trg_bnam))
@@ -356,9 +334,7 @@ class Geocor(Process):
                     command += ' --npoly {}'.format(order)
                     command += ' --refine_gcps 0.1'
                     command += ' --minimum_number 3'
-                    sys.stderr.write(command+'\n')
-                    sys.stderr.flush()
-                    call(command,shell=True)
+                    self.run_command(command,message='<<< {} order correction of resized image >>>'.format(orders[order]))
                     figure_orders.append(order)
                 if len(figure_orders) > 0:
                     command = self.python_path
@@ -370,7 +346,7 @@ class Geocor(Process):
                     command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'{}_resized.pdf'.format(trg_bnam)))
                     command += ' --ax1_title "{}"'.format(trg_bnam)
                     command += ' --batch'
-                    call(command,shell=True)
+                    self.run_command(command,print_command=False,print_time=False)
 
                 # 0th order correction at full resolution
                 order = 0
@@ -383,7 +359,7 @@ class Geocor(Process):
                     command += ' -a_ullr {:.4f} {:.4f} {:.4f} {:.4f}'.format(ulx,uly,lrx,lry) # <ulx> <uly> <lrx> <lry>
                     command += ' "{}"'.format(self.values['trg_fnam'])
                     command += ' "{}"'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
-                    call(command,shell=True)
+                    self.run_command(command,message='<<< {} order correction at full resolution >>>'.format(orders[order]))
                 else:
                     # Higher order correction at full resolution
                     hnam = os.path.join(wrk_dir,'{}_geocor_pix2utm.dat'.format(trg_bnam))
@@ -393,7 +369,7 @@ class Geocor(Process):
                     command += ' --dst_fnam "{}"'.format(hnam)
                     command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
                     command += ' --dst_geotiff "{}"'.format(self.values['trg_fnam'])
-                    call(command,shell=True)
+                    self.run_command(command,print_command=False,print_time=False)
                     src_xi = []
                     src_yi = []
                     src_xp = []
@@ -433,9 +409,7 @@ class Geocor(Process):
                         command += ' --npoly {}'.format(order)
                         command += ' --refine_gcps 0.1'
                         command += ' --minimum_number 3'
-                        sys.stderr.write(command+'\n')
-                        sys.stderr.flush()
-                        call(command,shell=True)
+                        self.run_command(command,message='<<< {} order correction at full resolution >>>'.format(orders[order]))
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))

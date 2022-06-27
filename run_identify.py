@@ -6,7 +6,6 @@ except Exception:
     from osgeo import gdal
 import numpy as np
 import pandas as pd
-from subprocess import call
 from proc_class import Process
 
 class Identify(Process):
@@ -44,10 +43,8 @@ class Identify(Process):
         command += ' --geocor_npoly {}'.format(orders[self.values['geocor_order']])
         command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
         command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
-        sys.stderr.write('\nRead observation data\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Read observation data >>>')
+
         df = pd.read_csv(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)),comment='#')
         df.columns = df.columns.str.strip()
         plot_bunch = df['PlotPaddy'].values
@@ -71,7 +68,8 @@ class Identify(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        self.run_command(command,message='Subset image')
+        self.run_command(command,message='<<< Subset image >>>')
+
         ds = gdal.Open(self.values['inp_fnam'])
         trans = ds.GetGeoTransform()
         ds = None
@@ -88,7 +86,6 @@ class Identify(Process):
             outer_size = inner_size+2
 
         # Calculate redness ratio/signal ratio
-        sys.stderr.write('\nCalculate redness ratio\n')
         for plot in plots:
             command = self.python_path
             command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_calc_rr.py'))
@@ -115,9 +112,7 @@ class Identify(Process):
             command += ' --remove_nan'
             command += ' --debug'
             command += ' --batch'
-            sys.stderr.write(command+'\n')
-            sys.stderr.flush()
-            call(command,shell=True)
+            self.run_command(command,message='<<< Calculate redness ratio (Plot{}) >>>'.format(plot))
 
         # Identify point
         command = self.python_path
@@ -152,10 +147,7 @@ class Identify(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nIdentify point\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Identify point >>>')
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
