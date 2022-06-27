@@ -1,7 +1,6 @@
 import os
 import sys
 import numpy as np
-from subprocess import call
 from proc_class import Process
 
 class Indices(Process):
@@ -60,10 +59,7 @@ class Indices(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nCalculate indices\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Calculate indices >>>')
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))

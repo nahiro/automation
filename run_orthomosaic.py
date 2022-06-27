@@ -2,7 +2,6 @@
 import os
 import sys
 import numpy as np
-from subprocess import call
 from proc_class import Process
 
 class Orthomosaic(Process):
@@ -77,10 +76,8 @@ class Orthomosaic(Process):
             command += ' --adaptive_fitting_align'
         if self.values['cam_flags'][1]:
             command += ' --adaptive_fitting_optimize'
-        sys.stderr.write('\nMake orthomosaic image\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make orthomosaic image >>>')
+
         if os.path.exists(tmp_fnam):
             os.remove(tmp_fnam)
 

@@ -1,6 +1,5 @@
 import os
 import sys
-from subprocess import call
 from proc_class import Process
 
 class Extract(Process):
@@ -38,10 +37,7 @@ class Extract(Process):
         command += ' --ref_fnam "{}"'.format(self.values['gps_fnam'])
         command += ' --epsg {}'.format(self.values['epsg'])
         command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
-        sys.stderr.write('\nRead observation data\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Read observation data >>>')
 
         # Extract indices
         command = self.python_path
@@ -59,10 +55,7 @@ class Extract(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nExtract indices\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Extract indices >>>')
 
         # Finish process
         sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))

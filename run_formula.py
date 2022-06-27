@@ -1,7 +1,6 @@
 import os
 import sys
 import numpy as np
-from subprocess import call
 from proc_class import Process
 
 class Formula(Process):
@@ -75,10 +74,7 @@ class Formula(Process):
         command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'pv_formula_{}.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nMake point-value formula\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make point-value formula >>>')
 
         # Make plot-mean formula
         command = self.python_path
@@ -122,10 +118,8 @@ class Formula(Process):
         command += ' --fignam "{}"'.format(os.path.join(wrk_dir,'pm_formula_{}.pdf'.format(trg_bnam)))
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nMake plot-mean formula\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make plot-mean formula >>>')
+
         if os.path.exists(tmp_fnam):
             os.remove(tmp_fnam)
 

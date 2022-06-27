@@ -4,7 +4,6 @@ try:
     import gdal
 except Exception:
     from osgeo import gdal
-from subprocess import call
 from proc_class import Process
 
 class Estimate(Process):
@@ -43,10 +42,7 @@ class Estimate(Process):
         command += ' --dst_geotiff "{}"'.format(mask_fnam)
         command += ' --buffer="{}"'.format(-abs(self.values['buffer']))
         command += ' --use_index'
-        sys.stderr.write('\nMake mask\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make mask >>>')
 
         # Make rebinned image
         img_fnam = os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam))
@@ -72,10 +68,7 @@ class Estimate(Process):
         command += ' --dst_geotiff "{}"'.format(img_fnam)
         command += ' --mask_geotiff "{}"'.format(mask_fnam)
         command += ' --rmax 0.1'
-        sys.stderr.write('\nRebin image\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Rebin image >>>')
 
         # Make parcel image
         mask_resized_fnam = os.path.join(wrk_dir,'{}_mask_resized.tif'.format(trg_bnam))
@@ -86,10 +79,7 @@ class Estimate(Process):
         command += ' --src_geotiff "{}"'.format(mask_fnam)
         command += ' --dst_geotiff "{}"'.format(mask_resized_fnam)
         command += ' --rmax 0.1'
-        sys.stderr.write('\nMake parcel image\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Make parcel image >>>')
 
         # Estimate point-value
         command = self.python_path
@@ -123,10 +113,7 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate point-value\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Estimate point-value >>>')
 
         # Estimate plot-mean
         command = self.python_path
@@ -153,10 +140,7 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate plot-mean\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Estimate plot-mean >>>')
 
         # Calculate damage intensity of plot from point-value
         command = self.python_path
@@ -188,10 +172,7 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate damage intensity of plot from point-value\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Estimate damage intensity of plot from point-value >>>')
 
         # Calculate damage intensity of plot from plot-mean
         command = self.python_path
@@ -221,10 +202,8 @@ class Estimate(Process):
         command += ' --remove_nan'
         command += ' --debug'
         command += ' --batch'
-        sys.stderr.write('\nEstimate damage intensity of plot from plot-mean\n')
-        sys.stderr.write(command+'\n')
-        sys.stderr.flush()
-        call(command,shell=True)
+        self.run_command(command,message='<<< Estimate damage intensity of plot from plot-mean >>>')
+
         if os.path.exists(mask_fnam):
             os.remove(mask_fnam)
         if os.path.exists(mask_resized_fnam):
