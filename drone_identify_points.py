@@ -483,6 +483,24 @@ for plot in plots:
             for i in range(len(xtmp_point)):
                 xctr_point[i] = xtmp_point[i]
                 yctr_point[i] = ytmp_point[i]
+    if args.assign_fnam is not None:
+        xtmp_point = xctr_point.copy()
+        ytmp_point = yctr_point.copy()
+        n = list(number_plot[plot])
+        for i in range(size_plot[plot]):
+            if n[i] in assign:
+                j = assign[n[i]]
+                if j < 0:
+                    xtmp_point[i] = np.nan
+                    ytmp_point[i] = np.nan
+                else:
+                    if not j in n:
+                        raise ValueError('Assignment error, invalid number {} for plot {}'.format(j,plot))
+                    indx = n.index(j)
+                    xtmp_point[i] = xctr_point[indx]
+                    ytmp_point[i] = yctr_point[indx]
+        xctr_point = xtmp_point
+        yctr_point = ytmp_point
     for i in range(size_plot[plot]):
         tmp_fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
