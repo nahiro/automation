@@ -76,6 +76,7 @@ proc_estimate.input_types['gis_fnam'] = 'ask_file'
 proc_estimate.input_types['buffer'] = 'box'
 proc_estimate.input_types['region_size'] = 'box'
 proc_estimate.flag_check['inp_fnam'] = False
+proc_estimate.depend_proc['inp_fnam'] = ['indices']
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
 proc_estimate.left_frame_width = 210

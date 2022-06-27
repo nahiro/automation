@@ -39,6 +39,7 @@ proc_indices.input_types['norm_bands'] = 'boolean_list'
 proc_indices.input_types['rgi_red_band'] = 'string_select'
 proc_indices.input_types['data_range'] = 'float_list'
 proc_indices.flag_check['inp_fnam'] = False
+proc_indices.depend_proc['inp_fnam'] = ['geocor']
 for pnam in proc_indices.pnams:
     proc_indices.values[pnam] = proc_indices.defaults[pnam]
 proc_indices.middle_left_frame_width = 1000

@@ -158,6 +158,7 @@ proc_formula.input_types['n_formula'] = 'box'
 #proc_formula.flag_fill['q_params'] = True
 #proc_formula.flag_fill['y_params'] = True
 proc_formula.flag_check['inp_fnams'] = False
+proc_formula.depend_proc['inp_fnams'] = ['extract']
 for pnam in proc_formula.pnams:
     proc_formula.values[pnam] = proc_formula.defaults[pnam]
 proc_formula.left_frame_width = 200
