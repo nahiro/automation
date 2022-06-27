@@ -2,6 +2,7 @@
 import os
 import sys
 import shutil
+import tempfile
 import re
 try:
     import gdal
@@ -186,11 +187,11 @@ if args.debug:
     fig = plt.figure(1,facecolor='w',figsize=(5,5))
     plt.subplots_adjust(top=0.9,bottom=0.1,left=0.05,right=0.85)
     pdf = PdfPages(args.fignam)
-with open(args.out_fnam,'w') as fp:
-    if len(comments) > 0:
-        fp.write(comments)
-    if header is not None:
-        fp.write(header.replace(easting,'EastingI').replace(northing,'NorthingI'))
+tmp_fp = tempfile.TemporaryFile(mode='w')
+if len(comments) > 0:
+    tmp_fp.write(comments)
+if header is not None:
+    tmp_fp.write(header.replace(easting,'EastingI').replace(northing,'NorthingI'))
 bnam,enam = os.path.splitext(args.src_geotiff)
 for plot in plots:
     # Read redness ratio image
@@ -440,9 +441,8 @@ for plot in plots:
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             cnd_dist = (dist < args.point_dmax)
-    with open(args.out_fnam,'a') as fp:
-        for i in range(size_plot[plot]):
-            fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
+    for i in range(size_plot[plot]):
+        tmp_fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
     if cnd_dist is None:
         cnd = cnd_sr
@@ -597,3 +597,8 @@ for plot in plots:
     #    break
 if args.debug:
     pdf.close()
+tmp_fp.seek(0)
+line = tmp_fp.read()
+with open(args.out_fnam,'w') as fp:
+    fp.write(line)
+tmp_fp.close()
