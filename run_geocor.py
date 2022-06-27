@@ -260,7 +260,7 @@ class Geocor(Process):
                 command += ' --ref_data_umax {}'.format(self.values['ref_range'][1])
             #command += ' --trg_blur_sigma 1'
             command += ' --long'
-            self.run_command(command,message='Geometric correction ({}/{})'.format(itry+1,len(trials)))
+            self.run_command(command,message='<<< Geometric correction ({}/{}) >>>'.format(itry+1,len(trials)))
             #---------
             x,y,r,ni,nb,r90 = np.loadtxt(fnam,usecols=(4,5,6,9,11,12),unpack=True)
             indx0 = np.arange(r.size)[(r>self.values['boundary_cmins'][1]) & (nb>nb.max()*self.values['boundary_nmin']) & (r90<self.values['boundary_rmax'])]
