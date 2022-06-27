@@ -24,6 +24,8 @@ proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
 proc_identify.pnams.append('data_range')
 proc_identify.pnams.append('neighbor_size')
+proc_identify.pnams.append('assign_fnam')
+proc_identify.pnams.append('ignore_error')
 proc_identify.params['inp_fnam'] = 'Image after Geom. Correction'
 proc_identify.params['gcp_fnam'] = 'GCP File (utm2utm)'
 proc_identify.params['geocor_order'] = 'Order of Geom. Correction'
@@ -44,6 +46,8 @@ proc_identify.params['rthr'] = 'Redness Ratio Threshold'
 proc_identify.params['sthr'] = 'Signal Ratio Threshold'
 proc_identify.params['data_range'] = 'DN Range'
 proc_identify.params['neighbor_size'] = 'Neighborhood Size (m)'
+proc_identify.params['assign_fnam'] = 'Assignment File'
+proc_identify.params['ignore_error'] = 'Ignore Error'
 proc_identify.param_types['inp_fnam'] = 'string'
 proc_identify.param_types['gcp_fnam'] = 'string'
 proc_identify.param_types['geocor_order'] = 'string_select'
@@ -64,6 +68,8 @@ proc_identify.param_types['rthr'] = 'float_list'
 proc_identify.param_types['sthr'] = 'float'
 proc_identify.param_types['data_range'] = 'float_list'
 proc_identify.param_types['neighbor_size'] = 'float_list'
+proc_identify.param_types['assign_fnam'] = 'string'
+proc_identify.param_types['ignore_error'] = 'boolean'
 proc_identify.param_range['i_sheet'] = (1,100)
 proc_identify.param_range['epsg'] = (1,100000)
 proc_identify.param_range['buffer'] = (0.0,10.0e3)
@@ -98,6 +104,8 @@ proc_identify.defaults['rthr'] = [0.0,1.0,0.01]
 proc_identify.defaults['sthr'] = 1.0
 proc_identify.defaults['data_range'] = [np.nan,np.nan]
 proc_identify.defaults['neighbor_size'] = [0.78,0.95]
+proc_identify.defaults['assign_fnam'] = ''
+proc_identify.defaults['ignore_error'] = False
 proc_identify.list_sizes['geocor_order'] = 4
 proc_identify.list_sizes['point_dmax'] = 2
 proc_identify.list_sizes['point_area'] = 3
@@ -134,8 +142,11 @@ proc_identify.input_types['rthr'] = 'float_list'
 proc_identify.input_types['sthr'] = 'box'
 proc_identify.input_types['data_range'] = 'float_list'
 proc_identify.input_types['neighbor_size'] = 'float_list'
+proc_identify.input_types['assign_fnam'] = 'ask_file'
+proc_identify.input_types['ignore_error'] = 'boolean'
 proc_identify.flag_check['inp_fnam'] = False
 proc_identify.flag_check['gcp_fnam'] = False
+proc_identify.flag_check['assign_fnam'] = False
 proc_identify.depend_proc['inp_fnam'] = ['geocor']
 proc_identify.depend_proc['gcp_fnam'] = ['geocor']
 for pnam in proc_identify.pnams:
