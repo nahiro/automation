@@ -269,9 +269,14 @@ for plot in plots:
     # Search points
     cnd_dist = None
     rthr = args.rthr_max
+    err = False
+    num = 0
     while True:
         if rthr < args.rthr_min:
-            raise ValueError('Error in searching point, rthr={}'.format(rthr))
+            sys.stderr.write('Warning, num={}, rthr={}\n'.format(num,rthr))
+            sys.stderr.flush()
+            err = True
+            break
         elif cnd_dist is None:
             cnd_all = cnd_sr & (rr > rthr)
         else:
@@ -441,6 +446,29 @@ for plot in plots:
         else:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             cnd_dist = (dist < args.point_dmax)
+    if err:
+        if cnd_dist is None:
+            raise ValueError('Error, cnd_dist={}'.format(cnd_dist))
+        cnd = (cnd_dist) & (~np.isnan(rr))
+        prod = (rr_xp[cnd]-xo_point)*xd_point+(rr_yp[cnd]-yo_point)*yd_point
+        pmin = np.nanmin(prod)
+        pmax = np.nanmax(prod)
+        prod = (xctr_point-xo_point)*xd_point+(yctr_point-yo_point)*yd_point
+        indx = np.argsort(prod)
+        xtmp_point = xctr_point[indx].copy()
+        ytmp_point = yctr_point[indx].copy()
+        r1 = np.square(xo_point+pmin*xd_point-xtmp_point[0])+np.square(yo_point+pmin*yd_point-ytmp_point[0])
+        r2 = np.square(xo_point+pmax*xd_point-xtmp_point[-1])+np.square(yo_point+pmax*yd_point-ytmp_point[-1])
+        xctr_point = [np.nan]*size_plot[plot]
+        yctr_point = [np.nan]*size_plot[plot]
+        if r1 < r2: # Small numbers are missing
+            for i in range(len(xtmp_point)):
+                xctr_point[len(xtmp_point)-1-i] = xtmp_point[-1-i]
+                yctr_point[len(xtmp_point)-1-i] = ytmp_point[-1-i]
+        else: # Large numbers are missing
+            for i in range(len(xtmp_point)):
+                xctr_point[i] = xtmp_point[i]
+                yctr_point[i] = ytmp_point[i]
     for i in range(size_plot[plot]):
         tmp_fp.write('{:>13s}, {:3d}, {:3d}, {:12.4f}, {:13.4f},{}\n'.format(loc_plot[plot][i],number_plot[plot][i],plot,xctr_point[i],yctr_point[i],rest_plot[plot][i]))
     rr_copy = rr.copy()
