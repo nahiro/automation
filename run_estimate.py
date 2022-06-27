@@ -210,6 +210,6 @@ class Estimate(Process):
             os.remove(mask_resized_fnam)
 
         # Finish process
-        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
+        sys.stderr.write('\nFinished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
         return

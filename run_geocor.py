@@ -412,6 +412,6 @@ class Geocor(Process):
                         self.run_command(command,message='<<< {} order correction at full resolution >>>'.format(orders[order]))
 
         # Finish process
-        sys.stderr.write('Finished process {}.\n\n'.format(self.proc_name))
+        sys.stderr.write('\nFinished process {}.\n\n'.format(self.proc_name))
         sys.stderr.flush()
         return
