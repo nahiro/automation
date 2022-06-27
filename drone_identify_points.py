@@ -59,6 +59,7 @@ parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,ma
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-g','--csv_fnam',default=CSV_FNAM,help='CSV file name (%(default)s)')
 parser.add_argument('-o','--out_fnam',default=None,help='Output file name (%(default)s)')
+parser.add_argument('-A','--assign_fnam',default=None,help='Assignment file name (%(default)s)')
 parser.add_argument('-R','--pixel_rmax',default=PIXEL_RMAX,type=float,help='Maximum pixel distance of a point in m (%(default)s)')
 parser.add_argument('-D','--point_dmax',default=POINT_DMAX,type=float,help='Maximum distance of a point from the fit line in m (%(default)s)')
 parser.add_argument('-W','--point_lwid',default=POINT_LWID,type=float,help='Maximum distance of a point from the selected line in m (%(default)s)')
@@ -98,6 +99,17 @@ if not args.criteria in CRITERIAS:
 if args.out_fnam is None:
     bnam,enam = os.path.splitext(args.csv_fnam)
     args.out_fnam = bnam+'_identify'+enam
+
+if args.assign_fnam is not None:
+    assign = {}
+    with open(args.assign_fnam,'r') as fp:
+        for line in fp:
+            item = line.split()
+            if len(item) < 2:
+                continue
+            if item[0][0] == '#':
+                continue
+            assign[int(item[0])] = int(item[1])
 
 comments = ''
 header = None
