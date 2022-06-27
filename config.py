@@ -123,7 +123,7 @@ config_defaults.update({
 'identify.epsg'                       : 32748,
 'identify.obs_fnam'                   : os.path.join(main_field_data,'observation.xls'),
 'identify.i_sheet'                    : 1,
-'identify.buffer'                     : 5.0,
+'identify.buffer'                     : 10.0,
 'identify.bunch_nmin'                 : 5,
 'identify.bunch_rmax'                 : 10.0,
 'identify.bunch_emax'                 : 2.0,
