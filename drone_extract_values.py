@@ -182,8 +182,8 @@ if len(args.src_geotiff) == 1:
             if not np.all(np.argsort(ng) == indx_member): # wrong order
                 raise ValueError('Error, plot={}, ng={} >>> {}'.format(plot,ng,args.csv_fnam))
             # Subset GeoTIFF
-            cnd1 = (all_xgrd > xg.min()-args.xmgn) & (all_xgrd < xg.max()+args.xmgn)
-            cnd2 = (all_ygrd > yg.min()-args.ymgn) & (all_ygrd < yg.max()+args.ymgn)
+            cnd1 = (all_xgrd > np.nanmin(xg)-args.xmgn) & (all_xgrd < np.nanmax(xg)+args.xmgn)
+            cnd2 = (all_ygrd > np.nanmin(yg)-args.ymgn) & (all_ygrd < np.nanmax(yg)+args.ymgn)
             src_data = all_data[:,:,cnd1][:,cnd2,:]
             src_xgrd = all_xgrd[cnd1]
             src_ygrd = all_ygrd[cnd2]
