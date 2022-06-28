@@ -245,6 +245,8 @@ for plot in plots:
     if sr is None:
         raise ValueError('Error in finding {} ({}) >>> {}'.format(args.sr_param,rr_band,onam))
     cnd_sr = (sr > args.sthr)
+    point_rmax = np.sqrt(args.point_smax/np.pi)
+    area_unit = np.abs(rr_xstp*rr_ystp)
     # Fit line
     xg_bunch = x_bunch[inside_plot[plot]]
     yg_bunch = y_bunch[inside_plot[plot]]
@@ -350,9 +352,9 @@ for plot in plots:
         num = len(number_point)
         if num < args.point_nmin:
             continue
-        area_point = np.array(number_point)*np.abs(rr_xstp*rr_ystp)
+        area_point = np.array(number_point)*area_unit
         indexes_to_be_removed = []
-        for i_point in range(len(number_point)):
+        for i_point in range(num):
             #xwid = xmax_point[i_point]-xmin_point[i_point]
             #ywid = ymax_point[i_point]-ymin_point[i_point]
             #if (xwid < args.point_smin) or (xwid > args.point_smax) or (ywid < args.point_smin) or (ywid > args.point_smax):
@@ -372,6 +374,29 @@ for plot in plots:
             continue
         xctr_point = np.array([x.mean() for x in x_point])
         yctr_point = np.array([y.mean() for y in y_point])
+        number_core = [(np.sqrt(np.square(x_point[i_point]-xctr_point[i_point])
+                               +np.square(y_point[i_point]-yctr_point[i_point])) < point_rmax).sum() for i_point in range(num)]
+        area_core = np.array(number_core)*area_unit
+        indexes_to_be_removed = []
+        for i_point in range(num):
+            if (area_core[i_point] < args.point_smin):
+                indexes_to_be_removed.append(i_point)
+        for indx in sorted(indexes_to_be_removed,reverse=True):
+            del number_point[indx]
+            del number_core[indx]
+            del xmin_point[indx]
+            del xmax_point[indx]
+            del ymin_point[indx]
+            del ymax_point[indx]
+            del x_point[indx]
+            del y_point[indx]
+            area_point = np.delete(area_point,indx)
+            area_core = np.delete(area_core,indx)
+            xctr_point = np.delete(xctr_point,indx)
+            yctr_point = np.delete(yctr_point,indx)
+        num = len(number_point)
+        if num < args.point_nmin:
+            continue
         # Select line
         indx_point = np.arange(num)
         indx_select = None
@@ -418,12 +443,13 @@ for plot in plots:
             yo_point = yf_point[-1]
             xd_point,yd_point = np.negative([xd_point,yd_point])
         indexes_to_be_removed = []
-        for i_point in range(len(number_point)):
+        for i_point in range(num):
             dist = np.abs(coef[0]*xctr_point[i_point]-yctr_point[i_point]+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             if dist > args.point_dmax:
                 indexes_to_be_removed.append(i_point)
         for indx in sorted(indexes_to_be_removed,reverse=True):
             del number_point[indx]
+            del number_core[indx]
             del xmin_point[indx]
             del xmax_point[indx]
             del ymin_point[indx]
@@ -431,6 +457,7 @@ for plot in plots:
             del x_point[indx]
             del y_point[indx]
             area_point = np.delete(area_point,indx)
+            area_core = np.delete(area_core,indx)
             xctr_point = np.delete(xctr_point,indx)
             yctr_point = np.delete(yctr_point,indx)
         num = len(number_point)
@@ -448,6 +475,7 @@ for plot in plots:
                     raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
                 for indx in sorted(indexes_to_be_removed,reverse=True):
                     del number_point[indx]
+                    del number_core[indx]
                     del xmin_point[indx]
                     del xmax_point[indx]
                     del ymin_point[indx]
@@ -455,6 +483,7 @@ for plot in plots:
                     del x_point[indx]
                     del y_point[indx]
                     area_point = np.delete(area_point,indx)
+                    area_core = np.delete(area_core,indx)
                     xctr_point = np.delete(xctr_point,indx)
                     yctr_point = np.delete(yctr_point,indx)
             prod = (xctr_point-xo_point)*xd_point+(yctr_point-yo_point)*yd_point
