@@ -288,7 +288,7 @@ for plot in plots:
     ysav_point = []
     while True:
         if rthr < args.rthr_min:
-            sys.stderr.write('Warning, rthr={}\n'.format(rthr))
+            sys.stderr.write('Warning, rthr={} (Plot{})\n'.format(rthr,plot))
             sys.stderr.flush()
             err = True
             err_list.append(plot)
@@ -434,7 +434,7 @@ for plot in plots:
             xctr_point = np.delete(xctr_point,indx)
             yctr_point = np.delete(yctr_point,indx)
         num = len(number_point)
-        if len(xctr_point) > len(xsav_point):
+        if len(xctr_point) >= len(xsav_point):
             xsav_point = xctr_point.copy()
             ysav_point = yctr_point.copy()
         if num >= size_plot[plot]:
