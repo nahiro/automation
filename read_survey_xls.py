@@ -500,7 +500,7 @@ if args.ref_fnam is not None:
     df.columns = df.columns.str.strip()
     if not 'EastingI' in df.columns or not 'NorthingI' in df.columns:
         raise ValueError('Error, identified coordinates not found >>> {}'.format(args.ref_fnam))
-    loc_ref = df['Location'].str.strip().str.lower().values
+    loc_ref = df['Location'].astype(str).str.strip().str.lower().values
     number_ref = df['BunchNumber'].values
     plot_ref = df['PlotPaddy'].values
     x_ref = df['EastingI'].astype(float).values
