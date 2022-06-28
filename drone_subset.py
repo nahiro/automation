@@ -301,6 +301,8 @@ for plot in plots:
         ax1.plot(xg,yg,'o',mfc='none',mec='k')
         ax1.plot(xf,yf,'k:')
         for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+            if np.isnan(xtmp) or np.isnan(ytmp):
+                continue
             ax1.text(xtmp,ytmp,'{}'.format(ntmp))
         if args.remove_nan:
             xp = dst_xp[flags]

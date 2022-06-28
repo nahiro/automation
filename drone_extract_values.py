@@ -55,6 +55,7 @@ parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',he
 parser.add_argument('-t','--ax1_title',default=None,help='Axis1 title for debug (%(default)s)')
 parser.add_argument('-n','--remove_nan',default=False,action='store_true',help='Remove nan for debug (%(default)s)')
 parser.add_argument('-d','--debug',default=False,action='store_true',help='Debug mode (%(default)s)')
+parser.add_argument('-v','--verbose',default=False,action='store_true',help='Verbose mode (%(default)s)')
 parser.add_argument('-b','--batch',default=False,action='store_true',help='Batch mode (%(default)s)')
 args = parser.parse_args()
 if args.src_geotiff is None:
@@ -207,8 +208,12 @@ if len(args.src_geotiff) == 1:
                     cnd2 = cnd1 & (~np.isnan(src_data[iband]))
                     dcnd = src_data[iband][cnd2]
                     if dcnd.size < 1:
-                        raise ValueError('Error, no data for Plot#{}, Bunch#{} ({}) >>> {}'.format(plot,ng[i],all_band[iband],fnam))
-                    fp.write(', {:13.6e}'.format(dcnd.mean()))
+                        if args.verbose:
+                            sys.stderr.write('Warning, no data for Plot#{}, Bunch#{} ({}) >>> {}\n'.format(plot,ng[i],all_band[iband],fnam))
+                            sys.stderr.flush()
+                        fp.write(', {:13.6e}'.format(np.nan))
+                    else:
+                        fp.write(', {:13.6e}'.format(dcnd.mean()))
                 fp.write('\n')
             # For debug
             if args.debug:
@@ -231,6 +236,8 @@ if len(args.src_geotiff) == 1:
                     else:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
                     for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+                        if np.isnan(xtmp) or np.isnan(ytmp):
+                            continue
                         ax1.text(xtmp,ytmp,'{}'.format(ntmp))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
@@ -354,6 +361,8 @@ elif len(args.src_geotiff) == len(plots):
                     else:
                         ax1.plot(xg,yg,'o',ms=10,mfc='none',mec='k')
                     for ntmp,xtmp,ytmp in zip(ng,xg,yg):
+                        if np.isnan(xtmp) or np.isnan(ytmp):
+                            continue
                         ax1.text(xtmp,ytmp,'{}'.format(ntmp))
                     divider = make_axes_locatable(ax1)
                     cax = divider.append_axes('right',size='5%',pad=0.05)
