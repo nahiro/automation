@@ -115,7 +115,7 @@ class Process:
                 fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
                       ('all files','*.*'))
             else:
-                fs = (('{}.{}'.format(bnam,enam),'*{}.*'.format(bnam,enam)),
+                fs = (('{}.{}'.format(bnam,enam),'*{}.{}'.format(bnam,enam)),
                       ('{} files'.format(bnam),'*{}.*'.format(bnam)),
                       ('{} files'.format(enam),'*.{}'.format(enam)),
                       ('all files','*.*'))
