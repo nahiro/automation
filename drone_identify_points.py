@@ -206,7 +206,7 @@ if len(comments) > 0:
 if header is not None:
     tmp_fp.write(header.replace(easting,'EastingI').replace(northing,'NorthingI'))
 bnam,enam = os.path.splitext(args.src_geotiff)
-err_flag = []
+err_list = []
 for plot in plots:
     # Read redness ratio image
     onam = bnam+'_plot{}_rr'.format(plot)+enam
@@ -284,12 +284,14 @@ for plot in plots:
     cnd_dist = None
     rthr = args.rthr_max
     err = False
+    xsav_point = []
+    ysav_point = []
     while True:
         if rthr < args.rthr_min:
             sys.stderr.write('Warning, rthr={}\n'.format(rthr))
             sys.stderr.flush()
             err = True
-            err_flag.append(plot)
+            err_list.append(plot)
             break
         elif cnd_dist is None:
             cnd_all = cnd_sr & (rr > rthr)
@@ -432,6 +434,9 @@ for plot in plots:
             xctr_point = np.delete(xctr_point,indx)
             yctr_point = np.delete(yctr_point,indx)
         num = len(number_point)
+        if len(xctr_point) > len(xsav_point):
+            xsav_point = xctr_point.copy()
+            ysav_point = yctr_point.copy()
         if num >= size_plot[plot]:
             if num > size_plot[plot]:
                 if args.criteria == 'Area':
@@ -461,16 +466,18 @@ for plot in plots:
             dist = np.abs(coef[0]*rr_xp-rr_yp+coef[1])/np.sqrt(coef[0]*coef[0]+1)
             cnd_dist = (dist < args.point_dmax)
     if err:
-        if cnd_dist is None:
-            raise ValueError('Error, cnd_dist={}'.format(cnd_dist))
+        if len(xsav_point) < 1 or cnd_dist is None:
+            raise ValueError('Error, len(xsav_point)={} cnd_dist={}'.format(len(xsav_point),cnd_dist))
         cnd = (cnd_dist) & (~np.isnan(rr))
         prod = (rr_xp[cnd]-xo_point)*xd_point+(rr_yp[cnd]-yo_point)*yd_point
         pmin = np.nanmin(prod)
         pmax = np.nanmax(prod)
-        prod = (xctr_point-xo_point)*xd_point+(yctr_point-yo_point)*yd_point
+        xsav_point = np.array(xsav_point)
+        ysav_point = np.array(ysav_point)
+        prod = (xsav_point-xo_point)*xd_point+(ysav_point-yo_point)*yd_point
         indx = np.argsort(prod)
-        xtmp_point = xctr_point[indx].copy()
-        ytmp_point = yctr_point[indx].copy()
+        xtmp_point = xsav_point[indx].copy()
+        ytmp_point = ysav_point[indx].copy()
         r1 = np.square(xo_point+pmin*xd_point-xtmp_point[0])+np.square(yo_point+pmin*yd_point-ytmp_point[0])
         r2 = np.square(xo_point+pmax*xd_point-xtmp_point[-1])+np.square(yo_point+pmax*yd_point-ytmp_point[-1])
         xctr_point = [np.nan]*size_plot[plot]
@@ -666,5 +673,5 @@ line = tmp_fp.read()
 with open(args.out_fnam,'w') as fp:
     fp.write(line)
 tmp_fp.close()
-if (len(err_flag) > 0) and (not args.ignore_error):
-    raise ValueError('Error, check the number of plot {}'.format(','.join([str(plot) for plot in err_flag])))
+if (len(err_list) > 0) and (not args.ignore_error):
+    raise ValueError('Error, check the number of plot {}'.format(','.join([str(plot) for plot in err_list])))
