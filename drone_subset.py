@@ -55,9 +55,9 @@ if args.ymgn is None:
 
 df = pd.read_csv(args.gps_fnam,comment='#')
 df.columns = df.columns.str.strip()
-number_bunch = df['BunchNumber'].values
+number_bunch = df['BunchNumber'].astype(int).values
 indx_bunch = np.arange(len(number_bunch))
-plot_bunch = df['PlotPaddy'].values
+plot_bunch = df['PlotPaddy'].astype(int).values
 if 'EastingI' in df.columns and 'NorthingI' in df.columns:
     x_bunch = df['EastingI'].astype(float).values
     y_bunch = df['NorthingI'].astype(float).values

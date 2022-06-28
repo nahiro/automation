@@ -47,7 +47,7 @@ class Identify(Process):
 
         df = pd.read_csv(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)),comment='#')
         df.columns = df.columns.str.strip()
-        plot_bunch = df['PlotPaddy'].values
+        plot_bunch = df['PlotPaddy'].astype(int).values
         plots = np.unique(plot_bunch)
 
         # Subset image
