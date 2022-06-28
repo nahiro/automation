@@ -82,7 +82,7 @@ proc_formula.param_range['n_multi'] = (1,1000)
 proc_formula.param_range['vif_max'] = (0.0,1.0e5)
 proc_formula.param_range['n_cros'] = (2,1000)
 proc_formula.param_range['n_formula'] = (1,1000)
-proc_formula.defaults['inp_fnams'] = 'input.csv'
+proc_formula.defaults['inp_fnams'] = 'extract.csv'
 proc_formula.defaults['age_range'] = [-100.0,150.0]
 proc_formula.defaults['n_x'] = [1,2]
 proc_formula.defaults['x_params'] = [False,False,False,False,False,True,True,True,True,True,True,True,False,True]
@@ -159,6 +159,7 @@ proc_formula.input_types['n_formula'] = 'box'
 #proc_formula.flag_fill['y_params'] = True
 proc_formula.flag_check['inp_fnams'] = False
 proc_formula.depend_proc['inp_fnams'] = ['extract']
+proc_formula.expected['inp_fnams'] = 'extract.csv'
 for pnam in proc_formula.pnams:
     proc_formula.values[pnam] = proc_formula.defaults[pnam]
 proc_formula.left_frame_width = 200

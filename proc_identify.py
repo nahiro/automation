@@ -149,6 +149,9 @@ proc_identify.flag_check['gcp_fnam'] = False
 proc_identify.flag_check['assign_fnam'] = False
 proc_identify.depend_proc['inp_fnam'] = ['geocor']
 proc_identify.depend_proc['gcp_fnam'] = ['geocor']
+proc_identify.expected['inp_fnam'] = '*.tif'
+proc_identify.expected['gcp_fnam'] = 'utm2utm.dat'
+proc_identify.expected['obs_fnam'] = '*.xls'
 for pnam in proc_identify.pnams:
     proc_identify.values[pnam] = proc_identify.defaults[pnam]
 proc_identify.left_frame_width = 250

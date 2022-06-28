@@ -77,6 +77,10 @@ proc_estimate.input_types['buffer'] = 'box'
 proc_estimate.input_types['region_size'] = 'box'
 proc_estimate.flag_check['inp_fnam'] = False
 proc_estimate.depend_proc['inp_fnam'] = ['indices']
+proc_estimate.expected['inp_fnam'] = 'indices.tif'
+proc_estimate.expected['pv_fnam'] = '*.csv'
+proc_estimate.expected['pm_fnam'] = '*.csv'
+proc_estimate.expected['gis_fnam'] = '*.shp'
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
 proc_estimate.left_frame_width = 210

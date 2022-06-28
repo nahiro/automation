@@ -33,6 +33,7 @@ class Process:
         self.flag_check = {}
         self.flag_fill = {}
         self.depend_proc = {}
+        self.expected = {}
 
         self.root_width = 1000
         self.top_frame_height = 5
@@ -102,7 +103,28 @@ class Process:
                     dnam = self.inidir
             else:
                 dnam = self.inidir
-        path = tkfilebrowser.askopenfilename(initialdir=dnam)
+        if pnam in self.expected:
+            bnam,enam = os.path.splitext(self.expected[pnam])
+            enam = enam.replace('.','')
+            if bnam == '*' and enam == '*':
+                fs = None
+            elif bnam == '*':
+                fs = (('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('all files','*.*'))
+            elif enam == '*':
+                fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
+                      ('all files','*.*'))
+            else:
+                fs = (('{}.{}'.format(bnam,enam),'*{}.*'.format(bnam,enam)),
+                      ('{} files'.format(bnam),'*{}.*'.format(bnam)),
+                      ('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('all files','*.*'))
+            if fs is None:
+                path = tkfilebrowser.askopenfilename(initialdir=dnam)
+            else:
+                path = tkfilebrowser.askopenfilename(initialdir=dnam,filetypes=fs)
+        else:
+            path = tkfilebrowser.askopenfilename(initialdir=dnam)
         if len(path) > 0:
             self.center_var[pnam].set(path)
         return

@@ -170,6 +170,9 @@ proc_geocor.input_types['boundary_rmax'] = 'box'
 proc_geocor.input_types['boundary_emaxs'] = 'float_list'
 proc_geocor.flag_check['trg_fnam'] = False
 proc_geocor.depend_proc['trg_fnam'] = ['orthomosaic']
+proc_geocor.expected['gis_fnam'] = '*.shp'
+proc_geocor.expected['ref_fnam'] = '*.tif'
+proc_geocor.expected['trg_fnam'] = '*.tif'
 for pnam in proc_geocor.pnams:
     proc_geocor.values[pnam] = proc_geocor.defaults[pnam]
 proc_geocor.middle_left_frame_width = 1000
