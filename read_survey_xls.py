@@ -503,8 +503,8 @@ if args.ref_fnam is not None:
     loc_ref = df['Location'].str.strip().str.lower().values
     number_ref = df['BunchNumber'].values
     plot_ref = df['PlotPaddy'].values
-    x_ref = df['EastingI'].values
-    y_ref = df['NorthingI'].values
+    x_ref = df['EastingI'].astype(float).values
+    y_ref = df['NorthingI'].astype(float).values
     plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
     if not np.all(loc_ref == location.lower()):
         raise ValueError('Error, different Location >>> {}'.format(args.ref_fnam))
