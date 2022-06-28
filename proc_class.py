@@ -119,12 +119,12 @@ class Process:
                       ('{} files'.format(bnam),'*{}.*'.format(bnam)),
                       ('{} files'.format(enam),'*.{}'.format(enam)),
                       ('all files','*.*'))
-            if fs is None:
-                path = tkfilebrowser.askopenfilename(initialdir=dnam)
-            else:
-                path = tkfilebrowser.askopenfilename(initialdir=dnam,filetypes=fs)
         else:
+            fs = None
+        if fs is None:
             path = tkfilebrowser.askopenfilename(initialdir=dnam)
+        else:
+            path = tkfilebrowser.askopenfilename(initialdir=dnam,filetypes=fs)
         if len(path) > 0:
             self.center_var[pnam].set(path)
         return
@@ -145,7 +145,28 @@ class Process:
                     dnam = self.inidir
             else:
                 dnam = self.inidir
-        files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
+        if pnam in self.expected:
+            bnam,enam = os.path.splitext(self.expected[pnam])
+            enam = enam.replace('.','')
+            if bnam == '*' and enam == '*':
+                fs = None
+            elif bnam == '*':
+                fs = (('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('all files','*.*'))
+            elif enam == '*':
+                fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
+                      ('all files','*.*'))
+            else:
+                fs = (('{}.{}'.format(bnam,enam),'*{}.{}'.format(bnam,enam)),
+                      ('{} files'.format(bnam),'*{}.*'.format(bnam)),
+                      ('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('all files','*.*'))
+        else:
+            fs = None
+        if fs is None:
+            files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
+        else:
+            files = list(tkfilebrowser.askopenfilenames(initialdir=dnam),filetypes=fs)
         if len(files) > 0:
             lines = self.center_inp[pnam].get('1.0',tk.END)
             if (len(lines) > 1) and (lines[-2] != '\n'):
