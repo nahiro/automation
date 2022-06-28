@@ -512,10 +512,14 @@ for plot in plots:
         xctr_point = [np.nan]*size_plot[plot]
         yctr_point = [np.nan]*size_plot[plot]
         if r1 < r2: # Small numbers are missing
+            sys.stderr.write('Warning, small numbers seem to be missing (Plot{})\n'.format(plot))
+            sys.stderr.flush()
             for i in range(len(xtmp_point)):
-                xctr_point[len(xtmp_point)-1-i] = xtmp_point[-1-i]
-                yctr_point[len(xtmp_point)-1-i] = ytmp_point[-1-i]
+                xctr_point[-i-1] = xtmp_point[-i-1]
+                yctr_point[-i-1] = ytmp_point[-i-1]
         else: # Large numbers are missing
+            sys.stderr.write('Warning, large numbers seem to be missing (Plot{})\n'.format(plot))
+            sys.stderr.flush()
             for i in range(len(xtmp_point)):
                 xctr_point[i] = xtmp_point[i]
                 yctr_point[i] = ytmp_point[i]
