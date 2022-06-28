@@ -166,7 +166,7 @@ class Process:
         if fs is None:
             files = list(tkfilebrowser.askopenfilenames(initialdir=dnam))
         else:
-            files = list(tkfilebrowser.askopenfilenames(initialdir=dnam),filetypes=fs)
+            files = list(tkfilebrowser.askopenfilenames(initialdir=dnam,filetypes=fs))
         if len(files) > 0:
             lines = self.center_inp[pnam].get('1.0',tk.END)
             if (len(lines) > 1) and (lines[-2] != '\n'):
