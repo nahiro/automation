@@ -104,21 +104,35 @@ class Process:
             else:
                 dnam = self.inidir
         if pnam in self.expected:
-            bnam,enam = os.path.splitext(self.expected[pnam])
-            enam = enam.replace('.','')
-            if bnam == '*' and enam == '*':
-                fs = None
-            elif bnam == '*':
-                fs = (('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
-                      ('all files','*.*'))
-            elif enam == '*':
-                fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
-                      ('all files','*.*'))
+            if isinstance(self.expected[pnam],str):
+                es = [self.expected[pnam]]
             else:
-                fs = (('{}.{}'.format(bnam,enam),'*{}.{}|*{}.{}'.format(bnam,enam.lower(),bnam,enam.upper())),
-                      ('{} files'.format(bnam),'*{}.*'.format(bnam)),
-                      ('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
-                      ('all files','*.*'))
+                es = self.expected[pnam]
+            fs = []
+            flag_all = False
+            for e in es:
+                bnam,enam = os.path.splitext(e)
+                enam = enam.replace('.','')
+                if bnam == '*' and enam == '*':
+                    pass
+                elif bnam == '*':
+                    fs.append(('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())))
+                    flag_all = True
+                elif enam == '*':
+                    fs.append(('{} files'.format(bnam),'*{}.*'.format(bnam)))
+                    flag_all = True
+                else:
+                    fs.extend([('{}.{}'.format(bnam,enam),'*{}.{}|*{}.{}'.format(bnam,enam.lower(),bnam,enam.upper())),
+                               ('{} files'.format(bnam),'*{}.*'.format(bnam)),
+                               ('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper()))]):
+                    flag_all = True
+            if flag_all:
+                fs.append(('all files','*.*'))
+            print('HERE, pnam={}, fs={}'.format(pnam,fs))
+            if len(fs) < 1:
+                fs = None
+            else:
+                fs = tuple(fs)
         else:
             fs = None
         if fs is None:
