@@ -109,15 +109,15 @@ class Process:
             if bnam == '*' and enam == '*':
                 fs = None
             elif bnam == '*':
-                fs = (('{} files'.format(enam),'*.{}'.format(enam)),
+                fs = (('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
                       ('all files','*.*'))
             elif enam == '*':
                 fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
                       ('all files','*.*'))
             else:
-                fs = (('{}.{}'.format(bnam,enam),'*{}.{}'.format(bnam,enam)),
+                fs = (('{}.{}'.format(bnam,enam),'*{}.{}|*{}.{}'.format(bnam,enam.lower(),bnam,enam.upper())),
                       ('{} files'.format(bnam),'*{}.*'.format(bnam)),
-                      ('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
                       ('all files','*.*'))
         else:
             fs = None
@@ -151,15 +151,15 @@ class Process:
             if bnam == '*' and enam == '*':
                 fs = None
             elif bnam == '*':
-                fs = (('{} files'.format(enam),'*.{}'.format(enam)),
+                fs = (('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
                       ('all files','*.*'))
             elif enam == '*':
                 fs = (('{} files'.format(bnam),'*{}.*'.format(bnam)),
                       ('all files','*.*'))
             else:
-                fs = (('{}.{}'.format(bnam,enam),'*{}.{}'.format(bnam,enam)),
+                fs = (('{}.{}'.format(bnam,enam),'*{}.{}|*{}.{}'.format(bnam,enam.lower(),bnam,enam.upper())),
                       ('{} files'.format(bnam),'*{}.*'.format(bnam)),
-                      ('{} files'.format(enam),'*.{}'.format(enam)),
+                      ('{} files'.format(enam),'*.{}|*.{}'.format(enam.lower(),enam.upper())),
                       ('all files','*.*'))
         else:
             fs = None
