@@ -204,6 +204,12 @@ for fnam in fnams:
 X = pd.DataFrame(X)
 Y = pd.DataFrame(Y)
 P = pd.DataFrame(P)
+for param in X.columns:
+    X[param] = X[param].astype(float)
+for param in Y.columns:
+    Y[param] = Y[param].astype(float)
+for param in P.columns:
+    P[param] = P[param].astype(float)
 
 # Calculate means
 if args.use_average:
@@ -279,6 +285,8 @@ with open(args.out_fnam,'w') as fp:
     fp.write('\n')
 for y_param in args.y_param:
     cnd = np.isnan(Y_inp[y_param].values)
+    for param in args.x_param:
+        cnd |= np.isnan(X_inp[param].values)
     for param in y_threshold:
         if param in [y_param]:
             continue
