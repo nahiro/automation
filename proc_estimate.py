@@ -78,8 +78,8 @@ proc_estimate.input_types['region_size'] = 'box'
 proc_estimate.flag_check['inp_fnam'] = False
 proc_estimate.depend_proc['inp_fnam'] = ['indices']
 proc_estimate.expected['inp_fnam'] = 'indices.tif'
-proc_estimate.expected['pv_fnam'] = '*.csv'
-proc_estimate.expected['pm_fnam'] = '*.csv'
+proc_estimate.expected['pv_fnam'] = [('pv files','pv*.csv|pv*.CSV'),'*.csv']
+proc_estimate.expected['pm_fnam'] = [('pm files','pm*.csv|pv*.CSV'),'*.csv']
 proc_estimate.expected['gis_fnam'] = '*.shp'
 for pnam in proc_estimate.pnams:
     proc_estimate.values[pnam] = proc_estimate.defaults[pnam]
