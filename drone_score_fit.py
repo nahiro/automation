@@ -278,7 +278,7 @@ with open(args.out_fnam,'w') as fp:
         fp.write(',{:>13s},{:>13s},{:>13s},{:>13s},{:>13s}'.format('P{}_param'.format(n),'P{}_value'.format(n),'P{}_error'.format(n),'P{}_p'.format(n),'P{}_t'.format(n)))
     fp.write('\n')
 for y_param in args.y_param:
-    cnd = np.full((len(X_inp),),False)
+    cnd = np.isnan(Y_inp[y_param].values)
     for param in y_threshold:
         if param in [y_param]:
             continue
