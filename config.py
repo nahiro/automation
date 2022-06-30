@@ -83,7 +83,7 @@ config_defaults.update({
 'geocor.ref_margin'                   : 10.0,
 'geocor.ref_range'                    : [np.nan,np.nan],
 'geocor.trg_fnam'                     : os.path.join(main_drone_analysis,'orthomosaic','orthomosaic.tif'),
-'geocor.trg_bands'                    : [2,4],
+'geocor.trg_bands'                    : [3,5],
 'geocor.trg_ndvi'                     : True,
 'geocor.trg_binning'                  : 0.2,
 'geocor.trg_range'                    : [-10000.0,32767.0],
