@@ -109,7 +109,10 @@ if args.assign_fnam is not None:
                 continue
             if item[0][0] == '#':
                 continue
-            assign[int(item[0])] = int(item[1])
+            p_org = int(item[0])
+            p_new = int(item[1])
+            if p_new != 0:
+                assign[p_org] = p_new
 
 comments = ''
 header = None
@@ -527,18 +530,21 @@ for plot in plots:
         xtmp_point = xctr_point.copy()
         ytmp_point = yctr_point.copy()
         n = list(number_plot[plot])
-        for i in range(size_plot[plot]):
-            if n[i] in assign:
-                j = assign[n[i]]
-                if j < 0:
-                    xtmp_point[i] = np.nan
-                    ytmp_point[i] = np.nan
+        for p_org,p_new in assign.items():
+            if p_org in number_plot[plot]:
+                i_org = n.index(p_org)
+                if p_new < 0:
+                    xtmp_point[i_org] = np.nan
+                    ytmp_point[i_org] = np.nan
                 else:
-                    if not j in n:
-                        raise ValueError('Assignment error, invalid number {} for plot {}'.format(j,plot))
-                    indx = n.index(j)
-                    xtmp_point[i] = xctr_point[indx]
-                    ytmp_point[i] = yctr_point[indx]
+                    if not p_new in nunmber_plot[plot]:
+                        raise ValueError('Assignment error, invalid number {} for plot {}'.format(p_new,plot))
+                    i_new = n.index(p_new)
+                    xtmp_point[i_new] = xctr_point[i_org]
+                    ytmp_point[i_new] = yctr_point[i_org]
+                    if not p_org in assign.values():
+                        xtmp_point[i_org] = np.nan
+                        ytmp_point[i_org] = np.nan
         xctr_point = xtmp_point
         yctr_point = ytmp_point
     for i in range(size_plot[plot]):
