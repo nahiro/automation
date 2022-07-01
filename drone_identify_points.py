@@ -537,7 +537,7 @@ for plot in plots:
                     xtmp_point[i_org] = np.nan
                     ytmp_point[i_org] = np.nan
                 else:
-                    if not p_new in nunmber_plot[plot]:
+                    if not p_new in number_plot[plot]:
                         raise ValueError('Assignment error, invalid number {} for plot {}'.format(p_new,plot))
                     i_new = n.index(p_new)
                     xtmp_point[i_new] = xctr_point[i_org]
