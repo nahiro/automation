@@ -115,6 +115,17 @@ class Identify(Process):
             self.run_command(command,message='<<< Calculate redness ratio (Plot{}) >>>'.format(plot))
 
         # Identify point
+        if ((np.flatnonzero(self.values['assign_plot1']).size > 0) or
+            (np.flatnonzero(self.values['assign_plot2']).size > 0) or
+            (np.flatnonzero(self.values['assign_plot3']).size > 0)):
+            tmp_fnam = os.path.join(wrk_dir,'{}_assign.dat'.format(trg_bnam))
+            with open(tmp_fnam,'w') as fp:
+                for pnam in ['assign_plot1','assign_plot2','assign_plot3']:
+                    for p_org,p_new in zip(self.list_labels[pnam],self.values[pnam]):
+                        if p_new != 0:
+                            fp.write('{} {}\n'.format(int(p_org.replace(':','')),p_new))
+        else:
+            tmp_fnam = None
         command = self.python_path
         command += ' "{}"'.format(os.path.join(self.scr_dir,'drone_identify_points.py'))
         command += ' --src_geotiff "{}"'.format(os.path.join(wrk_dir,'{}.tif'.format(trg_bnam)))
@@ -144,8 +155,8 @@ class Identify(Process):
         command += ' --ax1_zmin 0.0'
         command += ' --ax1_zmax 0.3'
         command += ' --ax1_zstp 0.1'
-        if os.path.exists(self.values['assign_fnam']):
-            command += ' --assign_fnam "{}"'.format(self.values['assign_fnam'])
+        if tmp_fnam is not None:
+            command += ' --assign_fnam "{}"'.format(tmp_fnam)
         if self.values['ignore_error']:
             command += ' --ignore_error'
         command += ' --remove_nan'
