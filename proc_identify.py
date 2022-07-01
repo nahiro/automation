@@ -24,7 +24,9 @@ proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
 proc_identify.pnams.append('data_range')
 proc_identify.pnams.append('neighbor_size')
-proc_identify.pnams.append('assign_fnam')
+proc_identify.pnams.append('assign_plot1')
+proc_identify.pnams.append('assign_plot2')
+proc_identify.pnams.append('assign_plot3')
 proc_identify.pnams.append('ignore_error')
 proc_identify.params['inp_fnam'] = 'Image after Geom. Correction'
 proc_identify.params['gcp_fnam'] = 'GCP File (utm2utm)'
@@ -46,7 +48,9 @@ proc_identify.params['rthr'] = 'Redness Ratio Threshold'
 proc_identify.params['sthr'] = 'Signal Ratio Threshold'
 proc_identify.params['data_range'] = 'DN Range'
 proc_identify.params['neighbor_size'] = 'Neighborhood Size (m)'
-proc_identify.params['assign_fnam'] = 'Assignment File'
+proc_identify.params['assign_plot1'] = 'Assignment for Plot1'
+proc_identify.params['assign_plot2'] = 'Assignment for Plot2'
+proc_identify.params['assign_plot3'] = 'Assignment for Plot3'
 proc_identify.params['ignore_error'] = 'Ignore Error'
 proc_identify.param_types['inp_fnam'] = 'string'
 proc_identify.param_types['gcp_fnam'] = 'string'
@@ -68,7 +72,9 @@ proc_identify.param_types['rthr'] = 'float_list'
 proc_identify.param_types['sthr'] = 'float'
 proc_identify.param_types['data_range'] = 'float_list'
 proc_identify.param_types['neighbor_size'] = 'float_list'
-proc_identify.param_types['assign_fnam'] = 'string'
+proc_identify.param_types['assign_plot1'] = 'int_list'
+proc_identify.param_types['assign_plot2'] = 'int_list'
+proc_identify.param_types['assign_plot3'] = 'int_list'
 proc_identify.param_types['ignore_error'] = 'boolean'
 proc_identify.param_range['i_sheet'] = (1,100)
 proc_identify.param_range['epsg'] = (1,100000)
@@ -84,6 +90,9 @@ proc_identify.param_range['rthr'] = (-1.0e50,1.0e50)
 proc_identify.param_range['sthr'] = (-1.0e50,1.0e50)
 proc_identify.param_range['data_range'] = (-1.0e50,1.0e50)
 proc_identify.param_range['neighbor_size'] = (0.0,1.0e50)
+proc_identify.param_range['assign_plot1'] = (-1,30)
+proc_identify.param_range['assign_plot2'] = (-1,30)
+proc_identify.param_range['assign_plot3'] = (-1,30)
 proc_identify.defaults['inp_fnam'] = 'input.tif'
 proc_identify.defaults['gcp_fnam'] = 'gcp.dat'
 proc_identify.defaults['geocor_order'] = '2nd'
@@ -104,7 +113,9 @@ proc_identify.defaults['rthr'] = [0.0,1.0,0.01]
 proc_identify.defaults['sthr'] = 1.0
 proc_identify.defaults['data_range'] = [np.nan,np.nan]
 proc_identify.defaults['neighbor_size'] = [0.78,0.95]
-proc_identify.defaults['assign_fnam'] = ''
+proc_identify.defaults['assign_plot1'] = [0,0,0,0,0,0,0,0,0,0]
+proc_identify.defaults['assign_plot2'] = [0,0,0,0,0,0,0,0,0,0]
+proc_identify.defaults['assign_plot3'] = [0,0,0,0,0,0,0,0,0,0]
 proc_identify.defaults['ignore_error'] = False
 proc_identify.list_sizes['geocor_order'] = 4
 proc_identify.list_sizes['point_dmax'] = 2
@@ -114,6 +125,9 @@ proc_identify.list_sizes['rr_param'] = 2
 proc_identify.list_sizes['rthr'] = 3
 proc_identify.list_sizes['data_range'] = 2
 proc_identify.list_sizes['neighbor_size'] = 2
+proc_identify.list_sizes['assign_plot1'] = 10
+proc_identify.list_sizes['assign_plot2'] = 10
+proc_identify.list_sizes['assign_plot3'] = 10
 proc_identify.list_labels['geocor_order'] = ['0th','1st','2nd','3rd']
 proc_identify.list_labels['point_dmax'] = ['Fit :',' Select :']
 proc_identify.list_labels['point_area'] = ['Min :',' Max :',' Avg :']
@@ -122,6 +136,9 @@ proc_identify.list_labels['rr_param'] = [('Redness :',['Grg','Lrg','Lb','Lg','Lr
 proc_identify.list_labels['rthr'] = ['Min :',' Max :',' Step :']
 proc_identify.list_labels['data_range'] = ['Min :',' Max :']
 proc_identify.list_labels['neighbor_size'] = ['Inner :',' Outer :']
+proc_identify.list_labels['assign_plot1'] = ['  1 :','   2 :','   3 :','   4 :','   5 :','   6 :','   7 :','   8 :','   9 :',' 10 :']
+proc_identify.list_labels['assign_plot2'] = ['11 :',' 12 :',' 13 :',' 14 :',' 15 :',' 16 :',' 17 :',' 18 :',' 19 :',' 20 :']
+proc_identify.list_labels['assign_plot3'] = ['21 :',' 22 :',' 23 :',' 24 :',' 25 :',' 26 :',' 27 :',' 28 :',' 29 :',' 30 :']
 proc_identify.input_types['inp_fnam'] = 'ask_file'
 proc_identify.input_types['gcp_fnam'] = 'ask_file'
 proc_identify.input_types['geocor_order'] = 'string_select'
@@ -142,11 +159,12 @@ proc_identify.input_types['rthr'] = 'float_list'
 proc_identify.input_types['sthr'] = 'box'
 proc_identify.input_types['data_range'] = 'float_list'
 proc_identify.input_types['neighbor_size'] = 'float_list'
-proc_identify.input_types['assign_fnam'] = 'ask_file'
+proc_identify.input_types['assign_plot1'] = 'int_list'
+proc_identify.input_types['assign_plot2'] = 'int_list'
+proc_identify.input_types['assign_plot3'] = 'int_list'
 proc_identify.input_types['ignore_error'] = 'boolean'
 proc_identify.flag_check['inp_fnam'] = False
 proc_identify.flag_check['gcp_fnam'] = False
-proc_identify.flag_check['assign_fnam'] = False
 proc_identify.depend_proc['inp_fnam'] = ['geocor']
 proc_identify.depend_proc['gcp_fnam'] = ['geocor']
 proc_identify.expected['inp_fnam'] = '*.tif'
