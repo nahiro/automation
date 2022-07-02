@@ -18,13 +18,13 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Default values
 BUFFER = -1.5 # m
-NODATA_VALUE = -1.0
+NODATA_VALUE = -1
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
 parser.add_argument('-s','--shp_fnam',default=None,help='Shape file name (%(default)s)')
 parser.add_argument('-b','--buffer',default=BUFFER,type=float,help='Buffer distance (%(default)s)')
-parser.add_argument('-n','--nodata_value',default=NODATA_VALUE,type=float,help='No-data value (%(default)s)')
+parser.add_argument('-n','--nodata_value',default=NODATA_VALUE,type=int,help='No-data value (%(default)s)')
 parser.add_argument('-I','--src_geotiff',default=None,help='Source GeoTIFF name (%(default)s)')
 parser.add_argument('-O','--dst_geotiff',default=None,help='Destination GeoTIFF name (%(default)s)')
 parser.add_argument('--use_index',default=False,action='store_true',help='Use index instead of OBJECTID (%(default)s)')
@@ -68,7 +68,7 @@ dst_shape = (dst_ny,dst_nx)
 dst_prj = src_prj
 dst_trans = src_trans
 dst_meta = src_meta
-dst_data = np.full(dst_shape,args.nodata_value)
+dst_data = np.full(dst_shape,fill_value=args.nodata_value,dtype=np.int32)
 dst_band = 'mask'
 dst_nodata = args.nodata_value
 
@@ -100,18 +100,18 @@ for ii,shaperec in enumerate(r.iterShapeRecords()):
     dst_data[flags] = object_id
 
 if args.select_inside:
-    mask = np.full(dst_shape,fill_value=1.0,dtype=np.float32)
+    mask = np.full(dst_shape,fill_value=1,dtype=np.int32)
     cnd = (dst_data < 0.5)
     mask[cnd] = dst_nodata
     dst_data = mask
 elif args.select_outside:
-    mask = np.full(dst_shape,fill_value=1.0,dtype=np.float32)
+    mask = np.full(dst_shape,fill_value=1,dtype=np.int32)
     cnd = (dst_data > -0.5)
     mask[cnd] = dst_nodata
     dst_data = mask
 
 drv = gdal.GetDriverByName('GTiff')
-ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Float32)
+ds = drv.Create(args.dst_geotiff,dst_nx,dst_ny,dst_nb,gdal.GDT_Int32)
 ds.SetProjection(dst_prj)
 ds.SetGeoTransform(dst_trans)
 ds.SetMetadata(dst_meta)
