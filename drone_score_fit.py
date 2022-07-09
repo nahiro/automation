@@ -307,10 +307,10 @@ for y_param in args.y_param:
         for param in args.x_param:
             if y_param in y_max:
                 fact = y_max[y_param]
-                y_label = 'True {} Score'.format(y_param)
+                y_label = 'Observed {} Score'.format(y_param)
             else:
                 fact = 100.0
-                y_label = 'True {} Intensity (%)'.format(y_param)
+                y_label = 'Observed {} Intensity (%)'.format(y_param)
             fig.clear()
             ax1 = plt.subplot(111)
             ax1.minorticks_on()
@@ -456,7 +456,7 @@ for y_param in args.y_param:
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
-                    x_label = 'True {} Score'.format(y_param)
+                    x_label = 'Observed {} Score'.format(y_param)
                     y_label = 'Pred {} Score'.format(y_param)
                 else:
                     xtmp = Y*100.0
@@ -467,7 +467,7 @@ for y_param in args.y_param:
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
-                    x_label = 'True {} Intensity (%)'.format(y_param)
+                    x_label = 'Observed {} Intensity (%)'.format(y_param)
                     y_label = 'Pred {} Intensity (%)'.format(y_param)
                 ax1.set_xlim(xmin,xmax)
                 ax1.set_ylim(xmin,xmax)
