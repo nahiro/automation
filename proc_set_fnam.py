@@ -1,4 +1,5 @@
 import os
+import shutil
 import re
 from datetime import datetime
 
@@ -36,5 +37,10 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
             obs_dstr = obs_date.strftime(date_fmt)
             if obs_dstr == dstr:
                 fnam = os.path.join(field_dir,f)
-                print(fnam)
+                dnam = os.path.dirname(obs_fnam)
+                if not os.path.exists(dnam):
+                    os.makedirs(dnam)
+                if not os.path.exists(dnam):
+                    raise IOError('Error, no such folder >>> {}'.format(dnam))
+                shutil.move(fnam,obs_fnam)
                 return 1
