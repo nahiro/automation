@@ -16,18 +16,18 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
         obs_date = None
         try:
             # pattern 1: day[. ,-]month[. ,-]year[. ,-]block.xls
-            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)\.xls',f.lower())
+            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)\.XLS',f.upper())
             if m:
                 day = int(m.group(1))
                 month = int(m.group(2))
                 year = int(m.group(3))
-                obs_block = m.group(4).strip().replace(' ','').upper()
+                obs_block = m.group(4).strip().replace(' ','')
                 obs_date = datetime(year,month,day)
             else:
                 # pattern 2: cihea - block (yyyymmdd).xls
-                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*\.xls',f.lower())
+                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*\.XLS',f.upper())
                 if m:
-                    obs_block = m.group(1).strip().replace(' ','').upper()
+                    obs_block = m.group(1).strip().replace(' ','')
                     obs_date = datetime.strptime(m.group(2),'%Y%m%d')
         except Exception:
             continue
@@ -61,18 +61,18 @@ def set_drone_dnam(block,dstr,drone_dir,date_format='yyyy-mm&mmm-dd'):
         obs_date = None
         try:
             # pattern 1: day[. ,-]month[. ,-]year[. ,-]block
-            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)$',d.lower())
+            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)$',d.upper())
             if m:
                 day = int(m.group(1))
                 month = int(m.group(2))
                 year = int(m.group(3))
-                obs_block = m.group(4).strip().replace(' ','').upper()
+                obs_block = m.group(4).strip().replace(' ','')
                 obs_date = datetime(year,month,day)
             else:
                 # pattern 2: cihea - block (yyyymmdd)
-                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*$',d.lower())
+                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*$',d.upper())
                 if m:
-                    obs_block = m.group(1).strip().replace(' ','').upper()
+                    obs_block = m.group(1).strip().replace(' ','')
                     obs_date = datetime.strptime(m.group(2),'%Y%m%d')
         except Exception:
             continue
