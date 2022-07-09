@@ -20,6 +20,8 @@ def set_title(pnam):
         modules[proc].field_data = field_dir
         modules[proc].drone_data =  drone_dir
         modules[proc].drone_analysis = analysis_dir
+    # set observation data
+    set_obs_fnam(block,dstr,field_dir,date_format=date_format)
     # orthomosaic
     proc_pnam = 'inpdirs'
     dnam = os.path.join(drone_dir,block,dstr)
