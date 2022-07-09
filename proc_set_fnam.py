@@ -2,11 +2,11 @@ import os
 import re
 from datetime import datetime
 
-def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd')
+def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
     obs_fnam = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
     if os.path.exists(obs_fnam):
         return 0
-    elif not os.path.isdir(firld_dir):
+    elif not os.path.isdir(field_dir):
         return -1
     date_fmt = date_format.replace('yyyy','%Y').replace('yy','%y').replace('mmm','%b').replace('mm','%m').replace('dd','%d').replace('&','')
     dtim = datetime.strptime(dstr,date_fmt)
@@ -35,6 +35,6 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd')
         if (obs_block == block) or ('Block-'+obs_block == block):
             obs_dstr = obs_date.strftime(date_fmt)
             if obs_dstr == dstr:
-                fnam = os.path.join(field_data,f)
+                fnam = os.path.join(field_dir,f)
                 print(fnam)
                 return 1

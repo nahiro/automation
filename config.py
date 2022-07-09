@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import configparser
+from proc_set_fnam import set_obs_fnam
 from proc_orthomosaic import proc_orthomosaic
 from proc_geocor import proc_geocor
 from proc_indices import proc_indices
