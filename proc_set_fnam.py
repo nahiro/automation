@@ -15,8 +15,8 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
         obs_block = None
         obs_date = None
         try:
-            # pattern 1: day[. ,-]month[. ,-]year[. ,-]block.xls
-            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)\.XLS',f.upper())
+            # pattern 1: day[. ,-_]month[. ,-_]year[. ,-_]block.xls
+            m = re.search('^(\d+)[\s\.\-,_]+(\d+)[\s\.\-,_]+(\d+)[\s\.\-,_]+(\S.*)\.XLS',f.upper())
             if m:
                 day = int(m.group(1))
                 month = int(m.group(2))
@@ -60,8 +60,8 @@ def set_drone_dnam(block,dstr,drone_dir,date_format='yyyy-mm&mmm-dd'):
         obs_block = None
         obs_date = None
         try:
-            # pattern 1: day[. ,-]month[. ,-]year[. ,-]block
-            m = re.search('^(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\d+)[\s\.\-,]+(\S.*)$',d.upper())
+            # pattern 1: day[. ,-_]month[. ,-_]year[. ,-_]block
+            m = re.search('^(\d+)[\s\.\-,_]+(\d+)[\s\.\-,_]+(\d+)[\s\.\-,_]+(\S.*)$',d.upper())
             if m:
                 day = int(m.group(1))
                 month = int(m.group(2))
