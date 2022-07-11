@@ -21,6 +21,8 @@ Y_PARAM = ['BLB']
 Y_NUMBER = [1]
 SMAX = [9]
 SINT = [2]
+AX1_VMIN = 0.0
+AX1_VMAX = 1.0
 
 # Read options
 parser = ArgumentParser(formatter_class=lambda prog:RawTextHelpFormatter(prog,max_help_position=200,width=200))
@@ -32,6 +34,8 @@ parser.add_argument('--y_number',default=None,type=int,action='append',help='For
 parser.add_argument('-M','--smax',default=None,type=int,action='append',help='Max score ({})'.format(SMAX))
 parser.add_argument('-S','--sint',default=None,type=int,action='append',help='Sampling interval for digitizing score ({})'.format(SINT))
 parser.add_argument('-F','--fignam',default=None,help='Output figure name for debug (%(default)s)')
+parser.add_argument('--ax1_vmin',default=AX1_VMIN,type=float,action='append',help='Axis1 V min for debug (%(default)s)')
+parser.add_argument('--ax1_vmax',default=AX1_VMAX,type=float,action='append',help='Axis1 V max for debug (%(default)s)')
 parser.add_argument('-z','--ax1_zmin',default=None,type=float,action='append',help='Axis1 Z min for debug (%(default)s)')
 parser.add_argument('-Z','--ax1_zmax',default=None,type=float,action='append',help='Axis1 Z max for debug (%(default)s)')
 parser.add_argument('-s','--ax1_zstp',default=None,type=float,action='append',help='Axis1 Z stp for debug (%(default)s)')
@@ -238,7 +242,13 @@ if args.debug:
         elif args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
             im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
         else:
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),cmap=cm.jet,interpolation='none')
+            if smax[param] == 1:
+                zmin = max(np.nanmin(data),args.ax1_vmin*100.0)
+                zmax = min(np.nanmax(data),args.ax1_vmax*100.0)
+            else:
+                zmin = max(np.nanmin(data),args.ax1_vmin*smax[param])
+                zmax = min(np.nanmax(data),args.ax1_vmax*smax[param])
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
         if args.ax1_zstp is not None and not np.isnan(ax1_zstp[param]):
