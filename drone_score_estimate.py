@@ -236,11 +236,23 @@ if args.debug:
         ax1.set_xticks([])
         ax1.set_yticks([])
         if args.ax1_zmin is not None and args.ax1_zmax is not None and not np.isnan(ax1_zmin[param]) and not np.isnan(ax1_zmax[param]):
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            zmin = ax1_zmin[param]
+            zmax = ax1_zmax[param]
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
         elif args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
+            zmin = ax1_zmin[param]
+            if smax[param] == 1:
+                zmax = min(np.nanmax(data),args.ax1_vmax*100.0)
+            else:
+                zmax = min(np.nanmax(data),args.ax1_vmax*smax[param])
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
         elif args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
-            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+            if smax[param] == 1:
+                zmin = max(np.nanmin(data),args.ax1_vmin*100.0)
+            else:
+                zmin = max(np.nanmin(data),args.ax1_vmin*smax[param])
+            zmax = ax1_zmax[param]
+            im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
         else:
             if smax[param] == 1:
                 zmin = max(np.nanmin(data),args.ax1_vmin*100.0)

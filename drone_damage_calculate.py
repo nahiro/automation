@@ -244,11 +244,17 @@ if args.debug:
             im = ax1.imshow(np.arange(4).reshape(2,2),extent=(-2,-1,-2,-1),vmin=zmin,vmax=zmax,cmap=cm.jet)
         else:
             if args.ax1_zmin is not None and args.ax1_zmax is not None and not np.isnan(ax1_zmin[param]) and not np.isnan(ax1_zmax[param]):
-                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+                zmin = ax1_zmin[param]
+                zmax = ax1_zmax[param]
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             elif args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
-                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=ax1_zmin[param],cmap=cm.jet,interpolation='none')
+                zmin = ax1_zmin[param]
+                zmax = min(np.nanmax(data),args.ax1_vmax)
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             elif args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
-                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmax=ax1_zmax[param],cmap=cm.jet,interpolation='none')
+                zmin = max(np.nanmin(data),args.ax1_vmin)
+                zmax = ax1_zmax[param]
+                im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             else:
                 zmin = max(np.nanmin(data),args.ax1_vmin)
                 zmax = min(np.nanmax(data),args.ax1_vmax)
