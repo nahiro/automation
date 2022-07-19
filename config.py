@@ -259,7 +259,7 @@ for proc in pnams:
             else:
                 modules[proc].values[pnam] = os.path.normpath(fnam)
         elif modules[proc].input_types[pnam] in ['ask_files','ask_folders']:
-            lines = config[proc].get('{}.{}'.format(proc,pnam)).strip().replace(';','\n')
+            lines = config[proc].get('{}.{}'.format(proc,pnam)).replace(';','\n').strip()
             if len(lines) < 1:
                 modules[proc].values[pnam] = lines
             else:
