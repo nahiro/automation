@@ -91,7 +91,7 @@ for ii,shaperec in enumerate(r.iterShapeRecords()):
         continue
     flags = np.full(dst_shape,False)
     if poly_buffer.type == 'MultiPolygon':
-        for p in poly_buffer:
+        for p in poly_buffer.geoms:
             path_search = np.array(p.exterior.coords.xy).swapaxes(0,1)
             flags |= points_in_poly(src_points,path_search).reshape(dst_shape)
     else:
