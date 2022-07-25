@@ -19,7 +19,7 @@ top_dir = os.path.join(HOME,'Work')
 if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
 python_path = sys.executable
-scr_dir = os.path.join(HOME,'Script')
+scr_dir = os.path.join(HOME,'DroneTool')
 cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 main_field_data = os.path.join(top_dir,'Field_Data','Current')
 main_drone_data = os.path.join(top_dir,'Drone_Data','Current')
