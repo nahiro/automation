@@ -112,7 +112,7 @@ with open(args.datnam,'w') as fp:
         path_search = []
         if poly_buffer.type == 'MultiPolygon':
             sys.stderr.write('Warning, poly_buffer.type={} >>> FID {}, OBJECTID {}\n'.format(poly_buffer.type,ii,object_id))
-            for p in poly_buffer:
+            for p in poly_buffer.geoms:
                 p_search = np.array(p.buffer(args.radius).exterior.coords.xy).swapaxes(0,1)
                 path_search.append(p_search)
                 if len(flags) < 1:
@@ -124,7 +124,7 @@ with open(args.datnam,'w') as fp:
                     if poly_within.area <= 0.0:
                         pass
                     elif poly_within.type == 'MultiPolygon':
-                        for p2 in poly_within:
+                        for p2 in poly_within.geoms:
                             p_within = np.array(p2.exterior.coords.xy).swapaxes(0,1)
                             flags_within |= points_in_poly(data_points,p_within).reshape(data_shape)
                     else:
@@ -138,7 +138,7 @@ with open(args.datnam,'w') as fp:
                 if poly_within.area <= 0.0:
                     pass
                 elif poly_within.type == 'MultiPolygon':
-                    for p in poly_within:
+                    for p in poly_within.geoms:
                         p_within = np.array(p.exterior.coords.xy).swapaxes(0,1)
                         flags_within |= points_in_poly(data_points,p_within).reshape(data_shape)
                 else:
@@ -228,7 +228,7 @@ with open(args.datnam,'w') as fp:
                 if poly_buffer.area <= 0.0:
                     pass
                 elif poly_buffer.type == 'MultiPolygon':
-                    for p in poly_buffer:
+                    for p in poly_buffer.geoms:
                         p_buffer = Path(np.array(p.exterior.coords.xy).swapaxes(0,1))
                         patch = patches.PathPatch(p_buffer,facecolor='none',edgecolor='#888888',lw=2)
                         ax1.add_patch(patch)

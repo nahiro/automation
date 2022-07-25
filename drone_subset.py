@@ -238,7 +238,7 @@ for plot in plots:
         sys.stderr.write('Warning, poly_buffer.area={} >>> Plot# {}\n'.format(poly_buffer.area,plot))
     elif poly_buffer.type == 'MultiPolygon':
         sys.stderr.write('Warning, poly_buffer.type={} >>> Plot# {}\n'.format(poly_buffer.type,plot))
-        for p in poly_buffer:
+        for p in poly_buffer.geoms:
             p_search = Path(np.array(p.exterior.coords.xy).swapaxes(0,1))
             path_search.append(p_search)
             if len(flags) < 1:
