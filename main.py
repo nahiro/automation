@@ -9,11 +9,18 @@ from custom_calendar import CustomDateEntry
 from config import *
 
 def set_title(pnam):
-    block = top_cmb.get()
-    dstr = top_cde.get()
-    field_dir = top_var['field_data'].get()
-    drone_dir = top_var['drone_data'].get()
-    analysis_dir = top_var['drone_analysis'].get()
+    if root is None:
+        block = current_block
+        dstr = current_date
+        field_dir = field_data
+        drone_dir = drone_data
+        analysis_dir = drone_analysis
+    else:
+        block = top_cmb.get()
+        dstr = top_cde.get()
+        field_dir = top_var['field_data'].get()
+        drone_dir = top_var['drone_data'].get()
+        analysis_dir = top_var['drone_analysis'].get()
     for proc in pnams:
         modules[proc].current_block = block
         modules[proc].current_date = dstr
@@ -102,6 +109,8 @@ def set_title(pnam):
     proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
     if proc_estimate.center_var is not None:
         proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
+    if root is None:
+        return
     # change color
     root.focus_set()
     if pnam == 'date':
@@ -180,6 +189,8 @@ def exit():
     return
 
 if no_gui:
+    root = None
+    set_title(None)
     for pnam in pnams:
         if defaults[pnam]:
             modules[pnam].run()
