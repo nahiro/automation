@@ -229,11 +229,11 @@ if args.debug:
             if args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
                 zmin = ax1_zmin[param]
             else:
-                zmin = max(np.nanmin(data),args.ax1_vmin)
+                zmin = max(np.nanmin(data),args.ax1_vmin*100.0)
             if args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
                 zmax = ax1_zmax[param]
             else:
-                zmax = min(np.nanmax(data),args.ax1_vmax)
+                zmax = min(np.nanmax(data),args.ax1_vmax*100.0)
             zdif = zmax-zmin
             for iobj,shaperec in enumerate(r.iterShapeRecords()):
                 rec = shaperec.record
@@ -249,15 +249,15 @@ if args.debug:
                 im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             elif args.ax1_zmin is not None and not np.isnan(ax1_zmin[param]):
                 zmin = ax1_zmin[param]
-                zmax = min(np.nanmax(data),args.ax1_vmax)
+                zmax = min(np.nanmax(data),args.ax1_vmax*100.0)
                 im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             elif args.ax1_zmax is not None and not np.isnan(ax1_zmax[param]):
-                zmin = max(np.nanmin(data),args.ax1_vmin)
+                zmin = max(np.nanmin(data),args.ax1_vmin*100.0)
                 zmax = ax1_zmax[param]
                 im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
             else:
-                zmin = max(np.nanmin(data),args.ax1_vmin)
-                zmax = min(np.nanmax(data),args.ax1_vmax)
+                zmin = max(np.nanmin(data),args.ax1_vmin*100.0)
+                zmax = min(np.nanmax(data),args.ax1_vmax*100.0)
                 im = ax1.imshow(data,extent=(src_xmin,src_xmax,src_ymin,src_ymax),vmin=zmin,vmax=zmax,cmap=cm.jet,interpolation='none')
         divider = make_axes_locatable(ax1)
         cax = divider.append_axes('right',size='5%',pad=0.05)
