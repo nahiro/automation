@@ -9,7 +9,7 @@ from custom_calendar import CustomDateEntry
 from config import *
 
 def set_title(pnam):
-    if root is None:
+    if pnam is None:
         block = current_block
         dstr = current_date
         field_dir = field_data
@@ -109,7 +109,7 @@ def set_title(pnam):
     proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
     if proc_estimate.center_var is not None:
         proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
-    if root is None:
+    if pnam is None:
         return
     # change color
     root.focus_set()
@@ -189,7 +189,6 @@ def exit():
     return
 
 if no_gui:
-    root = None
     set_title(None)
     for pnam in pnams:
         if defaults[pnam]:
