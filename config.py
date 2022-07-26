@@ -49,6 +49,7 @@ config_defaults.update({
 'main.extract'                        : False,
 'main.formula'                        : False,
 'main.estimate'                       : True,
+'main.no_gui'                         : False,
 'main.window_width'                   : 600,
 'main.top_frame_height'               : 120,
 'main.left_frame_width'               : 30,
@@ -226,6 +227,7 @@ field_data = os.path.normpath(config['main'].get('main.field_data'))
 drone_data = os.path.normpath( config['main'].get('main.drone_data'))
 drone_analysis = os.path.normpath(config['main'].get('main.drone_analysis'))
 browse_image = os.path.normpath(config['main'].get('main.browse_image'))
+no_gui = config['main'].getboolean('main.no_gui')
 window_width = config['main'].getint('main.window_width')
 top_frame_height = config['main'].getint('main.top_frame_height')
 left_frame_width = config['main'].getint('main.left_frame_width')

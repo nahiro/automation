@@ -179,6 +179,11 @@ def exit():
     sys.exit()
     return
 
+if no_gui:
+    for pnam in pnams:
+        if defaults[pnam]:
+            modules[pnam].run()
+    exit()
 root = tk.Tk()
 root.title('BLB Damage Estimation - Drone version')
 root.geometry('{}x{}'.format(window_width,60+40*2+30*len(pnams)))
