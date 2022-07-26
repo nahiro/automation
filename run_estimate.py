@@ -26,8 +26,8 @@ class Estimate(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['pv_fnam']))
         if not os.path.exists(self.values['pm_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['pm_fnam']))
-        trg_bnam = '{}_{}'.format(self.current_block,self.current_date)
-        wrk_dir = os.path.join(self.drone_analysis,self.current_block,self.current_date,self.proc_name)
+        trg_bnam = '{}_{}'.format(self.obs_block,self.obs_date)
+        wrk_dir = os.path.join(self.drone_analysis,self.obs_block,self.obs_date,self.proc_name)
         if not os.path.exists(wrk_dir):
             os.makedirs(wrk_dir)
         if not os.path.isdir(wrk_dir):

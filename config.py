@@ -36,8 +36,8 @@ config_defaults.update({
 #----------- main -----------
 'main.blocks'                         : ['1A','1B','2A','2B','3A','3B','4A','4B','5','6','7A','7B','8A','8B','9A','9B','10A','10B','11A','11B','12','13','14A','14B','15'],
 'main.date_format'                    : 'yyyy-mm&mmm-dd',
-'main.current_block'                  : '',
-'main.current_date'                   : '',
+'main.obs_block'                      : '',
+'main.obs_date'                       : '',
 'main.field_data'                     : main_field_data,
 'main.drone_data'                     : main_drone_data,
 'main.drone_analysis'                 : main_drone_analysis,
@@ -221,8 +221,8 @@ if not 'main' in config:
     config['main'] = {}
 blocks = eval(config['main'].get('main.blocks'))
 date_format = config['main'].get('main.date_format')
-current_block = config['main'].get('main.current_block')
-current_date = config['main'].get('main.current_date')
+obs_block = config['main'].get('main.obs_block')
+obs_date = config['main'].get('main.obs_date')
 field_data = os.path.normpath(config['main'].get('main.field_data'))
 drone_data = os.path.normpath( config['main'].get('main.drone_data'))
 drone_analysis = os.path.normpath(config['main'].get('main.drone_analysis'))
@@ -285,8 +285,8 @@ for proc in pnams:
             modules[proc].values[pnam] = eval(config[proc].get('{}.{}'.format(proc,pnam)))
     modules[proc].python_path = config[proc].get('{}.python_path'.format(proc))
     modules[proc].scr_dir = config[proc].get('{}.scr_dir'.format(proc))
-    modules[proc].current_block = config['main'].get('main.current_block')
-    modules[proc].current_date = config['main'].get('main.current_date')
+    modules[proc].obs_block = config['main'].get('main.obs_block')
+    modules[proc].obs_date = config['main'].get('main.obs_date')
     modules[proc].field_data = os.path.normpath(config['main'].get('main.field_data'))
     modules[proc].drone_data =  os.path.normpath(config['main'].get('main.drone_data'))
     modules[proc].drone_analysis = os.path.normpath(config['main'].get('main.drone_analysis'))

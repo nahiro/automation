@@ -10,8 +10,8 @@ from config import *
 
 def set_title(pnam):
     if pnam is None:
-        block = current_block
-        dstr = current_date
+        block = obs_block
+        dstr = obs_date
         field_dir = field_data
         drone_dir = drone_data
         analysis_dir = drone_analysis
@@ -22,8 +22,8 @@ def set_title(pnam):
         drone_dir = top_var['drone_data'].get()
         analysis_dir = top_var['drone_analysis'].get()
     for proc in pnams:
-        modules[proc].current_block = block
-        modules[proc].current_date = dstr
+        modules[proc].obs_block = block
+        modules[proc].obs_date = dstr
         modules[proc].field_data = field_dir
         modules[proc].drone_data =  drone_dir
         modules[proc].drone_analysis = analysis_dir
@@ -255,16 +255,16 @@ style = ttk.Style()
 style.map('top_cmb.TCombobox',
           fieldbackground=[('!readonly','!focus','white'),('!readonly','focus','white')],
           selectbackground=[('!readonly','!focus','white'),('!readonly','focus','white')],)
-if current_block != '':
-    top_cmb.set(current_block)
+if obs_block != '':
+    top_cmb.set(obs_block)
 else:
     top_cmb.current(0)
 top_cmb.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cmb.config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
 pnam = 'date'
 top_cde = CustomDateEntry(top_center_top_frame,width=10,date_pattern=date_format,style='top_cde.DateEntry')
-if current_date != '':
-    top_cde.set_date(current_date)
+if obs_date != '':
+    top_cde.set_date(obs_date)
 top_cde.pack(ipadx=0,ipady=0,padx=(0,1),pady=(5,0),fill=tk.X,side=tk.LEFT,expand=True)
 top_cde.config(validatecommand=eval('lambda:change_color("{}")'.format(pnam)),validate='focusout')
 top_btn[pnam] = tk.Button(top_right_top_frame,text=btn_pnam.capitalize(),width=4,command=eval('lambda:set_title("{}")'.format(pnam)))
