@@ -31,7 +31,7 @@ class Orthomosaic(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Make orthomosaic image
-        tmp_fnam = os.path.join(wrk_dir,'temp.dat')
+        tmp_fnam = self.mktemp(suffix='.dat')
         with open(tmp_fnam,'w') as fp:
             fp.write('\n'.join(dnams))
         command = '"{}"'.format(self.values['metashape_path'])
@@ -77,7 +77,6 @@ class Orthomosaic(Process):
         if self.values['cam_flags'][1]:
             command += ' --adaptive_fitting_optimize'
         self.run_command(command,message='<<< Make orthomosaic image >>>')
-
         if os.path.exists(tmp_fnam):
             os.remove(tmp_fnam)
 

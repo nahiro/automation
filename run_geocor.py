@@ -324,17 +324,20 @@ class Geocor(Process):
                 for order in [1,2,3]:
                     if not self.values['resized_flags'][order]:
                         continue
+                    tmp_fnam = self.mktemp(suffix='.dat')
                     command = self.python_path
                     command += ' "{}"'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
                     command += ' "{}"'.format(os.path.join(wrk_dir,'{}_resized.tif'.format(trg_bnam)))
                     command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_resized_geocor_{}.tif'.format(trg_bnam,orders[order])))
                     command += ' --scrdir "{}"'.format(self.scr_dir)
                     command += ' --use_gcps "{}"'.format(gnam) # use
-                    command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
+                    command += ' --optfile "{}"'.format(tmp_fnam)
                     command += ' --npoly {}'.format(order)
                     command += ' --refine_gcps 0.1'
                     command += ' --minimum_number 3'
                     self.run_command(command,message='<<< {} order correction of resized image >>>'.format(orders[order]))
+                    if os.path.exists(tmp_fnam):
+                        os.remove(tmp_fnam)
                     figure_orders.append(order)
                 if len(figure_orders) > 0:
                     command = self.python_path
@@ -399,17 +402,20 @@ class Geocor(Process):
                     for order in [1,2,3]:
                         if self.values['geocor_order'] != orders[order]:
                             continue
+                        tmp_fnam = self.mktemp(suffix='.dat')
                         command = self.python_path
                         command += ' "{}"'.format(os.path.join(self.scr_dir,'auto_geocor.py'))
                         command += ' "{}"'.format(self.values['trg_fnam'])
                         command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_geocor_{}.tif'.format(trg_bnam,orders[order])))
                         command += ' --scrdir "{}"'.format(self.scr_dir)
                         command += ' --use_gcps "{}"'.format(hnam) # use
-                        command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
+                        command += ' --optfile "{}"'.format(tmp_fnam)
                         command += ' --npoly {}'.format(order)
                         command += ' --refine_gcps 0.1'
                         command += ' --minimum_number 3'
                         self.run_command(command,message='<<< {} order correction at full resolution >>>'.format(orders[order]))
+                        if os.path.exists(tmp_fnam):
+                            os.remove(tmp_fnam)
 
         # Finish process
         sys.stderr.write('\nFinished process {}.\n\n'.format(self.proc_name))

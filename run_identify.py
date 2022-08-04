@@ -34,6 +34,7 @@ class Identify(Process):
 
         # Read data
         orders = {'0th':0,'1st':1,'2nd':2,'3rd':3}
+        tmp_fnam = self.mktemp(suffix='.dat')
         command = self.python_path
         command += ' "{}"'.format(os.path.join(self.scr_dir,'read_survey_xls.py'))
         command += ' --inp_fnam "{}"'.format(self.values['obs_fnam'])
@@ -41,9 +42,11 @@ class Identify(Process):
         command += ' --sheet {}'.format(self.values['i_sheet'])
         command += ' --epsg {}'.format(self.values['epsg'])
         command += ' --geocor_npoly {}'.format(orders[self.values['geocor_order']])
-        command += ' --optfile "{}"'.format(os.path.join(wrk_dir,'temp.dat'))
+        command += ' --optfile "{}"'.format(tmp_fnam)
         command += ' --out_fnam "{}"'.format(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)))
         self.run_command(command,message='<<< Read observation data >>>')
+        if os.path.exists(tmp_fnam):
+            os.remove(tmp_fnam)
 
         df = pd.read_csv(os.path.join(wrk_dir,'{}_observation.csv'.format(trg_bnam)),comment='#')
         df.columns = df.columns.str.strip()

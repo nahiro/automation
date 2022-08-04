@@ -30,7 +30,7 @@ class Formula(Process):
             raise ValueError('{}: error, no such folder >>> {}'.format(self.proc_name,wrk_dir))
 
         # Make point-value formula
-        tmp_fnam = os.path.join(wrk_dir,'temp.dat')
+        tmp_fnam = self.mktemp(suffix='.dat')
         with open(tmp_fnam,'w') as fp:
             fp.write('\n'.join(fnams))
         x_params = [(('S'+param) if param.islower() else param) for param in self.list_labels['x_params']]
@@ -119,7 +119,6 @@ class Formula(Process):
         command += ' --debug'
         command += ' --batch'
         self.run_command(command,message='<<< Make plot-mean formula >>>')
-
         if os.path.exists(tmp_fnam):
             os.remove(tmp_fnam)
 
