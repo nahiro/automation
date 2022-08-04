@@ -33,7 +33,7 @@ class Orthomosaic(Process):
         # Make orthomosaic image
         tmp_fnam = self.mktemp(suffix='.dat')
         with open(tmp_fnam,'w') as fp:
-            fp.write('\n'.join(dnams))
+            fp.write('\n'.join(dnams)+'\n')
         command = '"{}"'.format(self.values['metashape_path'])
         command += ' -r "{}"'.format(os.path.join(self.scr_dir,'make_orthomosaic.py'))
         command += ' --inp_list "{}"'.format(tmp_fnam)
