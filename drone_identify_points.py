@@ -181,7 +181,7 @@ for plot in plots:
     xg = x_bunch[indx]
     yg = y_bunch[indx]
     indx_member = np.arange(size_plot[plot])
-    if not np.all(np.argsort(number_plot[plot]) == indx_member): # wrong order
+    if not np.array_equal(np.argsort(number_plot[plot]),indx_member): # wrong order
         raise ValueError('Error, plot={}, number_plot[{}]={} >>> {}'.format(plot,plot,number_plot[plot],args.csv_fnam))
     flag = []
     for i_temp in indx_member:

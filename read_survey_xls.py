@@ -506,7 +506,7 @@ if args.ref_fnam is not None:
     x_ref = df['EastingI'].astype(float).values
     y_ref = df['NorthingI'].astype(float).values
     plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
-    if not np.all(loc_ref == location.lower()):
+    if not np.array_equal(loc_ref,location.lower()):
         raise ValueError('Error, different Location >>> {}'.format(args.ref_fnam))
     elif not np.array_equal(number_ref,number_bunch):
         raise ValueError('Error, different BunchNumber >>> {}'.format(args.ref_fnam))
