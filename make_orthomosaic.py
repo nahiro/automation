@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import Metashape
 from argparse import ArgumentParser,RawTextHelpFormatter
 
@@ -27,7 +28,8 @@ DEPTH_MAP_QUALITY = 'Medium'
 FILTER_MODE = 'Aggressive'
 EPSG = 32748 # UTM zone 48S
 PIXEL_SIZE = 0.0 # m
-SCALE_FACTOR = [1.0]
+NUMERATOR = 1.0
+DENOMINATOR = 1.0
 OUTPUT_TYPE = 'Float32'
 
 # Read options
@@ -46,6 +48,8 @@ parser.add_argument('--depth_map_quality',default=DEPTH_MAP_QUALITY,help='Depth 
 parser.add_argument('--filter_mode',default=FILTER_MODE,help='Depth map filtering mode (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,type=int,help='Output EPSG (%(default)s)')
 parser.add_argument('-s','--pixel_size',default=PIXEL_SIZE,type=float,help='Pixel size in m (%(default)s)')
+parser.add_argument('-n','--numerator',default=NUMERATOR,type=float,help='Numerator of scale factor (%(default)s)')
+parser.add_argument('-d','--denominator',default=DENOMINATOR,type=float,help='Denominator of scale factor (%(default)s)')
 parser.add_argument('-t','--output_type',default=OUTPUT_TYPE,help='Output type (%(default)s)')
 parser.add_argument('--use_panel',default=False,action='store_true',help='Use reflectance panel (%(default)s)')
 parser.add_argument('--ignore_sunsensor',default=False,action='store_true',help='Ignore sun sensor (%(default)s)')
@@ -240,8 +244,13 @@ if chunk.orthomosaic:
                            save_alpha=False)
     else:
         formula = []
-        for i in range(len(chunk.sensors)):
-            formula.append('B{}'.format(i+1))
+        scale_factor = args.numerator/args.denominator
+        if math.isclose(scale_factor,1.0):
+            for i in range(len(chunk.sensors)):
+                formula.append('B{}'.format(i+1))
+        else:
+            for i in range(len(chunk.sensors)):
+                formula.append('B{}*({})'.format(i+1,scale_factor))
         chunk.raster_transform.formula = formula
         chunk.raster_transform.calibrateRange()
         chunk.raster_transform.enabled = True
