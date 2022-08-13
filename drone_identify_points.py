@@ -231,6 +231,7 @@ for plot in plots:
             rr = band.ReadAsArray().reshape(rr_ny,rr_nx)
         elif rr_band[iband] == args.sr_param:
             sr = band.ReadAsArray().reshape(rr_ny,rr_nx)
+    rr_nodata = band.GetNoDataValue()
     rr_xmin = rr_trans[0]
     rr_xstp = rr_trans[1]
     rr_ymax = rr_trans[3]
@@ -247,7 +248,16 @@ for plot in plots:
         raise ValueError('Error in finding {} ({}) >>> {}'.format(args.rr_param,rr_band,onam))
     if sr is None:
         raise ValueError('Error in finding {} ({}) >>> {}'.format(args.sr_param,rr_band,onam))
-    cnd_sr = (sr > args.sthr)
+    if rr_nodata is not None and not np.isnan(rr_nodata):
+        cnd_nodata = (rr == rr_nodata)
+        if cnd_nodata.sum() < 1:
+            cnd_nodata = None
+        else:
+            rr[cnd_nodata] = np.nan
+            sr[cnd_nodata] = np.nan
+    else:
+        cnd_nodata = None
+    cnd_sr = (~np.isnan(sr)) & (sr > args.sthr)
     point_rmax = np.sqrt(args.point_smax/np.pi)
     area_unit = np.abs(rr_xstp*rr_ystp)
     # Fit line
