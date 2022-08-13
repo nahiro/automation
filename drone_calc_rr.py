@@ -132,6 +132,9 @@ src_ymax = src_trans[3]
 src_ystp = src_trans[5]
 src_ymin = src_ymax+src_ny*src_ystp
 ds = None
+if not np.isnan(src_nodata):
+    cnd = ((src_data == src_nodata).sum(axis=0) > 0)
+    src_data[:,cnd] = np.nan
 
 fnam = args.src_geotiff
 data_shape = (src_ny,src_nx)
