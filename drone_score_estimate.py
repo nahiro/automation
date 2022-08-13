@@ -15,6 +15,7 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 
 # Constants
 OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
+EPSILON = 1.0e-6
 
 # Default values
 Y_PARAM = ['BLB']
@@ -182,6 +183,8 @@ if args.digitize:
         for score in range(smax[y_param],0,-sint[y_param]):
             s_next = score-sint[y_param]
             s = 0.5*(score+s_next)
+            if np.abs(s) < EPSILON:
+                s = 0.0
             cnd2 = dst_data[iband] > s
             data[iband,(cnd1 & cnd2)] = score
             cnd1[cnd2] = False
