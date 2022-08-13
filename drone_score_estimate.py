@@ -181,8 +181,6 @@ if args.digitize:
         cnd1 = np.full(dst_shape,True)
         for score in range(smax[y_param],0,-sint[y_param]):
             s_next = score-sint[y_param]
-            if s_next < 0:
-                s_next = 0
             s = 0.5*(score+s_next)
             cnd2 = dst_data[iband] > s
             data[iband,(cnd1 & cnd2)] = score
