@@ -510,21 +510,43 @@ for plot in plots:
     if err:
         if len(xsav_point) < 1 or cnd_dist is None:
             raise ValueError('Error, len(xsav_point)={} cnd_dist={}'.format(len(xsav_point),cnd_dist))
-        cnd = (cnd_dist) & (~np.isnan(rr))
-        prod = (rr_xp[cnd]-xo_point)*xd_point+(rr_yp[cnd]-yo_point)*yd_point
-        pmin = np.nanmin(prod)
-        pmax = np.nanmax(prod)
-        xsav_point = np.array(xsav_point)
-        ysav_point = np.array(ysav_point)
-        prod = (xsav_point-xo_point)*xd_point+(ysav_point-yo_point)*yd_point
-        indx = np.argsort(prod)
-        xtmp_point = xsav_point[indx].copy()
-        ytmp_point = ysav_point[indx].copy()
-        r1 = np.square(xo_point+pmin*xd_point-xtmp_point[0])+np.square(yo_point+pmin*yd_point-ytmp_point[0])
-        r2 = np.square(xo_point+pmax*xd_point-xtmp_point[-1])+np.square(yo_point+pmax*yd_point-ytmp_point[-1])
+        flag_small = None
+        if cnd_nodata is not None:
+            prod = (rr_xp[cnd_nodata]-xo_point)*xd_point+(rr_yp[cnd_nodata]-yo_point)*yd_point
+            r1 = np.nanmean(prod)
+            xsav_point = np.array(xsav_point)
+            ysav_point = np.array(ysav_point)
+            prod = (xsav_point-xo_point)*xd_point+(ysav_point-yo_point)*yd_point
+            r2 = np.nanmean(prod)
+            indx = np.argsort(prod)
+            xtmp_point = xsav_point[indx].copy()
+            ytmp_point = ysav_point[indx].copy()
+            if r1 < r2:
+                flag_small = True
+            else:
+                flag_small = False
+        else:
+            cnd = (cnd_dist) & (~np.isnan(rr))
+            prod = (rr_xp[cnd]-xo_point)*xd_point+(rr_yp[cnd]-yo_point)*yd_point
+            pmin = np.nanmin(prod)
+            pmax = np.nanmax(prod)
+            xsav_point = np.array(xsav_point)
+            ysav_point = np.array(ysav_point)
+            prod = (xsav_point-xo_point)*xd_point+(ysav_point-yo_point)*yd_point
+            indx = np.argsort(prod)
+            xtmp_point = xsav_point[indx].copy()
+            ytmp_point = ysav_point[indx].copy()
+            r1 = np.square(xo_point+pmin*xd_point-xtmp_point[0])+np.square(yo_point+pmin*yd_point-ytmp_point[0])
+            r2 = np.square(xo_point+pmax*xd_point-xtmp_point[-1])+np.square(yo_point+pmax*yd_point-ytmp_point[-1])
+            if r1 < r2:
+                flag_small = True
+            else:
+                flag_small = False
         xctr_point = [np.nan]*size_plot[plot]
         yctr_point = [np.nan]*size_plot[plot]
-        if r1 < r2: # Small numbers are missing
+        if flag_small is None:
+            raise ValueError('Error, flag_small={}'.format(flag_small))
+        elif flag_small: # Small numbers are missing
             sys.stderr.write('Warning, small numbers seem to be missing (Plot{})\n'.format(plot))
             sys.stderr.flush()
             for i in range(len(xtmp_point)):
