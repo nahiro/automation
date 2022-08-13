@@ -133,8 +133,9 @@ src_ystp = src_trans[5]
 src_ymin = src_ymax+src_ny*src_ystp
 ds = None
 if not np.isnan(src_nodata):
-    cnd = ((src_data == src_nodata).sum(axis=0) > 0)
-    src_data[:,cnd] = np.nan
+    cnd_nan = (np.isnan(src_data).sum(axis=0) > 0)
+    cnd_nodata = ((src_data == src_nodata).sum(axis=0) > 0)
+    src_data[:,cnd_nodata] = np.nan
 
 fnam = args.src_geotiff
 data_shape = (src_ny,src_nx)
@@ -273,6 +274,8 @@ for param in args.param:
     else:
         rr.append((red-green)/norm)
 rr = np.array(rr)
+if not np.isnan(src_nodata):
+    rr[:,cnd_nan] = src_nodata
 
 # Write Destination GeoTIFF
 dst_nx = src_nx

@@ -248,7 +248,7 @@ for plot in plots:
     else:
         path_search = Path(np.array(poly_buffer.buffer(0.0).exterior.coords.xy).swapaxes(0,1))
         flags = path_search.contains_points(np.hstack((dst_xp.reshape(-1,1),dst_yp.reshape(-1,1))),radius=0.0).reshape(dst_shape)
-    cnd = ((dst_data == dst_nodata).sum(axis=0) > 0)
+    cnd = ((dst_data == dst_nodata).sum(axis=0) > 0) & flags 
     dst_data[:,~flags] = dst_nodata
     dst_data[:,cnd] = np.nan
     # Write GeoTIFF
