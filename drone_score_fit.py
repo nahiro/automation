@@ -420,10 +420,10 @@ for y_param in args.y_param:
     model_aic_train = []
     model_bic_train = []
     model_fs = []
-    coef_values = []
-    coef_errors = []
     coef_ps = []
     coef_ts = []
+    coef_values = []
+    coef_errors = []
     for n in range(args.nx_min,args.nx_max+1):
         for c in combinations(args.x_param,n):
             x_list = list(c)
@@ -440,7 +440,10 @@ for y_param in args.y_param:
                 for x in x_list:
                     r_list.append(np.corrcoef(X_all[x],Y)[0,1])
                 x_list = [c[indx] for indx in np.argsort(r_list)[::-1]]
-            X = sm.add_constant(X_all[x_list]) # adding a constant
+            if args.mean_fitting:
+                X = sm.add_constant(X_score[x_list]) # adding a constant
+            else:
+                X = sm.add_constant(X_all[x_list]) # adding a constant
             x_all = list(X.columns)
             if len(X) <= len(x_all):
                 raise ValueError('Error, not enough data available >>> {}'.format(len(X_all)))
@@ -451,6 +454,8 @@ for y_param in args.y_param:
             model_aic_train.append(model.aic)
             model_bic_train.append(model.bic)
             model_fs.append(model.f_pvalue)
+            coef_ps.append(model.pvalues)
+            coef_ts.append(model.tvalues)
             coef_values.append(model.params)
             rmses = []
             r2s = []
@@ -476,8 +481,6 @@ for y_param in args.y_param:
             model_rmse_test.append(np.mean(rmses))
             model_r2_test.append(np.mean(r2s))
             model_aic_test.append(np.mean(aics))
-            coef_ps.append(model.pvalues)
-            coef_ts.append(model.tvalues)
 
     # Sort formulas
     if args.criteria == 'RMSE_test':
