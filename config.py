@@ -140,6 +140,7 @@ config_defaults.update({
 'identify.sthr'                       : 1.0,
 'identify.data_range'                 : [np.nan,np.nan],
 'identify.neighbor_size'              : [0.78,0.95],
+'identify.assign_fnam'                : '',
 'identify.assign_plot1'               : [0,0,0,0,0,0,0,0,0,0],
 'identify.assign_plot2'               : [0,0,0,0,0,0,0,0,0,0],
 'identify.assign_plot3'               : [0,0,0,0,0,0,0,0,0,0],

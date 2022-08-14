@@ -24,6 +24,7 @@ proc_identify.pnams.append('rthr')
 proc_identify.pnams.append('sthr')
 proc_identify.pnams.append('data_range')
 proc_identify.pnams.append('neighbor_size')
+proc_identify.pnams.append('assign_fnam')
 proc_identify.pnams.append('assign_plot1')
 proc_identify.pnams.append('assign_plot2')
 proc_identify.pnams.append('assign_plot3')
@@ -48,6 +49,7 @@ proc_identify.params['rthr'] = 'Redness Ratio Threshold'
 proc_identify.params['sthr'] = 'Signal Ratio Threshold'
 proc_identify.params['data_range'] = 'DN Range'
 proc_identify.params['neighbor_size'] = 'Neighborhood Size (m)'
+proc_identify.params['assign_fnam'] = 'Assignment File'
 proc_identify.params['assign_plot1'] = 'Assignment for Plot1'
 proc_identify.params['assign_plot2'] = 'Assignment for Plot2'
 proc_identify.params['assign_plot3'] = 'Assignment for Plot3'
@@ -72,6 +74,7 @@ proc_identify.param_types['rthr'] = 'float_list'
 proc_identify.param_types['sthr'] = 'float'
 proc_identify.param_types['data_range'] = 'float_list'
 proc_identify.param_types['neighbor_size'] = 'float_list'
+proc_identify.param_types['assign_fnam'] = 'string'
 proc_identify.param_types['assign_plot1'] = 'int_list'
 proc_identify.param_types['assign_plot2'] = 'int_list'
 proc_identify.param_types['assign_plot3'] = 'int_list'
@@ -113,6 +116,7 @@ proc_identify.defaults['rthr'] = [0.0,1.0,0.01]
 proc_identify.defaults['sthr'] = 1.0
 proc_identify.defaults['data_range'] = [np.nan,np.nan]
 proc_identify.defaults['neighbor_size'] = [0.78,0.95]
+proc_identify.defaults['assign_fnam'] = ''
 proc_identify.defaults['assign_plot1'] = [0,0,0,0,0,0,0,0,0,0]
 proc_identify.defaults['assign_plot2'] = [0,0,0,0,0,0,0,0,0,0]
 proc_identify.defaults['assign_plot3'] = [0,0,0,0,0,0,0,0,0,0]
@@ -159,6 +163,7 @@ proc_identify.input_types['rthr'] = 'float_list'
 proc_identify.input_types['sthr'] = 'box'
 proc_identify.input_types['data_range'] = 'float_list'
 proc_identify.input_types['neighbor_size'] = 'float_list'
+proc_identify.input_types['assign_fnam'] = 'ask_file'
 proc_identify.input_types['assign_plot1'] = 'int_list'
 proc_identify.input_types['assign_plot2'] = 'int_list'
 proc_identify.input_types['assign_plot3'] = 'int_list'
