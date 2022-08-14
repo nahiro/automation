@@ -299,6 +299,8 @@ with open(args.out_fnam,'w') as fp:
     fp.write('\n')
 for y_param in args.y_param:
     cnd = np.isnan(Y_inp[y_param].values)
+    if np.all(cnd):
+        raise ValueError('Error, no data available for {}. Remove {} from objective variable.'.format(y_param,y_param))
     for param in args.x_param:
         cnd2 = np.isnan(X_inp[param].values)
         if np.all(cnd2):
