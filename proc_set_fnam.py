@@ -39,7 +39,6 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
     elif not os.path.isdir(field_dir):
         return -1
     date_fmt = date_format.replace('yyyy','%Y').replace('yy','%y').replace('mmm','%b').replace('mm','%m').replace('dd','%d').replace('&','')
-    dtim = datetime.strptime(dstr,date_fmt)
     for f in sorted(os.listdir(field_dir)):
         obs_block = None
         obs_date = None
@@ -54,7 +53,7 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
                 obs_date = datetime(year,month,day)
             else:
                 # pattern 2: cihea - block (yyyymmdd).xls, ex. CIHEA - 11 B (20220324).xls
-                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*\.XLS',f.upper())
+                m = re.search('[^\-_]+[\-_]+([^(]+)\(\s*(\d+)\s*\)\s*\.XLS',f.upper())
                 if m:
                     obs_block = m.group(1).strip().replace(' ','')
                     obs_date = datetime.strptime(m.group(2),'%Y%m%d')
@@ -95,7 +94,6 @@ def set_drone_dnam(block,dstr,drone_dir,date_format='yyyy-mm&mmm-dd'):
     elif not os.path.isdir(drone_dir):
         return -1
     date_fmt = date_format.replace('yyyy','%Y').replace('yy','%y').replace('mmm','%b').replace('mm','%m').replace('dd','%d').replace('&','')
-    dtim = datetime.strptime(dstr,date_fmt)
     for d in sorted(os.listdir(drone_dir)):
         dnam = os.path.join(drone_dir,d)
         if not os.path.isdir(dnam):
@@ -113,13 +111,13 @@ def set_drone_dnam(block,dstr,drone_dir,date_format='yyyy-mm&mmm-dd'):
                 obs_date = datetime(year,month,day)
             else:
                 # pattern 2: cihea - block (yyyymmdd), ex. CIHEA - 11 B (20220324)
-                m = re.search('[^-]+\-([^(]+)\(\s*(\d+)\s*\)\s*$',d.upper())
+                m = re.search('[^\-_]+[\-_]+([^(]+)\(\s*(\d+)\s*\)\s*$',d.upper())
                 if m:
                     obs_block = m.group(1).strip().replace(' ','')
                     obs_date = datetime.strptime(m.group(2),'%Y%m%d')
                 else:
                     # pattern 3: ex. Block-11B_2022-04Apr-04
-                    m = re.search('^(.*)[\s\.\-,_]+(\d\d\d\d)[\s\.\-,_]+(\d*)([A-Z]*)[\s\.\-,_]+(\d+)\s*$',f.upper())
+                    m = re.search('^(.*)[\s\.\-,_]+(\d\d\d\d)[\s\.\-,_]+(\d*)([A-Z]*)[\s\.\-,_]+(\d+)\s*$',d.upper())
                     if m:
                         obs_block = m.group(1).strip().replace(' ','').replace('_','-')
                         year = int(m.group(2))
@@ -128,7 +126,7 @@ def set_drone_dnam(block,dstr,drone_dir,date_format='yyyy-mm&mmm-dd'):
                         elif m.group(4) != '':
                             month = read_month(m.group(4))
                         else:
-                            raise ValueError('Error, failed in finding month >>> {}'.format(f))
+                            raise ValueError('Error, failed in finding month >>> {}'.format(d))
                         day = int(m.group(5))
                         obs_date = datetime(year,month,day)
         except Exception:
