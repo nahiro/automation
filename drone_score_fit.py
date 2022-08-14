@@ -224,6 +224,13 @@ if args.use_average:
     for param in p_param:
         P_avg[param] = []
     Q = pd.DataFrame(Q)
+    for param in args.q_param:
+        Q_tmp = Q[param].drop_duplicates()
+        if len(Q_tmp) == 1:
+            if Q_tmp.iloc[0] == Q_tmp.iloc[0]:
+                pass
+            else: # all NaN
+                raise ValueError('Error, no data available for {}. Remove {} from identification parameter.'.format(param,param))
     Q_uniq = Q.drop_duplicates()
     for i in range(len(Q_uniq)):
         cnd = (Q == Q_uniq.iloc[i]).all(axis=1)
