@@ -25,6 +25,8 @@ class Identify(Process):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['gcp_fnam']))
         if not os.path.exists(self.values['obs_fnam']):
             raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['obs_fnam']))
+        if (self.values['assign_fnam'] != '') and not os.path.exists(self.values['assign_fnam']):
+            raise IOError('{}: error, no such file >>> {}'.format(self.proc_name,self.values['assign_fnam']))
         trg_bnam = '{}_{}'.format(self.obs_block,self.obs_date)
         wrk_dir = os.path.join(self.drone_analysis,self.obs_block,self.proc_name)
         if not os.path.exists(wrk_dir):
@@ -118,9 +120,11 @@ class Identify(Process):
             self.run_command(command,message='<<< Calculate redness ratio (Plot{}) >>>'.format(plot))
 
         # Identify point
-        if ((np.flatnonzero(self.values['assign_plot1']).size > 0) or
-            (np.flatnonzero(self.values['assign_plot2']).size > 0) or
-            (np.flatnonzero(self.values['assign_plot3']).size > 0)):
+        if self.values['assign_fnam'] != '':
+            tmp_fnam = self.values['assign_fnam']
+        elif ((np.flatnonzero(self.values['assign_plot1']).size > 0) or
+              (np.flatnonzero(self.values['assign_plot2']).size > 0) or
+              (np.flatnonzero(self.values['assign_plot3']).size > 0)):
             tmp_fnam = os.path.join(wrk_dir,'{}_assign.dat'.format(trg_bnam))
             with open(tmp_fnam,'w') as fp:
                 for pnam in ['assign_plot1','assign_plot2','assign_plot3']:
