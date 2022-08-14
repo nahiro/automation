@@ -68,6 +68,8 @@ if args.inp_list is None and args.inp_fnam is None:
     raise ValueError('Error, args.inp_list={}, args.inp_fnam={}'.format(args.inp_list,args.inp_fnam))
 if not args.criteria in CRITERIAS:
     raise ValueError('Error, unsupported criteria >>> {}'.format(args.criteria))
+if args.mean_fitting and args.criteria in ['RMSE_test','R2_test','AIC_test']:
+    raise ValueError('Error, {} is not calculated for mean value fitting. Choose another selection criteria.'.format(args.criteria))
 if args.x_param is None:
     args.x_param = X_PARAM
 for param in args.x_param:
@@ -463,6 +465,7 @@ for y_param in args.y_param:
             coef_values.append(model.params)
             if args.mean_fitting:
                 cov = model.cov_params()
+                errors = {}
                 for param in x_all:
                     errors[param] = np.sqrt(cov.loc[param,param])
                 coef_errors.append(errors)
