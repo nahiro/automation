@@ -393,12 +393,16 @@ for y_param in args.y_param:
             ymin = Y_inp[y_param].min()*fact
             xmax = X_inp[param].max()
             ymax = Y_inp[y_param].max()*fact
+            xdif = xmax-xmin
+            ydif = ymax-ymin
             xfit = np.linspace(xmin,xmax,100)
             if args.mean_fitting:
                 yfit = np.polyval(np.polyfit(X_score[param],Y_score[y_param]*fact,1),xfit)
             else:
                 yfit = np.polyval(np.polyfit(X_all[param],Y*fact,1),xfit)
             ax1.plot(xfit,yfit,'r-')
+            ax1.set_xlim(xmin-0.1*xdif,xmax+0.1*xdif)
+            ax1.set_ylim(ymin-0.1*ydif,ymax+0.1*ydif)
             ax1.set_xlabel(param)
             ax1.set_ylabel(y_label)
             ax1.xaxis.set_tick_params(pad=7)
