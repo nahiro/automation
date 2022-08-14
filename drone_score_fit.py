@@ -392,7 +392,7 @@ for y_param in args.y_param:
             ax1.plot(X_all[param],Y*fact,'bo')
             ax1.plot(X_inp[param],Y_inp[y_param]*fact,'k.')
             if args.mean_fitting:
-                ax1.plot(X_score[param],Y_score[y_param]*fact,'mo',ms=15)
+                ax1.plot(X_score[param],Y_score[y_param]*fact,'mo',ms=10)
             xmin = X_inp[param].min()
             ymin = Y_inp[y_param].min()*fact
             xmax = X_inp[param].max()
