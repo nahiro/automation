@@ -67,11 +67,13 @@ def set_title(pnam):
     proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
     proc_pnam = 'obs_fnam'
     proc_identify.values[proc_pnam] = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
+    proc_pnam = 'assign_fnam'
+    proc_identify.values[proc_pnam] = ''
     for proc_pnam in ['assign_plot1','assign_plot2','assign_plot3']:
         for i in range(10):
             proc_identify.values[proc_pnam][i] = 0
     if proc_identify.center_var is not None:
-        for proc_pnam in ['inp_fnam','gcp_fnam','obs_fnam']:
+        for proc_pnam in ['inp_fnam','gcp_fnam','obs_fnam','assign_fnam']:
             proc_identify.center_var[proc_pnam].set(proc_identify.values[proc_pnam])
         for proc_pnam in ['assign_plot1','assign_plot2','assign_plot3']:
             for i in range(10):

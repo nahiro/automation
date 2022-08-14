@@ -170,6 +170,7 @@ proc_identify.input_types['assign_plot3'] = 'int_list'
 proc_identify.input_types['ignore_error'] = 'boolean'
 proc_identify.flag_check['inp_fnam'] = False
 proc_identify.flag_check['gcp_fnam'] = False
+proc_identify.flag_check['assign_fnam'] = False
 proc_identify.depend_proc['inp_fnam'] = ['geocor']
 proc_identify.depend_proc['gcp_fnam'] = ['geocor']
 proc_identify.expected['inp_fnam'] = '*.tif'
