@@ -18,7 +18,7 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 # Defaults
 SHEET = 1
 RMAX = 10.0 # m
-NMIN = 20
+NMIN = 0.5
 EPSG = 32748 # UTM zone 48S
 
 # Read options
@@ -28,7 +28,7 @@ parser.add_argument('-O','--out_fnam',default=None,help='Output file name (%(def
 parser.add_argument('-S','--sheet',default=SHEET,type=int,help='Sheet number from 1 (%(default)s)')
 parser.add_argument('-r','--ref_fnam',default=None,help='CSV file for reference coordinates (%(default)s)')
 parser.add_argument('-R','--rmax',default=RMAX,type=float,help='Maximum distance from reference in m (%(default)s)')
-parser.add_argument('-n','--nmin',default=NMIN,type=int,help='Minimum number of points near the reference (%(default)s)')
+parser.add_argument('-n','--nmin',default=NMIN,type=float,help='Minimum ratio of points near the reference (%(default)s)')
 parser.add_argument('-E','--epsg',default=EPSG,help='Output EPSG (%(default)s)')
 parser.add_argument('-g','--geocor_fnam',default=None,help='GCP file name for geometric correction (%(default)s)')
 parser.add_argument('-G','--geocor_geotiff',default=None,help='GeoTIFF name for geometric correction (%(default)s)')
@@ -506,7 +506,7 @@ if args.ref_fnam is not None:
     x_ref = df['EastingI'].astype(float).values
     y_ref = df['NorthingI'].astype(float).values
     plant_ref = pd.to_datetime(df['PlantDate']).dt.to_pydatetime()
-    if not np.array_equal(loc_ref,location.lower()):
+    if not np.all(loc_ref == location.lower()):
         raise ValueError('Error, different Location >>> {}'.format(args.ref_fnam))
     elif not np.array_equal(number_ref,number_bunch):
         raise ValueError('Error, different BunchNumber >>> {}'.format(args.ref_fnam))
@@ -517,7 +517,7 @@ if args.ref_fnam is not None:
     r = np.sqrt(np.square(x_ref-np.array(x_bunch))+np.square(y_ref-np.array(y_bunch)))
     cnd = (r < args.rmax)
     rcnd = r[cnd]
-    if rcnd.size < args.nmin:
+    if rcnd.size < r.size*args.nmin:
         raise ValueError('Error, too few points near reference >>> {}'.format(rcnd.size))
     x_bunch = list(x_ref)
     y_bunch = list(y_ref)
