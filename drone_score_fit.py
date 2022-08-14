@@ -289,8 +289,7 @@ for y_param in args.y_param:
     for param in args.x_param:
         cnd2 = np.isnan(X_inp[param].values)
         if np.all(cnd2):
-            sys.stderr.write('\nWarning, no data available for {}. Remove {} from explanatory variable.\n\n'.format(param,param))
-            sys.stderr.flush()
+            raise ValueError('Error, no data available for {}. Remove {} from explanatory variable.'.format(param,param))
         cnd |= cnd2
     for param in y_threshold:
         if param in [y_param]:
@@ -298,14 +297,12 @@ for y_param in args.y_param:
         elif param in y_max:
             cnd2 = (P_inp[param]/y_max[param] > y_threshold[param]).values
             if np.all(cnd2):
-                sys.stderr.write('\nWarning, no {} left in threshold determination. Change the threshold of {}.\n\n'.format(param,param))
-                sys.stderr.flush()
+                raise ValueError('Error, no {} left in threshold determination. Change the threshold of {}.'.format(param,param))
             cnd |= cnd2
         else:
             cnd2 = (P_inp[param]/P_inp['Tiller'] > y_threshold[param]).values
             if np.all(cnd2):
-                sys.stderr.write('\nWarning, no {} left in threshold determination. Change the threshold of {}.\n\n'.format(param,param))
-                sys.stderr.flush()
+                raise ValueError('Error, no {} left in threshold determination. Change the threshold of {}.'.format(param,param))
             cnd |= cnd2
     if cnd.sum() > 0:
         X_all = X_inp.iloc[~cnd].copy()
