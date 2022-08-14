@@ -265,24 +265,19 @@ for y_param in args.y_param:
 # Select data
 param = 'Age'
 if param in p_param:
-    flag = True
-    cnd = np.full((len(X),),False)
-    P_tmp = P[param].drop_duplicates()
-    if len(P_tmp) == 1:
-        if P_tmp.iloc[0] == P_tmp.iloc[0]:
-            pass
-        else: # all NaN
-            flag = False
-            sys.stderr.write('Warning, no data available for {}.\n'.format(param))
-    if flag:
+    cnd2 = np.isnan(P[param].values)
+    if np.all(cnd2):
+        sys.stderr.write('Warning, no data available for {}.\n'.format(param))
+    else:
+        cnd = np.full((len(X),),False)
         if args.amin is not None:
             cnd |= (P[param] < args.amin).values
         if args.amax is not None:
             cnd |= (P[param] > args.amax).values
-    if cnd.sum() > 0:
-        X = X.iloc[~cnd]
-        Y = Y.iloc[~cnd]
-        P = P.iloc[~cnd]
+        if cnd.sum() > 0:
+            X = X.iloc[~cnd]
+            Y = Y.iloc[~cnd]
+            P = P.iloc[~cnd]
 X_inp = X.copy()
 Y_inp = Y.copy()
 P_inp = P.copy()
