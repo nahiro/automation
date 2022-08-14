@@ -212,6 +212,15 @@ for param in Y.columns:
 for param in P.columns:
     P[param] = P[param].astype(float)
 
+param = 'Age'
+if param in p_param:
+    P_tmp = P[param].drop_duplicates()
+    if len(P_tmp) == 1:
+        if P_tmp.iloc[0] == P_tmp.iloc[0]:
+            pass
+        else: # all NaN
+            raise ValueError('Error, no data available for {}. do not specify {} range.'.format(param,param))
+
 # Calculate means
 if args.use_average:
     X_avg = {}
