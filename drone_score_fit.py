@@ -17,6 +17,7 @@ from argparse import ArgumentParser,RawTextHelpFormatter
 PARAMS = ['Sb','Sg','Sr','Se','Sn','Nb','Ng','Nr','Ne','Nn','NDVI','GNDVI','RGI','NRGI']
 OBJECTS = ['BLB','Blast','Borer','Rat','Hopper','Drought']
 CRITERIAS = ['RMSE_test','R2_test','AIC_test','RMSE_train','R2_train','AIC_train','BIC_train']
+EPSILON = 1.0e-6
 
 # Default values
 OUT_FNAM = 'drone_score_fit.csv'
@@ -96,12 +97,24 @@ y_max = {}
 for s in args.y_max:
     m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
     if not m:
-        raise ValueError('Error, invalid max >>> {}'.format(s))
+        raise ValueError('Error, invalid max score >>> {}'.format(s))
     param = m.group(1)
     value = float(m.group(2))
     if not param in OBJECTS:
         raise ValueError('Error, unknown objective variable for y_max ({}) >>> {}'.format(param,s))
     y_max[param] = value
+if args.y_int is None:
+    args.y_int = Y_INT
+y_int = {}
+for s in args.y_int:
+    m = re.search('\s*(\S+)\s*:\s*(\S+)\s*',s)
+    if not m:
+        raise ValueError('Error, invalid score step >>> {}'.format(s))
+    param = m.group(1)
+    value = float(m.group(2))
+    if not param in OBJECTS:
+        raise ValueError('Error, unknown objective variable for y_int ({}) >>> {}'.format(param,s))
+    y_int[param] = value
 if args.y_factor is None:
     args.y_factor = Y_FACTOR
 y_factor = {}
@@ -328,6 +341,39 @@ for y_param in args.y_param:
         Y_all = Y_inp.copy()
         P_all = P_inp.copy()
     Y = Y_all[y_param]
+    if args.mean_fitting:
+        X_score = {}
+        Y_score = {}
+        for param in args.x_param:
+            X_score[param] = []
+        Y_score[y_param] = []
+        cnd1 = np.full((len(Y),),True)
+        smax = 1.0
+        if y_param in y_max:
+            sint = y_int[y_param]/y_max[y_param]
+        else:
+            sint = y_int[y_param]
+        for score in np.arange(smax,0,-sint):
+            s_next = score-sint
+            s = 0.5*(score+s_next)
+            if np.abs(s) < EPSILON:
+                s = 0.0
+            cnd2 = (Y > s)
+            cnd = (cnd1 & cnd2)
+            X_cnd = X_all[cnd].mean()
+            Y_cnd = Y[cnd].mean()
+            for param in args.x_param:
+                X_score[param].append(X_cnd[param])
+            Y_score[y_param].append(Y_cnd)
+            cnd1[cnd2] = False
+        cnd = cnd1
+        X_cnd = X_all[cnd].mean()
+        Y_cnd = Y[cnd].mean()
+        for param in args.x_param:
+            X_score[param].append(X_cnd[param])
+        Y_score[y_param].append(Y_cnd)
+        X_score = pd.DataFrame(X_score)
+        Y_score = pd.DataFrame(Y_score)
     if args.debug:
         for param in args.x_param:
             if y_param in y_max:
