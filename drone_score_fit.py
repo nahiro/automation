@@ -533,6 +533,7 @@ for y_param in args.y_param:
                     ax1.plot(xtmp,ytmp,'bo')
                     xmin = min(Y.min(),Y_pred.min())*y_max[y_param]
                     xmax = max(Y.max(),Y_pred.max())*y_max[y_param]
+                    xdif = xmax-xmin
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
@@ -544,13 +545,14 @@ for y_param in args.y_param:
                     ax1.plot(xtmp,ytmp,'bo')
                     xmin = min(Y.min(),Y_pred.min())*100.0
                     xmax = max(Y.max(),Y_pred.max())*100.0
+                    xdif = xmax-xmin
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
                     x_label = 'Observed {} Intensity (%)'.format(y_param)
                     y_label = 'Pred {} Intensity (%)'.format(y_param)
-                ax1.set_xlim(xmin,xmax)
-                ax1.set_ylim(xmin,xmax)
+                ax1.set_xlim(xmin-0.1*xdif,xmax+0.1*xdif)
+                ax1.set_ylim(xmin-0.1*xdif,xmax+0.1*xdif)
                 ax1.set_title(title)
                 ax1.set_xlabel(x_label)
                 ax1.set_ylabel(y_label)
