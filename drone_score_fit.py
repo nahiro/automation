@@ -412,9 +412,6 @@ for y_param in args.y_param:
                 plt.draw()
                 plt.pause(0.1)
     model_xs = []
-    model_rmse_test = []
-    model_r2_test = []
-    model_aic_test = []
     model_rmse_train = []
     model_r2_train = []
     model_aic_train = []
@@ -424,6 +421,9 @@ for y_param in args.y_param:
     coef_ts = []
     coef_values = []
     coef_errors = []
+    model_rmse_test = []
+    model_r2_test = []
+    model_aic_test = []
     for n in range(args.nx_min,args.nx_max+1):
         for c in combinations(args.x_param,n):
             x_list = list(c)
@@ -442,12 +442,16 @@ for y_param in args.y_param:
                 x_list = [c[indx] for indx in np.argsort(r_list)[::-1]]
             if args.mean_fitting:
                 X = sm.add_constant(X_score[x_list]) # adding a constant
+                x_all = list(X.columns)
+                if len(X) <= len(x_all):
+                    raise ValueError('Error, not enough data available >>> {}'.format(len(X_all)))
+                model = sm.OLS(Y_score[y_param],X).fit()
             else:
                 X = sm.add_constant(X_all[x_list]) # adding a constant
-            x_all = list(X.columns)
-            if len(X) <= len(x_all):
-                raise ValueError('Error, not enough data available >>> {}'.format(len(X_all)))
-            model = sm.OLS(Y,X).fit()
+                x_all = list(X.columns)
+                if len(X) <= len(x_all):
+                    raise ValueError('Error, not enough data available >>> {}'.format(len(X_all)))
+                model = sm.OLS(Y,X).fit()
             model_xs.append(x_all)
             model_rmse_train.append(np.sqrt(model.mse_resid)) # adjusted for df_resid
             model_r2_train.append(model.rsquared_adj)
@@ -457,30 +461,39 @@ for y_param in args.y_param:
             coef_ps.append(model.pvalues)
             coef_ts.append(model.tvalues)
             coef_values.append(model.params)
-            rmses = []
-            r2s = []
-            aics = []
-            values = {}
-            errors = {}
-            for param in x_all:
-                values[param] = []
-            kf = KFold(n_splits=args.n_cross,random_state=None,shuffle=False)
-            for train_index,test_index in kf.split(X):
-                X_train,X_test = X.iloc[train_index],X.iloc[test_index]
-                Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
-                model = sm.OLS(Y_train,X_train).fit()
-                Y_pred = model.predict(X_test)
-                rmses.append(mean_squared_error(Y_test,Y_pred,squared=False))
-                r2s.append(r2_score(Y_test,Y_pred))
-                aics.append(aic(Y_test,Y_pred,0))
+            if args.mean_fitting:
+                cov = model.cov_params()
                 for param in x_all:
-                    values[param].append(model.params[param])
-            for param in x_all:
-                errors[param] = np.std(values[param])
-            coef_errors.append(errors)
-            model_rmse_test.append(np.mean(rmses))
-            model_r2_test.append(np.mean(r2s))
-            model_aic_test.append(np.mean(aics))
+                    errors[param] = np.sqrt(cov.loc[param,param])
+                coef_errors.append(errors)
+                model_rmse_test.append(np.nan)
+                model_r2_test.append(np.nan)
+                model_aic_test.append(np.nan)
+            else:
+                rmses = []
+                r2s = []
+                aics = []
+                values = {}
+                errors = {}
+                for param in x_all:
+                    values[param] = []
+                kf = KFold(n_splits=args.n_cross,random_state=None,shuffle=False)
+                for train_index,test_index in kf.split(X):
+                    X_train,X_test = X.iloc[train_index],X.iloc[test_index]
+                    Y_train,Y_test = Y.iloc[train_index],Y.iloc[test_index]
+                    model = sm.OLS(Y_train,X_train).fit()
+                    Y_pred = model.predict(X_test)
+                    rmses.append(mean_squared_error(Y_test,Y_pred,squared=False))
+                    r2s.append(r2_score(Y_test,Y_pred))
+                    aics.append(aic(Y_test,Y_pred,0))
+                    for param in x_all:
+                        values[param].append(model.params[param])
+                for param in x_all:
+                    errors[param] = np.std(values[param])
+                coef_errors.append(errors)
+                model_rmse_test.append(np.mean(rmses))
+                model_r2_test.append(np.mean(r2s))
+                model_aic_test.append(np.mean(aics))
 
     # Sort formulas
     if args.criteria == 'RMSE_test':
