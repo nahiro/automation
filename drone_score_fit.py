@@ -362,18 +362,20 @@ for y_param in args.y_param:
                 s = 0.0
             cnd2 = (Y > s)
             cnd = (cnd1 & cnd2)
+            if cnd.sum() > 0:
+                X_cnd = X_all[cnd].mean()
+                Y_cnd = Y[cnd].mean()
+                for param in args.x_param:
+                    X_score[param].append(X_cnd[param])
+                Y_score[y_param].append(Y_cnd)
+            cnd1[cnd2] = False
+        cnd = cnd1
+        if cnd.sum() > 0:
             X_cnd = X_all[cnd].mean()
             Y_cnd = Y[cnd].mean()
             for param in args.x_param:
                 X_score[param].append(X_cnd[param])
             Y_score[y_param].append(Y_cnd)
-            cnd1[cnd2] = False
-        cnd = cnd1
-        X_cnd = X_all[cnd].mean()
-        Y_cnd = Y[cnd].mean()
-        for param in args.x_param:
-            X_score[param].append(X_cnd[param])
-        Y_score[y_param].append(Y_cnd)
         X_score = pd.DataFrame(X_score)
         Y_score = pd.DataFrame(Y_score)
     if args.debug:
@@ -556,6 +558,7 @@ for y_param in args.y_param:
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
+                    ax1.plot(xfit,xfit,'k:')
                     x_label = 'Observed {} Score'.format(y_param)
                     y_label = 'Pred {} Score'.format(y_param)
                 else:
@@ -568,6 +571,7 @@ for y_param in args.y_param:
                     xfit = np.linspace(xmin,xmax,100)
                     yfit = np.polyval(np.polyfit(xtmp,ytmp,1),xfit)
                     ax1.plot(xfit,yfit,'r-')
+                    ax1.plot(xfit,xfit,'k:')
                     x_label = 'Observed {} Intensity (%)'.format(y_param)
                     y_label = 'Pred {} Intensity (%)'.format(y_param)
                 ax1.set_xlim(xmin-0.1*xdif,xmax+0.1*xdif)
