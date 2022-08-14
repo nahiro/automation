@@ -9,7 +9,6 @@ try:
 except Exception:
     from osgeo import ogr,osr
 
-
 if len(sys.argv) < 2:
     sys.stderr.write('Usage: {} csv_file\n'.format(os.path.basename(sys.argv[0])))
     sys.exit()
@@ -50,7 +49,7 @@ with shapefile.Writer(gnam,shapefile.POINT) as fp:
         #Location, BunchNumber, PlotPaddy, EastingI, NorthingI, PlantDate, Age, Tiller, BLB, Blast, Borer, Rat, Hopper, Drought
         #          11B,   1,   1,  751618.0529,  9243020.8440, 2022-01-04,    90,  45,   3,   0,  18,   0,   0,   0
         fp.point(row[xcol],row[ycol])
-        fp.record([row['Location'],row['BunchNumber'],row['PlotPaddy']])
+        fp.record(*[row['Location'],row['BunchNumber'],row['PlotPaddy']])
 spatialRef = osr.SpatialReference()
 spatialRef.ImportFromEPSG(32748)
 spatialRef.MorphToESRI()
