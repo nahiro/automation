@@ -90,7 +90,7 @@ for itarg in range(len(args.img_fnam)):
         axs.imshow(rgb,extent=(data_xmin,data_xmax,data_ymin,data_ymax),origin='upper',interpolation='none')
         rgb_xmin = xp[ind_ymin:ind_ymax,ind_xmin:ind_xmax].min()
         rgb_ymax = yp[ind_ymin:ind_ymax,ind_xmin:ind_xmax].max()
-        for shp in block_shp:
+        for shp in block_shp.geoms:
             xc = shp.centroid.x
             yc = shp.centroid.y
             ix = int((xc-rgb_xmin)/np.abs(data_xstp))
