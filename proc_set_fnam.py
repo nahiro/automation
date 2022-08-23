@@ -2,6 +2,7 @@ import os
 import shutil
 import re
 from datetime import datetime
+import tkinter as tk
 
 def read_month(s):
     s_low = s.lower()
@@ -32,11 +33,15 @@ def read_month(s):
     else:
         raise ValueError('Error, cannot read month >>> {}'.format(s))
 
+def ask_question():
+    win = tk.Tk()
+    canvas = tk.Canvas(win,width=300,height=300)
+    canvas.pack()
+    return
+
 def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
     obs_fnam = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
-    if os.path.exists(obs_fnam):
-        return 0
-    elif not os.path.isdir(field_dir):
+    if not os.path.isdir(field_dir):
         return -1
     date_fmt = date_format.replace('yyyy','%Y').replace('yy','%y').replace('mmm','%b').replace('mm','%m').replace('dd','%d').replace('&','')
     for f in sorted(os.listdir(field_dir)):
@@ -78,6 +83,9 @@ def set_obs_fnam(block,dstr,field_dir,date_format='yyyy-mm&mmm-dd'):
         if (obs_block == block.upper()) or ('BLOCK-'+obs_block == block.upper()):
             obs_dstr = obs_date.strftime(date_fmt)
             if obs_dstr == dstr:
+                if os.path.exists(obs_fnam):
+                    os.remove(obs_fnam)
+                    #ask_question()
                 fnam = os.path.join(field_dir,f)
                 pnam = os.path.dirname(obs_fnam)
                 if not os.path.exists(pnam):
