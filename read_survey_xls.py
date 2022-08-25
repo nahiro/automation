@@ -48,13 +48,13 @@ def get_item(data,row,ncol):
 
 def read_gps(s):
     #'S 06°50\'31.62"  E 107°16\'41.50"'
-    m = re.search('([nNsS])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\.]+)\s*\"\s*([eEwW])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\.]+)',s)
+    m = re.search('([nNsS])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\., ]+)\s*\"\s*([eEwW])\s*(\d+)\s*°\s*(\d+)\s*\'\s*([\d\., ]+)',s)
     if not m:
         raise ValueError('Error, cannot read GPS coordinates >>> {}'.format(s))
-    lat = float(m.group(2))+float(m.group(3))/60.0+float(m.group(4))/3600.0
+    lat = float(m.group(2))+float(m.group(3))/60.0+float(m.group(4).strip().replace(' ','.').replace(',','.'))/3600.0
     if m.group(1).upper() == 'S':
         lat *= -1
-    lon = float(m.group(6))+float(m.group(7))/60.0+float(m.group(8))/3600.0
+    lon = float(m.group(6))+float(m.group(7))/60.0+float(m.group(8).strip().replace(' ','.').replace(',','.'))/3600.0
     if m.group(5).upper() == 'W':
         lon *= -1
     return lon,lat
