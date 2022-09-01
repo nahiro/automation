@@ -223,6 +223,7 @@ if not 'main' in config:
     config['main'] = {}
 blocks = eval(config['main'].get('main.blocks'))
 date_format = config['main'].get('main.date_format')
+date_fmt = date_format.replace('yyyy','%Y').replace('yy','%y').replace('mmm','%b').replace('mm','%m').replace('dd','%d').replace('&','')
 obs_block = config['main'].get('main.obs_block')
 obs_date = config['main'].get('main.obs_date')
 field_data = os.path.normpath(config['main'].get('main.field_data'))
