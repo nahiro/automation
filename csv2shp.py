@@ -24,7 +24,7 @@ pnam = os.path.join(bnam,'{}.prj'.format(bnam))
 
 df = pd.read_csv(fnam,comment='#')
 df.columns = df.columns.str.strip()
-df['Location'] = df['Location'].str.strip()
+df['Location'] = df['Location'].astype(str).str.strip()
 df['BunchNumber'] = df['BunchNumber'].astype(int)
 df['PlotPaddy'] = df['PlotPaddy'].astype(int)
 if 'EastingI' in df.columns and 'NorthingI' in df.columns:
