@@ -172,6 +172,5 @@ class Identify(Process):
         self.run_command(command,message='<<< Identify point >>>')
 
         # Finish process
-        sys.stderr.write('\nFinished process {}.\n\n'.format(self.proc_name))
-        sys.stderr.flush()
+        super().finish()
         return

@@ -418,6 +418,5 @@ class Geocor(Process):
                             os.remove(tmp_fnam)
 
         # Finish process
-        sys.stderr.write('\nFinished process {}.\n\n'.format(self.proc_name))
-        sys.stderr.flush()
+        super().finish()
         return
