@@ -60,10 +60,12 @@ def set_title(pnam):
         if modules[proc].center_var is not None:
             modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # indices
+    proc = 'indices'
     proc_pnam = 'inp_fnam'
-    proc_indices.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,proc_geocor.values['geocor_order']))
-    if proc_indices.center_var is not None:
-        proc_indices.center_var[proc_pnam].set(proc_indices.values[proc_pnam])
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,proc_geocor.values['geocor_order']))
+        if modules[proc].center_var is not None:
+            modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # identify
     proc_pnam = 'inp_fnam'
     proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,proc_geocor.values['geocor_order']))
