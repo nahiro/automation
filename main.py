@@ -67,23 +67,31 @@ def set_title(pnam):
         if modules[proc].center_var is not None:
             modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # identify
+    proc = 'identify'
     proc_pnam = 'inp_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,proc_geocor.values['geocor_order']))
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_{}.tif'.format(block,dstr,proc_geocor.values['geocor_order']))
     proc_pnam = 'gcp_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'geocor','{}_{}_geocor_utm2utm.dat'.format(block,dstr))
     proc_pnam = 'obs_fnam'
-    proc_identify.values[proc_pnam] = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
     proc_pnam = 'assign_fnam'
-    proc_identify.values[proc_pnam] = ''
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = ''
     for proc_pnam in ['assign_plot1','assign_plot2','assign_plot3']:
-        for i in range(10):
-            proc_identify.values[proc_pnam][i] = 0
-    if proc_identify.center_var is not None:
-        for proc_pnam in ['inp_fnam','gcp_fnam','obs_fnam','assign_fnam']:
-            proc_identify.center_var[proc_pnam].set(proc_identify.values[proc_pnam])
-        for proc_pnam in ['assign_plot1','assign_plot2','assign_plot3']:
+        if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
             for i in range(10):
-                proc_identify.center_var[proc_pnam][i].set(proc_identify.values[proc_pnam][i])
+                modules[proc].values[proc_pnam][i] = 0
+    if modules[proc].center_var is not None:
+        for proc_pnam in ['inp_fnam','gcp_fnam','obs_fnam','assign_fnam']:
+            if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+                modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
+        for proc_pnam in ['assign_plot1','assign_plot2','assign_plot3']:
+            if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+                for i in range(10):
+                    modules[proc].center_var[proc_pnam][i].set(modules[proc].values[proc_pnam][i])
     # extract
     proc_pnam = 'inp_fnam'
     proc_extract.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
