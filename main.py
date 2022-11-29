@@ -34,22 +34,24 @@ def set_title(pnam):
     # set drone data
     set_drone_dnam(block,dstr,drone_dir,date_format=date_format)
     # orthomosaic
+    proc = 'orthomosaic'
     proc_pnam = 'inpdirs'
-    dnam = os.path.join(drone_dir,block,dstr)
-    dnams = glob(os.path.join(dnam,'*FPLAN'))
-    if proc_orthomosaic.values['calib_flag'][0]:
-        dnams.extend(glob(os.path.join(dnam,'*MEDIA')))
-    if len(dnams) > 0:
-        proc_orthomosaic.values[proc_pnam] = '\n'.join(sorted(dnams))
-    else:
-        proc_orthomosaic.values[proc_pnam] = dnam
-    if proc_orthomosaic.center_var is not None:
-        try:
-            proc_orthomosaic.center_inp[proc_pnam].delete('1.0',tk.END)
-            proc_orthomosaic.center_inp[proc_pnam].insert('1.0',proc_orthomosaic.values[proc_pnam])
-        except Exception:
-            pass
-        proc_orthomosaic.center_var[proc_pnam].set(proc_orthomosaic.values[proc_pnam])
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        dnam = os.path.join(drone_dir,block,dstr)
+        dnams = glob(os.path.join(dnam,'*FPLAN'))
+        if modules[proc].values['calib_flag'][0]:
+            dnams.extend(glob(os.path.join(dnam,'*MEDIA')))
+        if len(dnams) > 0:
+            modules[proc].values[proc_pnam] = '\n'.join(sorted(dnams))
+        else:
+            modules[proc].values[proc_pnam] = dnam
+        if modules[proc].center_var is not None:
+            try:
+                modules[proc].center_inp[proc_pnam].delete('1.0',tk.END)
+                modules[proc].center_inp[proc_pnam].insert('1.0',modules[proc].values[proc_pnam])
+            except Exception:
+                pass
+            modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # geocor
     proc_pnam = 'trg_fnam'
     proc_geocor.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'orthomosaic','{}_{}.tif'.format(block,dstr))
