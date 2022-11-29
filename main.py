@@ -93,51 +93,56 @@ def set_title(pnam):
                 for i in range(10):
                     modules[proc].center_var[proc_pnam][i].set(modules[proc].values[proc_pnam][i])
     # extract
+    proc = 'extract'
     proc_pnam = 'inp_fnam'
-    proc_extract.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
     proc_pnam = 'obs_fnam'
-    proc_extract.values[proc_pnam] = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(field_dir,block,'Excel_File','{}_{}.xls'.format(block,dstr))
     proc_pnam = 'gps_fnam'
-    dnam = os.path.join(analysis_dir,block,'identify')
-    fnams = glob(os.path.join(dnam,'*_identify.csv'))
-    n = len(fnams)
-    if n < 1:
-        proc_extract.values[proc_pnam] = os.path.join(dnam,'{}_{}_identify.csv'.format(block,dstr))
-    elif n == 1:
-        proc_extract.values[proc_pnam] = fnams[0]
-    else:
-        fs = []
-        ds = []
-        try:
-            dtim = datetime.strptime(dstr,date_fmt)
-        except Exception:
-            dtim = None
-        for fnam in fnams:
-            f = os.path.basename(fnam)
-            m = re.search('{}_(.*)_identify\.csv'.format(block),f)
-            try:
-                d = datetime.strptime(m.group(1),date_fmt)
-                fs.append(fnam)
-                ds.append(d)
-            except Exception:
-                continue
-        n = len(fs)
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        dnam = os.path.join(analysis_dir,block,'identify')
+        fnams = glob(os.path.join(dnam,'*_identify.csv'))
+        n = len(fnams)
         if n < 1:
-            proc_extract.values[proc_pnam] = fnams[0]
+            modules[proc].values[proc_pnam] = os.path.join(dnam,'{}_{}_identify.csv'.format(block,dstr))
         elif n == 1:
-            proc_extract.values[proc_pnam] = fs[0]
-        elif dtim is None:
-            proc_extract.values[proc_pnam] = fs[0]
+            modules[proc].values[proc_pnam] = fnams[0]
         else:
-            dmin = 1000000
-            for fnam,d in zip(fs,ds):
-                dt = abs((d-dtim).total_seconds()/86400)
-                if dt < dmin:
-                    proc_extract.values[proc_pnam] = fnam
-                    dmin = dt
-    if proc_extract.center_var is not None:
+            fs = []
+            ds = []
+            try:
+                dtim = datetime.strptime(dstr,date_fmt)
+            except Exception:
+                dtim = None
+            for fnam in fnams:
+                f = os.path.basename(fnam)
+                m = re.search('{}_(.*)_identify\.csv'.format(block),f)
+                try:
+                    d = datetime.strptime(m.group(1),date_fmt)
+                    fs.append(fnam)
+                    ds.append(d)
+                except Exception:
+                    continue
+            n = len(fs)
+            if n < 1:
+                modules[proc].values[proc_pnam] = fnams[0]
+            elif n == 1:
+                modules[proc].values[proc_pnam] = fs[0]
+            elif dtim is None:
+                modules[proc].values[proc_pnam] = fs[0]
+            else:
+                dmin = 1000000
+                for fnam,d in zip(fs,ds):
+                    dt = abs((d-dtim).total_seconds()/86400)
+                    if dt < dmin:
+                        modules[proc].values[proc_pnam] = fnam
+                        dmin = dt
+    if modules[proc].center_var is not None:
         for proc_pnam in ['inp_fnam','obs_fnam','gps_fnam']:
-            proc_extract.center_var[proc_pnam].set(proc_extract.values[proc_pnam])
+            if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+                modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # formula
     proc_pnam = 'inp_fnams'
     dnam = os.path.join(analysis_dir,'extract')
