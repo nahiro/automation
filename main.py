@@ -161,10 +161,12 @@ def set_title(pnam):
                 pass
             modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # estimate
+    proc = 'estimate'
     proc_pnam = 'inp_fnam'
-    proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
-    if proc_estimate.center_var is not None:
-        proc_estimate.center_var[proc_pnam].set(proc_estimate.values[proc_pnam])
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        modules[proc].values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
+        if modules[proc].center_var is not None:
+            modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     if pnam is None:
         return
     # change color
