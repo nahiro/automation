@@ -144,20 +144,22 @@ def set_title(pnam):
             if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
                 modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # formula
+    proc = 'formula'
     proc_pnam = 'inp_fnams'
-    dnam = os.path.join(analysis_dir,'extract')
-    fnams = glob(os.path.join(dnam,'*_extract.csv'))
-    if len(fnams) > 0:
-        proc_formula.values[proc_pnam] = '\n'.join(sorted(fnams))
-    else:
-        proc_formula.values[proc_pnam] = os.path.join(dnam,'{}_{}_extract.csv'.format(block,dstr))
-    if proc_formula.center_var is not None:
-        try:
-            proc_formula.center_inp[proc_pnam].delete('1.0',tk.END)
-            proc_formula.center_inp[proc_pnam].insert('1.0',proc_formula.values[proc_pnam])
-        except Exception:
-            pass
-        proc_formula.center_var[proc_pnam].set(proc_formula.values[proc_pnam])
+    if (not proc_pnam in modules[proc].flag_fix) or (not modules[proc].flag_fix[proc_pnam]):
+        dnam = os.path.join(analysis_dir,'extract')
+        fnams = glob(os.path.join(dnam,'*_extract.csv'))
+        if len(fnams) > 0:
+            modules[proc].values[proc_pnam] = '\n'.join(sorted(fnams))
+        else:
+            modules[proc].values[proc_pnam] = os.path.join(dnam,'{}_{}_extract.csv'.format(block,dstr))
+        if modules[proc].center_var is not None:
+            try:
+                modules[proc].center_inp[proc_pnam].delete('1.0',tk.END)
+                modules[proc].center_inp[proc_pnam].insert('1.0',modules[proc].values[proc_pnam])
+            except Exception:
+                pass
+            modules[proc].center_var[proc_pnam].set(modules[proc].values[proc_pnam])
     # estimate
     proc_pnam = 'inp_fnam'
     proc_estimate.values[proc_pnam] = os.path.join(analysis_dir,block,dstr,'indices','{}_{}_indices.tif'.format(block,dstr))
