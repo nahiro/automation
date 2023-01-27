@@ -20,6 +20,11 @@ top_dir = os.path.join(HOME,'Work')
 if not os.path.isdir(top_dir):
     top_dir = os.path.join(HOME,'Documents')
 python_path = sys.executable
+prg_dir = os.environ.get('PROGRAMFILES')
+if prg_dir is None:
+    metashape_path = 'metashape'
+else:
+    metashape_path = os.path.join(prg_dir,'Agisoft','Metashape Pro','metashape.exe')
 scr_dir = os.path.join(HOME,'DroneTool')
 cnf_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
 main_field_data = os.path.join(top_dir,'Field_Data','Current')
@@ -59,7 +64,7 @@ config_defaults.update({
 'main.right_cnv_height'               : 21,
 'main.center_btn_width'               : 20,
 #----------- orthomosaic -----------
-'orthomosaic.metashape_path'          : os.path.join(os.environ.get('PROGRAMFILES'),'Agisoft','Metashape Pro','metashape.exe'),
+'orthomosaic.metashape_path'          : metashape_path,
 'orthomosaic.inpdirs'                 : main_drone_data,
 'orthomosaic.qmin'                    : 0.5,
 'orthomosaic.xmp_flag'                : [True,True,True,True],
